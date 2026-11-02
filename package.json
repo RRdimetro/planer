@@ -1,1 +1,81 @@
-{"name":"focus-os-pro","version":"0.1.0","private":true,"type":"module","packageManager":"pnpm@10.20.0","engines":{"node":">=22"},"scripts":{"dev":"node scripts/dev.mjs","build":"vite build && node scripts/electron.mjs","typecheck":"tsc --noEmit","lint":"eslint .","test":"vitest run","test:e2e":"node scripts/e2e.mjs","dist:win":"pnpm build && electron-builder --win --x64","rebuild":"electron-builder install-app-deps"},"dependencies":{"@hookform/resolvers":"^5.2.2","@radix-ui/react-dialog":"^1.1.15","@tanstack/react-query":"^5.90.0","adm-zip":"^0.5.16","better-sqlite3":"^12.4.1","drizzle-orm":"^0.44.6","lucide-react":"^0.548.0","motion":"^12.23.24","react":"^19.2.0","react-dom":"^19.2.0","react-hook-form":"^7.65.0","react-markdown":"^10.1.0","recharts":"^3.3.0","zod":"^4.1.12","zustand":"^5.0.8"},"devDependencies":{"@eslint/js":"^9.38.0","@playwright/test":"^1.56.1","@types/adm-zip":"^0.5.7","@types/better-sqlite3":"^7.6.13","@types/node":"^22.18.0","@types/react":"^19.2.0","@types/react-dom":"^19.2.0","@vitejs/plugin-react":"^5.0.4","electron":"^39.0.0","electron-builder":"^26.0.12","esbuild":"^0.25.11","eslint":"^9.38.0","prettier":"^3.6.2","tailwindcss":"^4.1.16","typescript":"^5.9.3","typescript-eslint":"^8.46.2","vite":"^7.1.12","vitest":"^3.2.4"},"main":"dist-electron/main.cjs","build":{"appId":"local.focusos.pro","productName":"FOCUS OS PRO","asar":true,"files":["dist/**","dist-electron/**","package.json"],"asarUnpack":["node_modules/better-sqlite3/**"],"win":{"target":["nsis","portable"]},"nsis":{"oneClick":false,"allowToChangeInstallationDirectory":true}}}
+{
+  "name": "focus-os-pro",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.20.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "vite build && node scripts/electron.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "node scripts/test.mjs",
+    "test:e2e": "node scripts/e2e.mjs",
+    "dist:win": "pnpm build && electron-builder --win --x64",
+    "rebuild": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@tanstack/react-query": "^5.90.0",
+    "adm-zip": "^0.5.16",
+    "better-sqlite3": "^12.4.1",
+    "drizzle-orm": "^0.44.6",
+    "lucide-react": "^0.548.0",
+    "motion": "^12.23.24",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-hook-form": "^7.65.0",
+    "react-markdown": "^10.1.0",
+    "recharts": "^3.3.0",
+    "zod": "^4.1.12",
+    "zustand": "^5.0.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.38.0",
+    "@playwright/test": "^1.56.1",
+    "@types/adm-zip": "^0.5.7",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.0.4",
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.12",
+    "esbuild": "^0.25.11",
+    "eslint": "^9.38.0",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2",
+    "vite": "^7.1.12",
+    "vitest": "^3.2.4"
+  },
+  "main": "dist-electron/main.cjs",
+  "build": {
+    "appId": "local.focusos.pro",
+    "productName": "FOCUS OS PRO",
+    "asar": true,
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "package.json"
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}

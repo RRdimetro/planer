@@ -1,0 +1,6 @@
+274e33b M5: harden backup restore polish desktop UI and prepare Windows CI distribution
+4d8d1d6 M4: calculate historical analytics and preview deterministic weekly scheduling
+97462b1 M3: add persisted fitness focus sessions and autosaved Markdown notes
+7467e19 M2: verify exact reference import and persistent tri-state study tracker
+c790f4d M1: implement persistent tasks projects and calendar workflows
+517afa7 M0: establish isolated Electron shell and SQLite foundation

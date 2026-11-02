@@ -7,7 +7,7 @@ fs.rmSync(dir, { recursive: true, force: true });
 async function launch() {
   const app = await electron.launch({
     args: [".", "--no-sandbox", "--disable-gpu"],
-    env: { ...process.env, DISPLAY: ":99", FOCUS_DATA_DIR: dir },
+    env: { ...process.env, DISPLAY: process.env.DISPLAY ?? ":99", FOCUS_DATA_DIR: dir },
   });
   return { app, page: await app.firstWindow() };
 }

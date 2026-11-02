@@ -6,7 +6,7 @@ const app = await electron.launch({
   args: [".", "--no-sandbox", "--disable-gpu"],
   env: {
     ...process.env,
-    DISPLAY: ":99",
+    DISPLAY: process.env.DISPLAY ?? ":99",
     FOCUS_DATA_DIR: path.join(
       tmpdir(),
       "focus-capture-" + (process.argv[2] ?? "M0"),

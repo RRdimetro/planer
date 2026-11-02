@@ -1,8 +1,9 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
-import { eq } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import * as schema from "./schema";
+import { NormalizedRepository } from "./normalized";
+import { migrate } from "./migrations";
 import {
   commandSchema,
   recordSchema,
@@ -18,6 +19,8 @@ export class Store {
   readonly db: Database.Database;
   readonly orm;
   private undoStack: string[] = [];
+  readonly repo: NormalizedRepository;
+  readonly migrationBackup: string | null;
   constructor(path: string) {
     this.db = new Database(path);
     this.db.pragma("journal_mode=WAL");
@@ -31,29 +34,24 @@ export class Store {
         .prepare("INSERT OR IGNORE INTO schema_migrations VALUES(1,?)")
         .run(new Date().toISOString());
     })();
+    try {
+      this.migrationBackup = migrate(this.db, path);
+    } catch (error) {
+      this.db.close();
+      throw error;
+    }
+    this.repo = new NormalizedRepository(this.db);
     this.db
       .prepare(
-        "UPDATE records SET payload=json_set(payload,'$.state','interrupted') WHERE kind='session' AND json_extract(payload,'$.state')='running'",
+        "UPDATE focus_sessions SET state='interrupted' WHERE state='running'",
       )
       .run();
   }
   put<T extends { id: string }>(kind: string, item: T) {
-    this.orm
-      .insert(schema.records)
-      .values({ id: item.id, kind, payload: JSON.stringify(item) })
-      .onConflictDoUpdate({
-        target: schema.records.id,
-        set: { kind, payload: JSON.stringify(item) },
-      })
-      .run();
+    this.repo.put(kind, item);
   }
   list<T>(kind: string): T[] {
-    return this.orm
-      .select()
-      .from(schema.records)
-      .where(eq(schema.records.kind, kind))
-      .all()
-      .map((r) => JSON.parse(r.payload));
+    return this.repo.list<T>(kind);
   }
   setting(key: string, value: unknown) {
     validateSetting(key, value);
@@ -83,14 +81,14 @@ export class Store {
           .map((r) => [r.key, JSON.parse(r.payload)]),
       ),
       diagnostics: {
-        version: 1,
+        version: 2,
         integrity: String(this.db.pragma("quick_check", { simple: true })),
       },
     };
   }
   dump() {
     return JSON.stringify({
-      records: this.orm.select().from(schema.records).all(),
+      records: this.repo.records(),
       settings: this.orm.select().from(schema.settings).all(),
     });
   }
@@ -150,15 +148,11 @@ export class Store {
       if (!subjects.has(JSON.parse(r.payload).subjectId))
         throw Error("Предмет группы не найден");
     this.db.transaction(() => {
-      this.db.exec("DELETE FROM records;DELETE FROM settings;");
-      for (const r of d.records) {
-        if (typeof r.id !== "string" || typeof r.kind !== "string")
-          throw Error("Повреждённая запись");
-        JSON.parse(r.payload);
-        this.db
-          .prepare("INSERT INTO records VALUES(?,?,?)")
-          .run(r.id, r.kind, r.payload);
-      }
+      this.db.pragma("defer_foreign_keys=ON");
+      this.db.exec(
+        "DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
+      );
+      this.repo.load(d.records);
       for (const s of d.settings) {
         JSON.parse(s.payload);
         this.db
@@ -169,11 +163,11 @@ export class Store {
   }
   private saveItem(input: Item) {
     const row = this.db
-      .prepare("SELECT kind,payload FROM records WHERE id=?")
-      .get(input.id) as { kind: string; payload: string } | undefined;
+      .prepare("SELECT kind FROM entities WHERE id=?")
+      .get(input.id) as { kind: string } | undefined;
     if (row && row.kind !== input.kind)
       throw Error("Нельзя менять тип сущности");
-    const old: Item | undefined = row ? JSON.parse(row.payload) : undefined;
+    const old = this.repo.list<Item>(input.kind, input.id)[0];
     const item = {
       ...input,
       createdAt: old?.createdAt ?? input.createdAt,
@@ -205,6 +199,7 @@ export class Store {
     }
     const before = this.dump();
     this.db.transaction(() => {
+      this.db.pragma("defer_foreign_keys=ON");
       switch (c.type) {
         case "save":
           this.saveItem(c.item);
@@ -213,13 +208,9 @@ export class Store {
           for (const item of c.items) this.saveItem(item);
           break;
         case "remove": {
-          const r = this.db
-            .prepare("SELECT kind,payload FROM records WHERE id=?")
-            .get(c.id) as { kind: string; payload: string } | undefined;
-          if (r) {
-            const item = JSON.parse(r.payload);
-            this.put(r.kind, { ...item, deletedAt: new Date().toISOString() });
-          }
+          this.db
+            .prepare("UPDATE entities SET deleted_at=? WHERE id=?")
+            .run(new Date().toISOString(), c.id);
           break;
         }
         case "settings":
@@ -232,11 +223,7 @@ export class Store {
           this.put("subject", c.subject);
           break;
         case "removeSubject":
-          this.db
-            .prepare(
-              "DELETE FROM records WHERE id=? OR (kind='group' AND json_extract(payload,'$.subjectId')=?)",
-            )
-            .run(c.id, c.id);
+          this.db.prepare("DELETE FROM study_subjects WHERE id=?").run(c.id);
           break;
         case "stage": {
           const g = this.state().groups.find((g) => g.id === c.groupId);

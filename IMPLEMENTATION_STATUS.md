@@ -40,3 +40,6 @@ Aggregate РК/ДЗ и detailed stages не суммируются. Unknown ≠ 
 Единицы: estimate/duration — минуты, focus.seconds — секунды, distance — км. Timestamps UTC; planned date/time — локальные календарные значения. Детали схемы: docs/DATABASE.md.
 
 После каждого этапа есть docs/reports/M0.md–M5.md и docs/screenshots/M0.png–M5.png. Windows инструкции — README.md. Подготовлен Windows CI, но его запуск не подтверждён; фиктивного `.exe` нет.
+
+## Development Review 0.2.0 — этап 1
+Нормализация через additive migration v2 реализована. Перенос проверяется на копии с точным сравнением всех DTO; сохраняется открываемая pre-v2 база, legacy records не изменяется. SQL FK/check/transactions включены. 16 тестов, typecheck/lint/build прошли. См. docs/reports/0.2.0/01-normalization.md. Планировщик, fitness и Windows в работе; полная версия 0.2.0 пока не объявлена готовой.

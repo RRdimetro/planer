@@ -6,7 +6,7 @@ const dir = path.join(tmpdir(), "focus-screenshots");
 fs.rmSync(dir, { recursive: true, force: true });
 const app = await electron.launch({
   args: [".", "--no-sandbox", "--disable-gpu"],
-  env: { ...process.env, DISPLAY: ":99", FOCUS_DATA_DIR: dir },
+  env: { ...process.env, DISPLAY: process.env.DISPLAY ?? ":99", FOCUS_DATA_DIR: dir },
 });
 const page = await app.firstWindow();
 const errors = [];

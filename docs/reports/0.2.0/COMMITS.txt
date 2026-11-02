@@ -1,0 +1,12 @@
+d76195c v0.2 stage 5: package Windows candidates and record explicit runtime verification gate
+e8df0cc v0.2 stage 4: Premium Forest workspaces isolated preview and durable note closing
+1fe9c80 v0.2 stage 3: verify actual fitness programs sets PR and progress charts
+b0d9093 v0.2 stage 2: relational task structure and interactive constrained calendar
+d4b1bac v0.2 stage 1: migrate legacy SQLite on verified copies into relational tables
+79764b5 docs: record milestone commit references
+274e33b M5: harden backup restore polish desktop UI and prepare Windows CI distribution
+4d8d1d6 M4: calculate historical analytics and preview deterministic weekly scheduling
+97462b1 M3: add persisted fitness focus sessions and autosaved Markdown notes
+7467e19 M2: verify exact reference import and persistent tri-state study tracker
+c790f4d M1: implement persistent tasks projects and calendar workflows
+517afa7 M0: establish isolated Electron shell and SQLite foundation

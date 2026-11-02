@@ -43,3 +43,6 @@ Aggregate РК/ДЗ и detailed stages не суммируются. Unknown ≠ 
 
 ## Development Review 0.2.0 — этап 1
 Нормализация через additive migration v2 реализована. Перенос проверяется на копии с точным сравнением всех DTO; сохраняется открываемая pre-v2 база, legacy records не изменяется. SQL FK/check/transactions включены. 16 тестов, typecheck/lint/build прошли. См. docs/reports/0.2.0/01-normalization.md. Планировщик, fitness и Windows в работе; полная версия 0.2.0 пока не объявлена готовой.
+
+## Development Review 0.2.0 — этап 2
+Планировщик расширен: подзадачи, checklist, зависимости/SQL cycles, recurrence occurrences, вложения и массовые операции; календарь с 42-клеточным месяцем, DnD всех типов и resize длительности. Правила дня/недели, пары/дорога/тренировки, доступная ёмкость, preview и atomic revision-checked apply. GUI E2E этапа прошёл, регрессии M1/M2 также. См. docs/reports/0.2.0/02-planner.md и скриншоты рядом. Fitness/UI присутствуют, их приёмка — следующим этапом.

@@ -1,4 +1,20 @@
 import { z } from "zod";
+import {
+  taskDetailsSchema,
+  constraintSchema,
+  exerciseSchema,
+  programSchema,
+  workoutSetSchema,
+  milestoneSchema,
+  type TaskDetails,
+  type PlanningConstraint,
+  type AttachmentInfo,
+  type Exercise,
+  type Program,
+  type WorkoutSet,
+  type Milestone,
+} from "./planning";
+export * from "./planning";
 export const entityKinds = [
   "task",
   "project",
@@ -68,6 +84,15 @@ export interface Session {
   target: number;
 }
 export interface State {
+  revision: number;
+  taskDetails: Record<string, TaskDetails>;
+  attachments: AttachmentInfo[];
+  constraints: PlanningConstraint[];
+  exercises: Exercise[];
+  programs: Program[];
+  workoutSets: WorkoutSet[];
+  workoutPrograms: Record<string, string | null>;
+  milestones: Milestone[];
   completions: { id: string; task: Item; at: string }[];
   items: Item[];
   subjects: Subject[];
@@ -92,6 +117,42 @@ export const subjectSchema = z
     "Выполнено не может превышать всего",
   );
 export const commandSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("applySchedule"),
+    items: z.array(recordSchema).min(1).max(1000),
+    expectedRevision: z.number().int().min(0),
+  }),
+  z.object({
+    type: z.literal("saveTask"),
+    item: recordSchema.refine((i) => i.kind === "task"),
+    details: taskDetailsSchema,
+  }),
+  z.object({
+    type: z.literal("bulkTasks"),
+    ids: z.array(z.string().uuid()).min(1).max(1000),
+    patch: z.object({
+      status: recordSchema.shape.status.optional(),
+      priority: z.number().int().min(1).max(4).optional(),
+      date: z.iso.date().nullable().optional(),
+      weeklyWeek: z.iso.date().nullable().optional(),
+      deleted: z.boolean().optional(),
+    }),
+  }),
+  z.object({ type: z.literal("constraint"), value: constraintSchema }),
+  z.object({ type: z.literal("removeConstraint"), id: z.string().uuid() }),
+  z.object({ type: z.literal("removeAttachment"), id: z.string().uuid() }),
+  z.object({ type: z.literal("exercise"), value: exerciseSchema }),
+  z.object({ type: z.literal("program"), value: programSchema }),
+  z.object({ type: z.literal("removeProgram"), id: z.string().uuid() }),
+  z.object({
+    type: z.literal("saveWorkout"),
+    item: recordSchema.refine((i) => i.kind === "workout"),
+    programId: z.string().uuid().nullable(),
+    sets: z.array(workoutSetSchema).max(500),
+  }),
+  z.object({ type: z.literal("milestone"), value: milestoneSchema }),
+  z.object({ type: z.literal("removeMilestone"), id: z.string().uuid() }),
+  z.object({ type: z.literal("workspace"), action: z.literal("openDemo") }),
   z.object({ type: z.literal("save"), item: recordSchema }),
   z.object({
     type: z.literal("saveMany"),
@@ -135,6 +196,11 @@ export const commandSchema = z.discriminatedUnion("type", [
       "taskView",
       "taskFilter",
       "startPage",
+      "workDays",
+      "lectureWork",
+      "afterWorkoutMinutes",
+      "complexPriority",
+      "taskAdvancedFilter",
     ]),
     value: z.unknown(),
   }),
@@ -157,6 +223,8 @@ export const commandSchema = z.discriminatedUnion("type", [
       "import",
       "exportNote",
       "openData",
+      "attach",
+      "exportAttachment",
     ]),
     id: z.string().uuid().optional(),
   }),
@@ -195,6 +263,31 @@ export const sessionSchema = z.object({
 });
 export function validateSetting(key: string, value: unknown) {
   switch (key) {
+    case "workDays":
+      return z
+        .array(z.number().int().min(1).max(7))
+        .min(1)
+        .max(7)
+        .refine((a) => new Set(a).size === a.length)
+        .parse(value);
+    case "lectureWork":
+      return z.boolean().parse(value);
+    case "afterWorkoutMinutes":
+      return z.number().int().min(0).max(360).parse(value);
+    case "complexPriority":
+      return z.number().int().min(1).max(4).parse(value);
+    case "taskAdvancedFilter":
+      return z
+        .object({
+          query: z.string().max(300),
+          category: z.string().max(100),
+          status: z.string().max(50),
+          priority: z.number().int().min(0).max(4),
+          from: z.string().max(10),
+          to: z.string().max(10),
+          due: z.string().max(10),
+        })
+        .parse(value);
     case "onboarded":
     case "collapsed":
     case "animations":

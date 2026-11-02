@@ -1,3 +1,5 @@
+import { Fitness, WorkoutForm } from "../pages/Fitness";
+import { Tasks } from "../pages/Tasks";
 import { pages } from "../shared/navigation";
 import { Planner } from "../pages/Planner";
 import { Study } from "../pages/Study";
@@ -32,15 +34,19 @@ import {
   Leaf,
   Check,
   Trash2,
-  Undo2,
 } from "lucide-react";
 import { motion } from "motion/react";
-import type { Command, Item } from "../../../../packages/contracts";
+import type {
+  Command,
+  Item,
+  TaskDetails,
+} from "../../../../packages/contracts";
 import { newItem, localDate, conflicts } from "../../../../packages/core";
 import { metrics } from "../../../../packages/analytics";
 import { ItemForm } from "../features/ItemForm";
 import { Empty, Modal } from "../shared/ui";
 import "../shared/theme.css";
+import "../shared/features.css";
 const icons = [
   LayoutDashboard,
   CalendarDays,
@@ -53,13 +59,6 @@ const icons = [
   NotebookPen,
   Settings,
 ];
-const labels = {
-  backlog: "Backlog",
-  week: "На неделе",
-  today: "Сегодня",
-  active: "В процессе",
-  done: "Готово",
-};
 const useUI = create<{ page: number; go: (page: number) => void }>((set) => ({
   page: 0,
   go: (page) => set({ page }),
@@ -131,7 +130,7 @@ function App() {
   const today = localDate();
   const m = metrics(s);
   const collapsed = !!s.settings.collapsed;
-  const save = async (i: Item) => {
+  const save = async (i: Item, details?: TaskDetails) => {
     if (
       conflicts(
         i,
@@ -142,7 +141,11 @@ function App() {
       )
     )
       return;
-    await command({ type: "save", item: i });
+    await command(
+      details
+        ? { type: "saveTask", item: i, details }
+        : { type: "save", item: i },
+    );
     setEditing(null);
     setToast("Сохранено в SQLite");
     setTimeout(() => setToast(""), 2400);
@@ -555,153 +558,7 @@ function App() {
             </>
           )}
           {page === 2 && (
-            <>
-              <div className="toolbar">
-                <input
-                  placeholder="Поиск задач…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                <select
-                  value={String(s.settings.taskView ?? "kanban")}
-                  onChange={(e) =>
-                    void command({
-                      type: "settings",
-                      key: "taskView",
-                      value: e.target.value,
-                    })
-                  }
-                >
-                  <option value="kanban">Канбан</option>
-                  <option value="table">Таблица</option>
-                  <option value="list">Список</option>
-                </select>
-                <select
-                  value={String(s.settings.taskFilter ?? "")}
-                  onChange={(e) =>
-                    void command({
-                      type: "settings",
-                      key: "taskFilter",
-                      value: e.target.value,
-                    })
-                  }
-                >
-                  <option value="">Все проекты</option>
-                  {projects.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.title}
-                    </option>
-                  ))}
-                </select>
-                <button onClick={() => void command({ type: "undo" })}>
-                  <Undo2 size={15} /> Отменить
-                </button>
-              </div>
-              {s.settings.taskView === "table" ? (
-                <section>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Задача</th>
-                        <th>Статус</th>
-                        <th>Дата</th>
-                        <th>Оценка</th>
-                        <th>Факт</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {tasks
-                        .filter(
-                          (t) =>
-                            t.title
-                              .toLowerCase()
-                              .includes(search.toLowerCase()) &&
-                            (!s.settings.taskFilter ||
-                              t.projectId === s.settings.taskFilter),
-                        )
-                        .map((t) => (
-                          <tr key={t.id}>
-                            <td>
-                              <button
-                                className="textbutton"
-                                onClick={() => setEditing(t)}
-                              >
-                                {t.title}
-                              </button>
-                            </td>
-                            <td>{labels[t.status]}</td>
-                            <td>{t.date ?? "—"}</td>
-                            <td>{t.estimate} мин</td>
-                            <td>
-                              {Math.round(
-                                s.sessions
-                                  .filter((x) => x.taskId === t.id)
-                                  .reduce((a, x) => a + x.seconds / 60, 0),
-                              )}{" "}
-                              мин
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                  {!tasks.length && <Empty>Создайте первую задачу</Empty>}
-                </section>
-              ) : s.settings.taskView === "list" ? (
-                <section>
-                  {tasks
-                    .filter((t) =>
-                      t.title.toLowerCase().includes(search.toLowerCase()),
-                    )
-                    .map(card)}
-                </section>
-              ) : (
-                <div className="kanban">
-                  {Object.entries(labels).map(([status, label]) => (
-                    <div
-                      key={status}
-                      className="column"
-                      onDragOver={(e) => e.preventDefault()}
-                      onDrop={(e) => {
-                        const t = tasks.find(
-                          (t) => t.id === e.dataTransfer.getData("text/plain"),
-                        );
-                        if (t)
-                          void save({ ...t, status: status as Item["status"] });
-                      }}
-                    >
-                      <h3>
-                        {label}
-                        <small>
-                          {tasks.filter((t) => t.status === status).length}
-                        </small>
-                      </h3>
-                      {tasks
-                        .filter(
-                          (t) =>
-                            t.status === status &&
-                            t.title
-                              .toLowerCase()
-                              .includes(search.toLowerCase()) &&
-                            (!s.settings.taskFilter ||
-                              t.projectId === s.settings.taskFilter),
-                        )
-                        .map(card)}
-                      <button
-                        className="addcolumn"
-                        onClick={() =>
-                          setEditing({
-                            ...newItem("task", ""),
-                            status: status as Item["status"],
-                          })
-                        }
-                      >
-                        + Добавить задачу
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
+            <Tasks s={s} command={command} edit={setEditing} save={save} />
           )}
           {page === 1 && (
             <Planner
@@ -786,78 +643,12 @@ function App() {
           )}
           {page === 4 && <Study s={s} command={command} />}
           {page === 5 && (
-            <>
-              <div className="kpis">
-                <div className="kpi">
-                  <span>Запланировано</span>
-                  <strong>
-                    {s.items.filter((i) => i.kind === "workout").length}
-                  </strong>
-                </div>
-                <div className="kpi">
-                  <span>Выполнено</span>
-                  <strong>
-                    {m.workouts.filter((w) => w.status === "done").length}
-                  </strong>
-                </div>
-                <div className="kpi">
-                  <span>Дистанция по факту</span>
-                  <strong>
-                    {m.workouts
-                      .filter((w) => w.status === "done")
-                      .reduce((a, w) => a + (w.distance ?? 0), 0)}{" "}
-                    км
-                  </strong>
-                </div>
-              </div>
-              <section>
-                <h3>Журнал тренировок</h3>
-                {m.workouts.map((w) => (
-                  <div className="workoutrow" key={w.id}>
-                    <Dumbbell color="#73d69a" />
-                    <button
-                      className="textbutton grow"
-                      onClick={() => setEditing(w)}
-                    >
-                      {w.title}
-                      <small>
-                        {w.date ?? "Без даты"} · {w.category || "Другое"} ·{" "}
-                        {w.duration} мин{" "}
-                        {w.distance && w.duration
-                          ? `· ${(w.duration / w.distance).toFixed(2)} мин/км`
-                          : ""}
-                      </small>
-                    </button>
-                    <span className="badge">
-                      {w.status === "done" ? "Выполнена" : "В плане"}
-                    </span>
-                    <button
-                      onClick={() =>
-                        void save({
-                          ...w,
-                          status: w.status === "done" ? "week" : "done",
-                        })
-                      }
-                    >
-                      {w.status === "done" ? "Вернуть в план" : "Завершить"}
-                    </button>
-                    <button
-                      className="icon"
-                      aria-label="Удалить тренировку"
-                      onClick={() => void remove(w)}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                ))}
-                {!m.workouts.length && (
-                  <Empty>
-                    Запланируйте первую тренировку. Дни отдыха не считаются
-                    пропусками.
-                  </Empty>
-                )}
-              </section>
-            </>
+            <Fitness
+              s={s}
+              command={command}
+              edit={setEditing}
+              remove={remove}
+            />
           )}
           {page === 6 && <Analytics s={s} />}
           {page === 7 && <Focus s={s} command={command} />}
@@ -869,13 +660,24 @@ function App() {
           <span>FOCUS OS PRO / 0.1.0</span>
         </footer>
       </div>
-      {editing && (
-        <ItemForm
+      {editing?.kind === "workout" ? (
+        <WorkoutForm
           item={editing}
-          projects={projects}
-          onSave={(i) => void save(i).catch(() => {})}
+          s={s}
+          command={command}
           onClose={() => setEditing(null)}
         />
+      ) : (
+        editing && (
+          <ItemForm
+            item={editing}
+            projects={projects}
+            state={s}
+            command={command}
+            onSave={(i, details) => void save(i, details).catch(() => {})}
+            onClose={() => setEditing(null)}
+          />
+        )
       )}{" "}
       {palette && (
         <Modal title="Поиск и команды" onClose={() => setPalette(false)}>

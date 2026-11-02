@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "checklist and native attachment",
+    "hierarchy",
+    "event keyboard resize",
+    "event drag and drop",
+    "42-day month, preview, atomic apply, snapshot",
+    "restart preserves relations and attachment"
+  ],
+  "errors": []
+}

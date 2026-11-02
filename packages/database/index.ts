@@ -1,6 +1,8 @@
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { randomUUID } from "node:crypto";
+import { Relations } from "./relations";
+import { nextOccurrenceDate, dateInZone, weekDays, canSchedule } from "../core";
 import * as schema from "./schema";
 import { NormalizedRepository } from "./normalized";
 import { migrate } from "./migrations";
@@ -20,6 +22,7 @@ export class Store {
   readonly orm;
   private undoStack: string[] = [];
   readonly repo: NormalizedRepository;
+  readonly relations: Relations;
   readonly migrationBackup: string | null;
   constructor(path: string) {
     this.db = new Database(path);
@@ -41,6 +44,7 @@ export class Store {
       throw error;
     }
     this.repo = new NormalizedRepository(this.db);
+    this.relations = new Relations(this.db);
     this.db
       .prepare(
         "UPDATE focus_sessions SET state='interrupted' WHERE state='running'",
@@ -66,6 +70,12 @@ export class Store {
   }
   state(): State {
     return {
+      revision: (
+        this.db
+          .prepare("SELECT coalesce(max(id),0) n FROM change_log")
+          .get() as { n: number }
+      ).n,
+      ...this.relations.state(),
       completions: this.list("completion"),
       items: ["task", "project", "event", "workout", "note", "snapshot"]
         .flatMap((k) => this.list<Item>(k))
@@ -81,13 +91,15 @@ export class Store {
           .map((r) => [r.key, JSON.parse(r.payload)]),
       ),
       diagnostics: {
-        version: 2,
+        version: 3,
         integrity: String(this.db.pragma("quick_check", { simple: true })),
       },
     };
   }
-  dump() {
+  dump(includeBlobs = false) {
     return JSON.stringify({
+      schema: 3,
+      relations: this.relations.dump(includeBlobs),
       records: this.repo.records(),
       settings: this.orm.select().from(schema.settings).all(),
     });
@@ -150,9 +162,10 @@ export class Store {
     this.db.transaction(() => {
       this.db.pragma("defer_foreign_keys=ON");
       this.db.exec(
-        "DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
+        "DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM workout_programs;DELETE FROM exercises;DELETE FROM planning_constraints;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
       );
       this.repo.load(d.records);
+      this.relations.load(d.relations);
       for (const s of d.settings) {
         JSON.parse(s.payload);
         this.db
@@ -188,8 +201,85 @@ export class Store {
         at: item.completedAt!,
       });
   }
+  private generateRecurrences(before: string) {
+    const previous = new Map<string, Item>(
+      (JSON.parse(before).records as { kind: string; payload: string }[])
+        .filter((r) => r.kind === "task")
+        .map((r) => {
+          const i = JSON.parse(r.payload);
+          return [i.id, i];
+        }),
+    );
+    const details = this.relations.taskDetails();
+    const tasks = this.list<Item>("task");
+    for (const t of tasks) {
+      if (
+        t.status !== "done" ||
+        previous.get(t.id)?.status === "done" ||
+        !details[t.id]?.recurrence
+      )
+        continue;
+      const d = details[t.id];
+      const rule = d.recurrence!;
+      const date = nextOccurrenceDate(
+        t.date ?? dateInZone(String(this.state().settings.timezone ?? "UTC")),
+        rule,
+      );
+      if (!date) continue;
+      const row = this.db
+        .prepare("SELECT recurrence_root_id FROM tasks WHERE id=?")
+        .get(t.id) as { recurrence_root_id: string | null };
+      const root = row.recurrence_root_id ?? t.id;
+      if (
+        this.db
+          .prepare(
+            "SELECT id FROM tasks WHERE recurrence_root_id=? AND occurrence_date=?",
+          )
+          .get(root, date)
+      )
+        continue;
+      this.db
+        .prepare("UPDATE tasks SET recurrence_root_id=? WHERE id=?")
+        .run(root, t.id);
+      const next = {
+        ...t,
+        id: randomUUID(),
+        date,
+        status: "week" as const,
+        createdAt: new Date().toISOString(),
+        completedAt: null,
+        deletedAt: null,
+      };
+      this.repo.put("task", next);
+      this.relations.saveTask(next.id, {
+        ...d,
+        weeklyWeek: d.weeklyWeek ? weekDays(date)[0] : null,
+        checklist: d.checklist.map((c) => ({
+          ...c,
+          id: randomUUID(),
+          done: false,
+        })),
+      });
+      this.db
+        .prepare(
+          "UPDATE tasks SET recurrence_root_id=?,occurrence_date=? WHERE id=?",
+        )
+        .run(root, date, next.id);
+    }
+  }
+  private validateCompletedDependencies() {
+    const invalid = this.db
+      .prepare(
+        "SELECT e.title FROM task_dependencies d JOIN entities e ON e.id=d.task_id JOIN entities parent ON parent.id=d.depends_on_id WHERE e.status='done' AND parent.status<>'done' AND e.deleted_at IS NULL LIMIT 1",
+      )
+      .get() as { title: string } | undefined;
+    if (invalid)
+      throw Error("Сначала завершите зависимости задачи: " + invalid.title);
+  }
   command(input: Command): State {
     const c = commandSchema.parse(input);
+    if (c.type === "workspace")
+      throw Error("Операция доступна только в desktop");
     if (c.type === "file")
       throw Error("Файловая операция доступна только в desktop");
     if (c.type === "undo") {
@@ -201,6 +291,123 @@ export class Store {
     this.db.transaction(() => {
       this.db.pragma("defer_foreign_keys=ON");
       switch (c.type) {
+        case "applySchedule": {
+          const state = this.state();
+          if (state.revision !== c.expectedRevision)
+            throw Error("Данные изменились. Постройте предпросмотр заново.");
+          const ids = new Set(c.items.map((i) => i.id));
+          const occupied = state.items.filter(
+            (i) =>
+              ["task", "event", "workout"].includes(i.kind) && !ids.has(i.id),
+          );
+          const options = {
+            workDays: (state.settings.workDays as number[]) ?? [1, 2, 3, 4, 5],
+            lectureWork: !!state.settings.lectureWork,
+            afterWorkoutMinutes: Number(
+              state.settings.afterWorkoutMinutes ?? 0,
+            ),
+            complexPriority: Number(state.settings.complexPriority ?? 3),
+            constraints: state.constraints,
+          };
+          for (const item of c.items) {
+            if (
+              item.kind !== "task" ||
+              !state.items.some((i) => i.id === item.id && i.kind === "task") ||
+              !canSchedule(
+                item,
+                [...occupied, ...c.items.filter((i) => i.id !== item.id)],
+                Number(state.settings.workStart ?? 9),
+                Number(state.settings.workEnd ?? 18),
+                options,
+              )
+            )
+              throw Error("Расписание конфликтует с текущими ограничениями");
+            const load = [...occupied, ...c.items]
+              .filter((i) => i.kind === "task" && i.date === item.date)
+              .reduce((a, i) => a + i.estimate, 0);
+            if (load > Number(state.settings.dailyCapacity ?? 360))
+              throw Error("Дневная ёмкость превышена");
+            this.saveItem(item);
+          }
+          break;
+        }
+        case "saveTask":
+          this.saveItem(c.item);
+          this.relations.saveTask(c.item.id, c.details);
+          break;
+        case "bulkTasks":
+          for (const id of c.ids) {
+            const item = this.repo.list<Item>("task", id)[0];
+            if (!item) throw Error("Задача не найдена");
+            const { weeklyWeek, deleted, ...patch } = c.patch;
+            this.saveItem({
+              ...item,
+              ...patch,
+              deletedAt: deleted ? new Date().toISOString() : item.deletedAt,
+            });
+            if (weeklyWeek !== undefined)
+              this.db
+                .prepare("UPDATE tasks SET weekly_week=? WHERE id=?")
+                .run(weeklyWeek, id);
+          }
+          break;
+        case "constraint": {
+          const v = c.value;
+          this.repo.upsert("planning_constraints", {
+            id: v.id,
+            label: v.label,
+            date: v.date,
+            weekday: v.weekday,
+            start_min: v.start,
+            end_min: v.end,
+            kind: v.kind,
+          });
+          break;
+        }
+        case "removeConstraint":
+          this.db
+            .prepare("DELETE FROM planning_constraints WHERE id=?")
+            .run(c.id);
+          break;
+        case "removeAttachment":
+          this.db.prepare("DELETE FROM attachments WHERE id=?").run(c.id);
+          break;
+        case "exercise":
+          this.repo.upsert("exercises", {
+            id: c.value.id,
+            name: c.value.name,
+            muscle_group: c.value.muscleGroup,
+          });
+          break;
+        case "program":
+          this.relations.program(c.value);
+          break;
+        case "removeProgram":
+          this.db
+            .prepare("UPDATE workouts SET program_id=NULL WHERE program_id=?")
+            .run(c.id);
+          this.db.prepare("DELETE FROM workout_programs WHERE id=?").run(c.id);
+          break;
+        case "saveWorkout":
+          this.saveItem(c.item);
+          this.relations.sets(c.item.id, c.programId, c.sets);
+          break;
+        case "milestone": {
+          const m = c.value;
+          this.repo.upsert("project_milestones", {
+            id: m.id,
+            project_id: m.projectId,
+            title: m.title,
+            due: m.due,
+            done: Number(m.done),
+          });
+          break;
+        }
+        case "removeMilestone":
+          this.db
+            .prepare("DELETE FROM project_milestones WHERE id=?")
+            .run(c.id);
+          break;
         case "save":
           this.saveItem(c.item);
           break;
@@ -259,7 +466,9 @@ export class Store {
               this.state().items.filter(
                 (t) =>
                   t.kind === "task" &&
-                  (t.status === "week" ||
+                  (this.relations.taskDetails()[t.id]?.weeklyWeek === c.week ||
+                    (!this.relations.taskDetails()[t.id]?.weeklyWeek &&
+                      t.status === "week") ||
                     (t.date &&
                       t.date >= c.week &&
                       t.date <=
@@ -309,15 +518,68 @@ export class Store {
           break;
         }
       }
+      this.validateCompletedDependencies();
+      this.generateRecurrences(before);
+      const afterState = this.dump();
+      const previous = JSON.parse(before).records as {
+        id: string;
+        kind: string;
+        payload: string;
+      }[];
+      const prevMap = new Map(
+        previous
+          .filter((r) =>
+            ["task", "project", "workout", "event", "note"].includes(r.kind),
+          )
+          .map((r) => [r.id, r.payload]),
+      );
+      for (const r of this.repo
+        .records()
+        .filter((r) =>
+          ["task", "project", "workout", "event", "note"].includes(r.kind),
+        ))
+        if (prevMap.get(r.id) !== r.payload)
+          this.db
+            .prepare("INSERT INTO entity_changes VALUES(?,?,?,?,?,?)")
+            .run(
+              randomUUID(),
+              r.id,
+              new Date().toISOString(),
+              c.type,
+              prevMap.get(r.id) ?? null,
+              r.payload,
+            );
       this.db
         .prepare(
           "INSERT INTO change_log(at,action,before_json,after_json) VALUES(?,?,?,?)",
         )
-        .run(new Date().toISOString(), c.type, before, this.dump());
+        .run(new Date().toISOString(), c.type, before, afterState);
     })();
     this.undoStack.push(before);
     if (this.undoStack.length > 30) this.undoStack.shift();
     return this.state();
+  }
+  attach(entityId: string, name: string, mimeType: string, content: Buffer) {
+    const before = this.dump();
+    this.db.transaction(() => {
+      this.relations.attach(entityId, name, mimeType, content);
+      this.db
+        .prepare("INSERT INTO entity_changes VALUES(?,?,?,?,?,?)")
+        .run(
+          randomUUID(),
+          entityId,
+          new Date().toISOString(),
+          "attach",
+          null,
+          JSON.stringify({ name, size: content.length }),
+        );
+      this.db
+        .prepare(
+          "INSERT INTO change_log(at,action,before_json,after_json) VALUES(?,?,?,?)",
+        )
+        .run(new Date().toISOString(), "attach", before, this.dump());
+    })();
+    this.undoStack.push(before);
   }
   close() {
     this.db.close();

@@ -4,7 +4,7 @@ import type { Store } from "./index";
 const digest = (data: string) =>
   createHash("sha256").update(data).digest("hex");
 export function backupArchive(store: Store) {
-  const data = store.dump();
+  const data = store.dump(true);
   const history = JSON.stringify(
     store.db.prepare("SELECT * FROM change_log ORDER BY id").all(),
   );
@@ -14,7 +14,7 @@ export function backupArchive(store: Store) {
     Buffer.from(
       JSON.stringify({
         app: "FOCUS OS PRO",
-        schema: 1,
+        schema: 3,
         createdAt: new Date().toISOString(),
         sha256: digest(data),
         historySha256: digest(history),
@@ -33,7 +33,7 @@ export function restoreArchive(store: Store, zip: AdmZip) {
   const data = zip.readAsText("data.json");
   const historyText = zip.readAsText("history.json");
   if (
-    m.schema !== 1 ||
+    ![1, 2, 3].includes(m.schema) ||
     m.app !== "FOCUS OS PRO" ||
     digest(data) !== m.sha256 ||
     digest(historyText) !== m.historySha256

@@ -12,9 +12,20 @@ import {
   sessionSchema,
   validateSetting,
   type Command,
-  type State,
+  type Subject,
+  type StudyGroup,
+  type Session,
   type Item,
 } from "../../packages/contracts";
+interface State {
+  completions: { id: string; task: Item; at: string }[];
+  items: Item[];
+  subjects: Subject[];
+  groups: StudyGroup[];
+  sessions: Session[];
+  settings: Record<string, unknown>;
+  diagnostics: { version: number; integrity: string };
+}
 export class Store {
   readonly db: Database.Database;
   readonly orm;

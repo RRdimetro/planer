@@ -51,7 +51,36 @@ app
       if (event.sender !== win.webContents) throw Error("Доступ запрещён");
       const c = commandSchema.parse(input);
       try {
+        if (c.type === "workspace")
+          throw Error("Предпросмотр подключается на следующем этапе");
         if (c.type !== "file") return store.command(c);
+        if (c.action === "attach") {
+          if (!c.id) throw Error("Запись не выбрана");
+          const r = await dialog.showOpenDialog(win, {
+            properties: ["openFile"],
+          });
+          if (r.filePaths[0]) {
+            const file = r.filePaths[0];
+            if (fs.statSync(file).size > 25 * 1024 * 1024)
+              throw Error("Максимальный размер — 25 МБ");
+            store.attach(
+              c.id,
+              path.basename(file),
+              "application/octet-stream",
+              fs.readFileSync(file),
+            );
+          }
+          return store.state();
+        }
+        if (c.action === "exportAttachment") {
+          const a = store.db
+            .prepare("SELECT name,content FROM attachments WHERE id=?")
+            .get(c.id ?? "") as { name: string; content: Buffer } | undefined;
+          if (!a) throw Error("Вложение не найдено");
+          const r = await dialog.showSaveDialog(win, { defaultPath: a.name });
+          if (r.filePath) fs.writeFileSync(r.filePath, a.content);
+          return store.state();
+        }
         if (c.action === "openData") {
           await shell.openPath(app.getPath("userData"));
           return store.state();
@@ -101,7 +130,9 @@ app
           if (r.filePath)
             fs.writeFileSync(
               r.filePath,
-              c.action === "export" ? store.dump() : (note?.description ?? ""),
+              c.action === "export"
+                ? store.dump(true)
+                : (note?.description ?? ""),
             );
         }
         if (c.action === "import") {

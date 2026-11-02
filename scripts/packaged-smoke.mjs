@@ -7,7 +7,11 @@ fs.rmSync(dir, { recursive: true, force: true });
 const app = await electron.launch({
   executablePath: "release/linux-unpacked/focus-os-pro",
   args: ["--no-sandbox", "--disable-gpu"],
-  env: { ...process.env, DISPLAY: process.env.DISPLAY ?? ":99", FOCUS_DATA_DIR: dir },
+  env: {
+    ...process.env,
+    DISPLAY: process.env.DISPLAY ?? ":99",
+    FOCUS_DATA_DIR: dir,
+  },
 });
 try {
   const page = await app.firstWindow();

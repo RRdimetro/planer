@@ -7,3 +7,5 @@ M1–M5 — ещё не реализованы.
 M0: foundation unit 1/1, typecheck/lint/build прошли. См. docs/reports/M0.md. Windows ещё не проверен.
 
 M1 — работает MVP задач/проектов/планирования. 4/4 теста. Ограничения перечислены в docs/reports/M1.md. Учебный экран подключён вместе с общим layout, точная проверка seed относится к M2.
+
+M2 — точный seed и tri-state сохранение проверены: 6/6 unit/integration + Electron E2E. См. docs/reports/M2.md, docs/screenshots/M2.png. Конвертация агрегатов в детализацию не реализована; группы остаются независимыми.

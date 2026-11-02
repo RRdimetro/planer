@@ -1,7 +1,94 @@
-import type {Item} from '../contracts';
-export function localDate(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
-export function weekDays(date=localDate()){const d=new Date(date+'T12:00:00');d.setDate(d.getDate()-((d.getDay()+6)%7));return Array.from({length:7},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return localDate(x);});}
-export function newItem(kind:Item['kind'],title:string):Item{return {id:crypto.randomUUID(),kind,title,description:'',status:'backlog',priority:2,estimate:30,weight:1,date:null,time:null,due:null,projectId:null,category:'',tags:'',duration:0,distance:null,data:'{}',createdAt:new Date().toISOString(),completedAt:null,deletedAt:null};}
-export function conflicts(item:Item,items:Item[]){if(!item.date||!item.time)return [];const start=minutes(item.time);return items.filter(i=>i.id!==item.id&&i.date===item.date&&i.time&&i.status!=='done'&&start<minutes(i.time)+i.estimate&&start+item.estimate>minutes(i.time));}
-export function minutes(t:string){const [h,m]=t.split(':').map(Number);return h*60+m;}
-export function distribute(tasks:Item[],occupied:Item[],days:string[],start=9,end=18,capacity=360){const result:Item[]=[];const rejected:Item[]=[];for(const task of [...tasks].sort((a,b)=>b.priority-a.priority||(a.due??'9999').localeCompare(b.due??'9999'))){let found=false;for(const date of days){const load=[...occupied,...result].filter(i=>i.date===date).reduce((s,i)=>s+i.estimate,0);if(load+task.estimate>capacity)continue;for(let t=start*60;t+task.estimate<=end*60;t+=15){const item={...task,date,time:`${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')}`,status:'today' as const};if(!conflicts(item,[...occupied,...result]).length){result.push(item);found=true;break;}}if(found)break;}if(!found)rejected.push(task);}return {result,rejected};}
+import type { Item } from "../contracts";
+export function localDate(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+export function weekDays(date = localDate()) {
+  const d = new Date(date + "T12:00:00");
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => {
+    const x = new Date(d);
+    x.setDate(d.getDate() + i);
+    return localDate(x);
+  });
+}
+export function newItem(kind: Item["kind"], title: string): Item {
+  return {
+    id: crypto.randomUUID(),
+    kind,
+    title,
+    description: "",
+    status: "backlog",
+    priority: 2,
+    estimate: 30,
+    weight: 1,
+    date: null,
+    time: null,
+    due: null,
+    projectId: null,
+    category: "",
+    tags: "",
+    duration: 0,
+    distance: null,
+    data: "{}",
+    createdAt: new Date().toISOString(),
+    completedAt: null,
+    deletedAt: null,
+  };
+}
+export function conflicts(item: Item, items: Item[]) {
+  if (!item.date || !item.time) return [];
+  const start = minutes(item.time);
+  return items.filter(
+    (i) =>
+      i.id !== item.id &&
+      i.date === item.date &&
+      i.time &&
+      i.status !== "done" &&
+      start < minutes(i.time) + i.estimate &&
+      start + item.estimate > minutes(i.time),
+  );
+}
+export function minutes(t: string) {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+export function distribute(
+  tasks: Item[],
+  occupied: Item[],
+  days: string[],
+  start = 9,
+  end = 18,
+  capacity = 360,
+) {
+  const result: Item[] = [];
+  const rejected: Item[] = [];
+  for (const task of [...tasks].sort(
+    (a, b) =>
+      b.priority - a.priority ||
+      (a.due ?? "9999").localeCompare(b.due ?? "9999"),
+  )) {
+    let found = false;
+    for (const date of days) {
+      const load = [...occupied, ...result]
+        .filter((i) => i.date === date)
+        .reduce((s, i) => s + i.estimate, 0);
+      if (load + task.estimate > capacity) continue;
+      for (let t = start * 60; t + task.estimate <= end * 60; t += 15) {
+        const item = {
+          ...task,
+          date,
+          time: `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`,
+          status: "today" as const,
+        };
+        if (!conflicts(item, [...occupied, ...result]).length) {
+          result.push(item);
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+    if (!found) rejected.push(task);
+  }
+  return { result, rejected };
+}

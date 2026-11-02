@@ -1,5 +1,151 @@
-import {useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {recordSchema,type Item} from '../../../../packages/contracts';
-import {Field,Modal} from '../shared/ui';
-export function ItemForm({item,projects,onSave,onClose}:{item:Item;projects:Item[];onSave:(i:Item)=>void;onClose:()=>void}){const {register,handleSubmit,formState:{errors}}=useForm<Item>({resolver:zodResolver(recordSchema) as never,defaultValues:item});return <Modal title={item.kind==='task'?'Задача':item.kind==='project'?'Проект':item.kind==='workout'?'Тренировка':'Событие'} onClose={onClose}><form onSubmit={handleSubmit(onSave)}><Field label="Название"><input autoFocus {...register('title')}/></Field><Field label="Описание / упражнения, подходы, повторы, вес"><textarea rows={3} {...register('description')}/></Field><div className="formgrid"><Field label="Статус"><select aria-label="Статус" {...register('status')}>{Object.entries({backlog:'Backlog',week:'На неделе',today:'Сегодня',active:'В процессе',done:'Готово'}).map(([v,l])=><option key={v} value={v}>{l}</option>)}</select></Field><Field label="Проект"><select aria-label="Проект" {...register('projectId',{setValueAs:v=>v||null})}><option value="">Без проекта</option>{projects.map(p=><option key={p.id} value={p.id}>{p.title}</option>)}</select></Field><Field label="Дата"><input type="date" {...register('date',{setValueAs:v=>v||null})}/></Field><Field label="Время"><input type="time" {...register('time',{setValueAs:v=>v||null})}/></Field><Field label="Дедлайн"><input type="date" {...register('due',{setValueAs:v=>v||null})}/></Field><Field label="Оценка, мин"><input type="number" min="0" {...register('estimate',{valueAsNumber:true})}/></Field><Field label="Приоритет 1–4"><input type="number" min="1" max="4" {...register('priority',{valueAsNumber:true})}/></Field><Field label="Вес"><input type="number" min="0.1" step="0.1" {...register('weight',{valueAsNumber:true})}/></Field><Field label="Категория / тип тренировки"><input {...register('category')}/></Field><Field label="Теги"><input {...register('tags')}/></Field>{item.kind==='workout'&&<><Field label="Фактическое время, мин"><input type="number" min="0" {...register('duration',{valueAsNumber:true})}/></Field><Field label="Дистанция, км"><input type="number" min="0" step="0.01" {...register('distance',{setValueAs:v=>v===''?null:Number(v)})}/></Field></>}</div>{Object.keys(errors).length>0&&<p role="alert">Проверьте поля: {Object.keys(errors).join(', ')}</p>}<button className="primary" type="submit">Сохранить</button></form></Modal>;}
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { recordSchema, type Item } from "../../../../packages/contracts";
+import { Field, Modal } from "../shared/ui";
+export function ItemForm({
+  item,
+  projects,
+  onSave,
+  onClose,
+}: {
+  item: Item;
+  projects: Item[];
+  onSave: (i: Item) => void;
+  onClose: () => void;
+}) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Item>({
+    resolver: zodResolver(recordSchema) as never,
+    defaultValues: item,
+  });
+  return (
+    <Modal
+      title={
+        item.kind === "task"
+          ? "Задача"
+          : item.kind === "project"
+            ? "Проект"
+            : item.kind === "workout"
+              ? "Тренировка"
+              : "Событие"
+      }
+      onClose={onClose}
+    >
+      <form onSubmit={handleSubmit(onSave)}>
+        <Field label="Название">
+          <input autoFocus {...register("title")} />
+        </Field>
+        <Field label="Описание / упражнения, подходы, повторы, вес">
+          <textarea rows={3} {...register("description")} />
+        </Field>
+        <div className="formgrid">
+          <Field label="Статус">
+            <select aria-label="Статус" {...register("status")}>
+              {Object.entries({
+                backlog: "Backlog",
+                week: "На неделе",
+                today: "Сегодня",
+                active: "В процессе",
+                done: "Готово",
+              }).map(([v, l]) => (
+                <option key={v} value={v}>
+                  {l}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Проект">
+            <select
+              aria-label="Проект"
+              {...register("projectId", { setValueAs: (v) => v || null })}
+            >
+              <option value="">Без проекта</option>
+              {projects.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Дата">
+            <input
+              type="date"
+              {...register("date", { setValueAs: (v) => v || null })}
+            />
+          </Field>
+          <Field label="Время">
+            <input
+              type="time"
+              {...register("time", { setValueAs: (v) => v || null })}
+            />
+          </Field>
+          <Field label="Дедлайн">
+            <input
+              type="date"
+              {...register("due", { setValueAs: (v) => v || null })}
+            />
+          </Field>
+          <Field label="Оценка, мин">
+            <input
+              type="number"
+              min="0"
+              {...register("estimate", { valueAsNumber: true })}
+            />
+          </Field>
+          <Field label="Приоритет 1–4">
+            <input
+              type="number"
+              min="1"
+              max="4"
+              {...register("priority", { valueAsNumber: true })}
+            />
+          </Field>
+          <Field label="Вес">
+            <input
+              type="number"
+              min="0.1"
+              step="0.1"
+              {...register("weight", { valueAsNumber: true })}
+            />
+          </Field>
+          <Field label="Категория / тип тренировки">
+            <input {...register("category")} />
+          </Field>
+          <Field label="Теги">
+            <input {...register("tags")} />
+          </Field>
+          {item.kind === "workout" && (
+            <>
+              <Field label="Фактическое время, мин">
+                <input
+                  type="number"
+                  min="0"
+                  {...register("duration", { valueAsNumber: true })}
+                />
+              </Field>
+              <Field label="Дистанция, км">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  {...register("distance", {
+                    setValueAs: (v) => (v === "" ? null : Number(v)),
+                  })}
+                />
+              </Field>
+            </>
+          )}
+        </div>
+        {Object.keys(errors).length > 0 && (
+          <p role="alert">Проверьте поля: {Object.keys(errors).join(", ")}</p>
+        )}
+        <button className="primary" type="submit">
+          Сохранить
+        </button>
+      </form>
+    </Modal>
+  );
+}

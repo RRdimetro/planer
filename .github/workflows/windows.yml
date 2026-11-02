@@ -1,0 +1,28 @@
+name: Windows checks and distribution
+on: [push, workflow_dispatch]
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.20.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm rebuild
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+      - run: pnpm test:e2e
+      - run: node scripts/study-e2e.mjs
+      - run: node scripts/modules-e2e.mjs
+      - run: node scripts/backup-e2e.mjs
+      - run: pnpm dist:win
+      - uses: actions/upload-artifact@v4
+        with:
+          name: FOCUS-OS-PRO-Windows
+          path: release/*.exe

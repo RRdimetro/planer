@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "checks": [
+    "exercise library",
+    "program targets",
+    "planned sets not confirmed by default",
+    "two confirmed 8x60 sets",
+    "960 kg actual volume",
+    "restart retains program and sets"
+  ],
+  "errors": []
+}

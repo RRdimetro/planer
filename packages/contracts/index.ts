@@ -7,7 +7,7 @@ export type StageStatus=z.infer<typeof stageSchema>;
 export interface Subject {id:string;name:string;rkDone:number;rkTotal:number;hwDone:number;hwTotal:number;exam:string|null;grade:string|null}
 export interface StudyGroup {id:string;subjectId:string;name:string;stages:string[];values:StageStatus[][]}
 export interface Session {id:string;taskId:string|null;startedAt:string;seconds:number;state:'running'|'paused'|'done'|'interrupted';target:number}
-export interface State {items:Item[];subjects:Subject[];groups:StudyGroup[];sessions:Session[];settings:Record<string,unknown>;diagnostics:{version:number;integrity:string}}
+export interface State {completions:{id:string;task:Item;at:string}[];items:Item[];subjects:Subject[];groups:StudyGroup[];sessions:Session[];settings:Record<string,unknown>;diagnostics:{version:number;integrity:string}}
 export const subjectSchema=z.object({id:z.string().uuid(),name:z.string().min(1).max(100),rkDone:z.number().int().min(0),rkTotal:z.number().int().min(0).max(1000),hwDone:z.number().int().min(0),hwTotal:z.number().int().min(0).max(1000),exam:z.string().max(100).nullable(),grade:z.string().max(100).nullable()}).refine(s=>s.rkDone<=s.rkTotal&&s.hwDone<=s.hwTotal,'Выполнено не может превышать всего');
 export const commandSchema=z.discriminatedUnion('type',[
  z.object({type:z.literal('save'),item:recordSchema}),z.object({type:z.literal('remove'),id:z.string().uuid()}),z.object({type:z.literal('undo')}),

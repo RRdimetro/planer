@@ -12,3 +12,5 @@ M2 — точный seed и tri-state сохранение проверены: 6
 
 M3 — работают журнал тренировок, persistent focus timer, Markdown notes autosave/export. 7/7 unit/integration. Детальные ограничения: docs/reports/M3.md.
 M1 UI E2E повторно прошёл после исправления aria-label полей формы (docs/reports/M1-e2e.json).
+
+M4 — вычисления, immutable weekly snapshots, historical completions, smart planner preview работают. Полный перечень и ограничения: docs/reports/M4.md. Полнота M4 ещё частичная.

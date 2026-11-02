@@ -3,7 +3,7 @@ import {drizzle} from 'drizzle-orm/better-sqlite3';
 import {eq} from 'drizzle-orm';
 import {randomUUID} from 'node:crypto';
 import * as schema from './schema';
-import {commandSchema,type Command,type State,type Item} from '../contracts';
+import {commandSchema,recordSchema,subjectSchema,stageSchema,type Command,type State,type Item} from '../contracts';
 export class Store {
  readonly db:Database.Database; readonly orm; private undoStack:string[]=[];
  constructor(path:string){this.db=new Database(path);this.db.pragma('journal_mode=WAL');this.db.pragma('foreign_keys=ON');this.orm=drizzle(this.db,{schema});this.db.transaction(()=>{
@@ -13,11 +13,11 @@ export class Store {
  put<T extends {id:string}>(kind:string,item:T){this.orm.insert(schema.records).values({id:item.id,kind,payload:JSON.stringify(item)}).onConflictDoUpdate({target:schema.records.id,set:{kind,payload:JSON.stringify(item)}}).run();}
  list<T>(kind:string):T[]{return this.orm.select().from(schema.records).where(eq(schema.records.kind,kind)).all().map(r=>JSON.parse(r.payload));}
  setting(key:string,value:unknown){this.orm.insert(schema.settings).values({key,payload:JSON.stringify(value)}).onConflictDoUpdate({target:schema.settings.key,set:{payload:JSON.stringify(value)}}).run();}
- state():State{return {items:['task','project','event','workout','note','snapshot'].flatMap(k=>this.list<Item>(k)).filter(i=>!i.deletedAt),subjects:this.list('subject'),groups:this.list('group'),sessions:this.list('session'),settings:Object.fromEntries(this.orm.select().from(schema.settings).all().map(r=>[r.key,JSON.parse(r.payload)])),diagnostics:{version:1,integrity:String(this.db.pragma('quick_check',{simple:true}))}};}
+ state():State{return {completions:this.list('completion'),items:['task','project','event','workout','note','snapshot'].flatMap(k=>this.list<Item>(k)).filter(i=>!i.deletedAt),subjects:this.list('subject'),groups:this.list('group'),sessions:this.list('session'),settings:Object.fromEntries(this.orm.select().from(schema.settings).all().map(r=>[r.key,JSON.parse(r.payload)])),diagnostics:{version:1,integrity:String(this.db.pragma('quick_check',{simple:true}))}};}
  dump(){return JSON.stringify({records:this.orm.select().from(schema.records).all(),settings:this.orm.select().from(schema.settings).all()});}
  restore(raw:string){const d=JSON.parse(raw);if(!Array.isArray(d.records)||!Array.isArray(d.settings))throw Error('Неверный формат резервной копии');this.db.transaction(()=>{this.db.exec('DELETE FROM records;DELETE FROM settings;');for(const r of d.records){if(typeof r.id!=='string'||typeof r.kind!=='string')throw Error('Повреждённая запись');JSON.parse(r.payload);this.db.prepare('INSERT INTO records VALUES(?,?,?)').run(r.id,r.kind,r.payload);}for(const s of d.settings){JSON.parse(s.payload);this.db.prepare('INSERT INTO settings VALUES(?,?)').run(s.key,s.payload);}})();}
  command(input:Command):State {const c=commandSchema.parse(input);if(c.type==='file')throw Error('Файловая операция доступна только в desktop');if(c.type==='undo'){const prev=this.undoStack.pop();if(prev)this.restore(prev);return this.state();}const before=this.dump();this.db.transaction(()=>{switch(c.type){
- case 'save':{const old=this.list<Item>(c.item.kind).find(t=>t.id===c.item.id);const item={...c.item,createdAt:old?.createdAt??c.item.createdAt,completedAt:c.item.status==='done'?(old?.completedAt??new Date().toISOString()):null};this.put(item.kind,item);break;}
+ case 'save':{const old=this.list<Item>(c.item.kind).find(t=>t.id===c.item.id);const item={...c.item,createdAt:old?.createdAt??c.item.createdAt,completedAt:c.item.status==='done'?(old?.completedAt??new Date().toISOString()):null};this.put(item.kind,item);if(item.kind==='task'&&item.status==='done'&&old?.status!=='done')this.put('completion',{id:randomUUID(),task:item,at:item.completedAt!});break;}
  case 'remove':{const r=this.db.prepare('SELECT kind,payload FROM records WHERE id=?').get(c.id) as {kind:string;payload:string}|undefined;if(r){const item=JSON.parse(r.payload);this.put(r.kind,{...item,deletedAt:new Date().toISOString()});}break;}
  case 'settings':this.setting(c.key,c.value);break;
  case 'importStudy':seedStudy(this);break;

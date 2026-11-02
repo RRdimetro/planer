@@ -1,13 +1,27 @@
 import AdmZip from "adm-zip";
 import { createHash } from "node:crypto";
 import type { Store } from "./index";
-const digest = (data: string) =>
+const digest = (data: string | Buffer) =>
   createHash("sha256").update(data).digest("hex");
-export function backupArchive(store: Store) {
-  const data = store.dump(true);
+export function backupArchive(
+  store: Store,
+  workspace: "user" | "demo" = "user",
+) {
+  const data = JSON.stringify({ ...JSON.parse(store.dump(true)), workspace });
   const history = JSON.stringify(
     store.db.prepare("SELECT * FROM change_log ORDER BY id").all(),
   );
+  const sqlite = store.db.serialize();
+  if (
+    [Buffer.byteLength(data), Buffer.byteLength(history), sqlite.length].some(
+      (n) => n > 512 * 1024 * 1024,
+    ) ||
+    Buffer.byteLength(data) + Buffer.byteLength(history) + sqlite.length >
+      1024 * 1024 * 1024
+  )
+    throw Error(
+      "Архив превышает поддерживаемый размер (512 МБ на компонент, 1 ГБ суммарно)",
+    );
   const zip = new AdmZip();
   zip.addFile(
     "manifest.json",
@@ -15,21 +29,34 @@ export function backupArchive(store: Store) {
       JSON.stringify({
         app: "FOCUS OS PRO",
         schema: 3,
+        workspace,
         createdAt: new Date().toISOString(),
         sha256: digest(data),
         historySha256: digest(history),
+        sqliteSha256: digest(sqlite),
       }),
     ),
   );
   zip.addFile("data.json", Buffer.from(data));
   zip.addFile("history.json", Buffer.from(history));
-  zip.addFile("focus.sqlite", store.db.serialize());
+  zip.addFile("focus.sqlite", sqlite);
   return zip;
 }
-export function restoreArchive(store: Store, zip: AdmZip) {
-  if (zip.getEntries().some((e) => e.header.size > 64 * 1024 * 1024))
+export function restoreArchive(
+  store: Store,
+  zip: AdmZip,
+  workspace: "user" | "demo" = "user",
+) {
+  if (
+    zip.getEntries().some((e) => e.header.size > 512 * 1024 * 1024) ||
+    zip.getEntries().reduce((a, e) => a + e.header.size, 0) > 1024 * 1024 * 1024
+  )
     throw Error("Слишком большой архив");
   const m = JSON.parse(zip.readAsText("manifest.json"));
+  if ((m.workspace ?? "user") !== workspace)
+    throw Error(
+      "Копия относится к другому режиму. Демо и рабочие данные не смешиваются.",
+    );
   const data = zip.readAsText("data.json");
   const historyText = zip.readAsText("history.json");
   if (
@@ -39,6 +66,11 @@ export function restoreArchive(store: Store, zip: AdmZip) {
     digest(historyText) !== m.historySha256
   )
     throw Error("Несовместимая или повреждённая копия");
+  if (
+    m.sqliteSha256 &&
+    digest(zip.readFile("focus.sqlite") ?? Buffer.alloc(0)) !== m.sqliteSha256
+  )
+    throw Error("Повреждён SQLite-компонент архива");
   const history = JSON.parse(historyText);
   if (!Array.isArray(history) || history.length > 100000)
     throw Error("Повреждена история");
@@ -55,4 +87,5 @@ export function restoreArchive(store: Store, zip: AdmZip) {
         .run(r.id, r.at, r.action, r.before_json, r.after_json);
     }
   })();
+  store.resetUndo();
 }

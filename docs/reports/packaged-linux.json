@@ -1,1 +1,1 @@
-{"passed":true,"sandbox":{"require":"undefined","nodeProcess":"undefined","api":["command","state"]},"integrity":"ok"}
+{"passed":true,"sandbox":{"require":"undefined","nodeProcess":"undefined","api":["command","onCloseRequested","state"]},"integrity":"ok"}

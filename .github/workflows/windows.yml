@@ -1,10 +1,15 @@
-name: Windows checks and distribution
+name: Windows installer and upgrade verification
 on: [push, workflow_dispatch]
 jobs:
   windows:
-    runs-on: windows-latest
+    runs-on: windows-2022
+    timeout-minutes: 45
+    env:
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22.18.0'
@@ -21,8 +26,33 @@ jobs:
       - run: node scripts/study-e2e.mjs
       - run: node scripts/modules-e2e.mjs
       - run: node scripts/backup-e2e.mjs
+      - run: node scripts/planner-v020-e2e.mjs
+      - run: node scripts/fitness-v020-e2e.mjs
+      - run: node scripts/notes-flush-e2e.mjs
+      - run: node scripts/projects-v020-e2e.mjs
       - run: pnpm dist:win
+      - name: Build real baseline 0.1.0 installer for upgrade verification
+        shell: pwsh
+        run: |
+          git cat-file -e 79764b5
+          if ($LASTEXITCODE -ne 0) { throw 'Full repository history with accepted 0.1.0 is required; upgrade test must not be skipped.' }
+          $baseline = Join-Path $env:RUNNER_TEMP 'focus-baseline'
+          git worktree add --detach $baseline 79764b5
+          Push-Location $baseline
+          pnpm install --frozen-lockfile
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline dependency installation failed' }
+          pnpm rebuild
+          pnpm dist:win
+          if ($LASTEXITCODE -ne 0) { throw 'Baseline Windows installer build failed' }
+          Pop-Location
+          "FOCUS_BASELINE_INSTALLER=$baseline\release\FOCUS OS PRO Setup 0.1.0.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          "FOCUS_CURRENT_INSTALLER=$((Get-Location).Path)\release\FOCUS OS PRO Setup 0.2.0.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+      - run: node scripts/windows-install-smoke.mjs
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: FOCUS-OS-PRO-Windows
-          path: release/*.exe
+          name: FOCUS-OS-PRO-Windows-results
+          path: |
+            release/*.exe
+            docs/reports/0.2.0/
+            docs/screenshots/0.2.0/windows/

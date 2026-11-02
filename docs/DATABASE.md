@@ -1,12 +1,47 @@
-# SQLite schema v1
-`records(id TEXT PRIMARY KEY, kind TEXT NOT NULL, payload TEXT NOT NULL CHECK(json_valid(payload)))`, индекс `records_kind`; `settings(key PRIMARY KEY, payload CHECK(json_valid(payload)))`; `schema_migrations(version PRIMARY KEY, applied_at TEXT)`; `change_log(id INTEGER PRIMARY KEY, at, action, before_json, after_json)`.
+# SQLite v3 / FOCUS OS PRO 0.2.0
 
-Миграция v1 находится в конструкторе Store (`packages/database/index.ts`), выполняется в транзакции с `INSERT OR IGNORE` версии. WAL и foreign_keys включены. Все data access — main process. Drizzle используется для чтения/записи records/settings; SQL для migration/event log. Это документированное отклонение от полной нормализованной схемы в ТЗ: бизнес-инварианты обеспечивает Zod/domain layer, а не SQL foreign keys внутри JSON.
+Миграции: packages/database/migrations/0002_normalized.ts и 0003_planning.ts. Bootstrap v1 сохраняется для совместимости. Вся работа с SQLite — main process, WAL + foreign_keys=ON. SQL параметризован, версии и доменные изменения транзакционны. Drizzle используется для settings; основные сложные repository-запросы — типизированный SQL adapter.
 
-Kinds: task/project/event/workout/note/snapshot, subject/group/session, completion. Мягкое удаление пользовательских сущностей через deletedAt. Subjects удаляются каскадно с groups только по явному действию UI. Project archive сохраняет задачи.
+## Основные связи
 
-Счётчики предметов независимы от матриц stage. Матрица: строки — определения этапов; колонки — номера работ с 1. Значения done/not_done/unknown. IDs UUID. Экзамены/итог null или строка.
+- entities — общие именованные поля (title/description/status/priority/estimate/weight/date/time/due/category/tags/created/completed/deleted). JSON только для дополнительной metadata/data.
+- projects/tasks/calendar_events/notes/workouts — подтипы entities с SQL FK. Tasks содержит project_id, parent_id, weekly_week, recurrence root/date. Физическое удаление задач/проектов обычным CRUD не выполняется.
+- task_checklist, task_dependencies, recurrence_rules с FK на tasks; SQL guards для циклов dependencies/parent и CHECK self-reference.
+- focus_sessions.task_id → tasks, числовые секунды/target и состояние.
+- study_subjects → aggregate_counts(kind,total,completed), work_groups → works(number), stage_definitions(position). Stage_status имеет составные FK (work_id,group_id)/(stage_id,group_id): этап нельзя привязать к работе другой группы. Статусы done/not_done/unknown, исходные оценки nullable.
+- workout_programs → program_exercises → exercises; workouts.program_id; workout_sets → workouts/exercises, reps/weight/done. SQL CHECK не допускает отрицательных величин.
+- attachments → entities: BLOB, size CHECK, metadata. Attachment digests → immutable content archive для undo; SHA-256 проверяется при восстановлении.
+- project_milestones → projects; planning_constraints хранит date/weekday/time range и blocked/no_complex.
+- weekly_snapshots → snapshot_items → tasks с исходными weight/estimate/due; immutable update guard. DTO snapshots дополнительно сохраняют исторический контекст.
+- completion_facts → tasks: неизменяемый факт завершения, timestamp/title/estimate/weight/due и дополнительный historical DTO.
+- entity_changes → entities: связанный аудит до/после. Legacy change_log сохранён целиком; содержит также настройки/учебные операции. Settings допускают JSON, валидируемый по ключу.
 
-UTC ISO timestamps: createdAt/completedAt/deletedAt/startedAt. Даты плана YYYY-MM-DD, время HH:mm — локальная календарная дата/время. duration/estimate — минуты, session.seconds — секунды, distance — км.
+```mermaid
+erDiagram
+  entities ||--o| projects : subtype
+  entities ||--o| tasks : subtype
+  projects ||--o{ tasks : contains
+  tasks ||--o{ task_checklist : checks
+  tasks ||--o{ task_dependencies : depends
+  tasks ||--o{ focus_sessions : time
+  entities ||--o{ attachments : files
+  entities ||--o{ entity_changes : history
+  study_subjects ||--o{ study_work_groups : groups
+  study_work_groups ||--o{ study_works : works
+  study_work_groups ||--o{ study_stage_definitions : stages
+  study_works ||--o{ study_stage_status : status
+  study_stage_definitions ||--o{ study_stage_status : status
+  workout_programs ||--o{ program_exercises : targets
+  exercises ||--o{ workout_sets : fact
+  workouts ||--o{ workout_sets : sets
+```
 
-Snapshots хранят исходные tasks с весами/оценками/сроками. Completion records хранят снимок завершённой задачи: изменение срока позднее не переписывает своевременность. Undo восстанавливает data/settings из последних 30 снимков текущего запуска. Архив ZIP дополнительно содержит change_log и сериализацию SQLite; manifest/schema/checksums проверяются при restore.
+## Безопасный перенос
+
+Для существующей файловой БД сериализуется полная WAL-consistent копия. На migration-check копии исполняются все pending версии; каждый исходный legacy DTO сравнивается с нормализованным чтением. Затем integrity/FK и проверка исходной pre-vN копии. Только после этого миграции применяются к рабочей БД в транзакции. Никаких DROP legacy/перезаписи пользовательского seed. Несогласованные исходные ссылки блокируют перенос с сохранением оригинала.
+
+## Единицы и backup
+
+Timestamps UTC ISO. План: календарная YYYY-MM-DD и HH:mm; недели с понедельника. Estimate/duration — минуты, session.seconds — секунды, distance — км, weight — кг, reps — целое число. Неизвестные grades/distance nullable.
+
+ZIP v3 содержит schema/workspace/checksums, SQLite, машиночитаемые DTO и relations/blobs + историю. Совместим с v1 ZIP. Workspace user/demo нельзя смешивать. Restore валидирует данные и применяет замену транзакционно только по подтверждённому пользователем действию. Миграции заменой данных не пользуются. Старые undo snapshots после внешнего restore очищаются.

@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "tasks": 1000,
+  "createAndRenderMilliseconds": 1978,
+  "filterWorked": true,
+  "windowsPerformanceTested": false
+}

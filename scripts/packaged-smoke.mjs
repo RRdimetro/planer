@@ -28,7 +28,7 @@ try {
   }));
   expect(sandbox.require).toBe("undefined");
   expect(sandbox.nodeProcess).toBe("undefined");
-  expect(sandbox.api.sort()).toEqual(["command", "state"]);
+  expect(sandbox.api.sort()).toEqual(["command", "onCloseRequested", "state"]);
   const state = await page.evaluate(() => window.focusAPI.state());
   expect(state.diagnostics.integrity).toBe("ok");
   await page.screenshot({ path: "docs/screenshots/packaged-linux.png" });

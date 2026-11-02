@@ -1024,3 +1024,20 @@
     font-size: 23px;
   }
 }
+.event-main > span {
+  flex: 0 0 auto;
+}
+.calendar-event.short-event .event-main {
+  display: block;
+  padding: 4px 5px;
+}
+.calendar-event.short-event .event-main > span {
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 13px;
+}
+.calendar-event.short-event .event-main small {
+  display: none;
+}

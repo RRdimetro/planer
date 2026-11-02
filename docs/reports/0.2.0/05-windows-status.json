@@ -1,0 +1,9 @@
+{
+  "windows_runtime_tested": false,
+  "windows_ci_executed": false,
+  "ci_workflow": ".github/workflows/windows.yml",
+  "ci_script": "scripts/windows-install-smoke.mjs",
+  "reason": "The attached execution environment is Linux. No Windows executor is attached. No git remote is configured and GitHub CLI authentication is unavailable/invalid; no remote workflow was started.",
+  "planned_windows_checks": ["real 0.1.0 NSIS baseline installation", "first launch and task creation", "study status edit", "in-place 0.2.0 NSIS installation", "lossless v1 to v3 migration", "task modification", "focus timer", "restart persistence", "ZIP backup/delete/restore", "uninstall retains data"],
+  "cross_build_is_not_a_runtime_test": true
+}

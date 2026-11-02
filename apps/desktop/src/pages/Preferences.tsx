@@ -134,6 +134,26 @@ export function Preferences({ s, command }: PageProps) {
           </label>
         ))}
       </section>
+      <section className="design-preview-settings">
+        <h3>Дизайн-предпросмотр</h3>
+        <p className="muted">
+          Посмотрите заполненные экраны в отдельном окне. Демонстрационные
+          задачи, проекты и тренировки сохраняются в собственной базе и не
+          переносятся в ваше рабочее пространство.
+        </p>
+        <button
+          className="primary"
+          onClick={() =>
+            void command({ type: "workspace", action: "openDemo" })
+          }
+        >
+          Открыть дизайн-предпросмотр
+        </button>
+        <p className="hint">
+          В окне предпросмотра постоянно отображается пометка о демонстрационных
+          данных.
+        </p>
+      </section>
       <section>
         <h3>Данные и резервные копии</h3>
         <p className="muted">
@@ -169,7 +189,7 @@ export function Preferences({ s, command }: PageProps) {
           Импорт учебного референса
         </button>
         <h3 style={{ marginTop: 28 }}>О приложении</h3>
-        <p className="muted">FOCUS OS PRO 0.1.0 · SQLite</p>
+        <p className="muted">FOCUS OS PRO 0.2.0 · SQLite</p>
         <p className="hint">
           Миграция {s.diagnostics.version} · Проверка целостности:{" "}
           {s.diagnostics.integrity}

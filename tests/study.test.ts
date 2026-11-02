@@ -98,3 +98,31 @@ test("M2: stage persistence, undo, seed idempotence, aggregates never double cou
   db.close();
   rmSync(dir, { recursive: true });
 });
+
+test("one study click updates exactly one normalized cell and leaves all other timestamps/aggregates unchanged", () => {
+  const db = new Store(":memory:");
+  db.command({ type: "importStudy" });
+  db.db
+    .prepare(
+      "UPDATE study_stage_status SET updated_at='2000-01-01T00:00:00.000Z'",
+    )
+    .run();
+  const before = db.state().subjects;
+  const group = db.state().groups[0];
+  db.command({
+    type: "stage",
+    groupId: group.id,
+    row: 2,
+    column: 3,
+    status: "done",
+  });
+  expect(
+    db.db
+      .prepare(
+        "SELECT count(*) n FROM study_stage_status WHERE updated_at<>'2000-01-01T00:00:00.000Z'",
+      )
+      .get(),
+  ).toEqual({ n: 1 });
+  expect(db.state().subjects).toEqual(before);
+  db.close();
+});

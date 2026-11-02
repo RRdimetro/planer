@@ -273,11 +273,12 @@ export function nextOccurrenceDate(
     interval: number;
     until: string | null;
   },
+  anchorDay?: number,
 ) {
   let next: string;
   if (rule.frequency === "monthly") {
     const d = new Date(date + "T12:00:00Z");
-    const original = d.getUTCDate();
+    const original = anchorDay ?? d.getUTCDate();
     d.setUTCDate(1);
     d.setUTCMonth(d.getUTCMonth() + rule.interval);
     const max = new Date(

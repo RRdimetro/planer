@@ -99,7 +99,11 @@ export interface State {
   groups: StudyGroup[];
   sessions: Session[];
   settings: Record<string, unknown>;
-  diagnostics: { version: number; integrity: string };
+  diagnostics: {
+    version: number;
+    integrity: string;
+    workspace?: "user" | "demo";
+  };
 }
 export const subjectSchema = z
   .object({
@@ -231,6 +235,7 @@ export const commandSchema = z.discriminatedUnion("type", [
 ]);
 export type Command = z.infer<typeof commandSchema>;
 export interface API {
+  onCloseRequested(callback: () => Promise<void>): () => void;
   state(): Promise<State>;
   command(command: Command): Promise<State>;
 }

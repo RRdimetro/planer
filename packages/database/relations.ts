@@ -1,4 +1,5 @@
 import type Database from "better-sqlite3";
+import { weekDays } from "../core";
 import { createHash, randomUUID } from "node:crypto";
 import {
   emptyTaskDetails,
@@ -55,6 +56,7 @@ export class Relations {
   }
   saveTask(id: string, input: TaskDetails) {
     const d = taskDetailsSchema.parse(input);
+    if (d.weeklyWeek) d.weeklyWeek = weekDays(d.weeklyWeek)[0];
     this.db
       .prepare("UPDATE tasks SET parent_id=?,weekly_week=? WHERE id=?")
       .run(d.parentId, d.weeklyWeek, id);

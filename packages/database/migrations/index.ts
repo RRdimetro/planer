@@ -97,8 +97,10 @@ export function upgrade(db: Database.Database) {
       v: number;
     }
   ).v;
-  if (current === 1) applyV2(db);
-  if (current < 3) applyV3(db);
+  db.transaction(() => {
+    if (current === 1) applyV2(db);
+    if (current < 3) applyV3(db);
+  })();
 }
 export function migrate(db: Database.Database, path: string) {
   const current = (

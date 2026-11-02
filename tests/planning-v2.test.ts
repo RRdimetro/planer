@@ -104,3 +104,51 @@ test("attachments and relational extras survive ZIP/undo, blobs are validated", 
   ).toEqual({ content: Buffer.from("Existing document") });
   db.close();
 });
+
+test("monthly recurrence retains the original day anchor and shifts the deadline for each occurrence", () => {
+  const db = new Store(":memory:");
+  const first = {
+    ...newItem("task", "Month end"),
+    date: "2026-01-31",
+    due: "2026-02-02",
+  };
+  db.command({
+    type: "saveTask",
+    item: first,
+    details: {
+      ...emptyTaskDetails(),
+      recurrence: { frequency: "monthly", interval: 1, until: null },
+    },
+  });
+  db.command({ type: "save", item: { ...first, status: "done" } });
+  const second = db.state().items.find((t) => t.date === "2026-02-28")!;
+  expect(second.due).toBe("2026-03-02");
+  db.command({ type: "save", item: { ...second, status: "done" } });
+  const third = db.state().items.find((t) => t.date === "2026-03-31")!;
+  expect(third).toBeTruthy();
+  expect(third.due).toBe("2026-04-02");
+  db.close();
+});
+
+test("weekly membership is scoped to Monday, independent of daily assignment, and scheduled future tasks do not leak into another snapshot", () => {
+  const db = new Store(":memory:");
+  const task = { ...newItem("task", "Week-scoped"), status: "week" as const };
+  db.command({
+    type: "saveTask",
+    item: task,
+    details: { ...emptyTaskDetails(), weeklyWeek: "2026-11-12" },
+  });
+  expect(db.state().taskDetails[task.id].weeklyWeek).toBe("2026-11-09");
+  db.command({ type: "snapshot", week: "2026-11-02" });
+  expect(
+    JSON.parse(db.state().items.find((i) => i.kind === "snapshot")!.data),
+  ).toHaveLength(0);
+  db.command({ type: "save", item: { ...task, date: "2026-11-12" } });
+  expect(db.state().taskDetails[task.id].weeklyWeek).toBe("2026-11-09");
+  db.command({ type: "snapshot", week: "2026-11-09" });
+  const snapshot = db
+    .state()
+    .items.find((i) => i.kind === "snapshot" && i.date === "2026-11-09")!;
+  expect(JSON.parse(snapshot.data).map((i: any) => i.id)).toEqual([task.id]);
+  db.close();
+});

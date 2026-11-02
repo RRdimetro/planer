@@ -39,3 +39,50 @@ test("M4: smart planner respects busy intervals, deadline priority and impossibl
   expect(preview.result[1].time).toBe("10:30");
   expect(distribute([high], [], ["2026-11-02"], 18, 9, 360).result).toEqual([]);
 });
+
+test("future workouts are not missed observations, rest days and empty goals never invent a score", () => {
+  const db = new Store(":memory:");
+  db.command({ type: "settings", key: "timezone", value: "UTC" });
+  const plan = {
+    ...newItem("workout", "Future"),
+    date: "2026-11-03",
+    time: "10:00",
+    estimate: 60,
+    status: "week" as const,
+  };
+  db.command({ type: "save", item: plan });
+  expect(
+    metrics(
+      db.state(),
+      "2026-11-01",
+      "2026-11-07",
+      new Date("2026-11-02T12:00:00Z"),
+    ).score,
+  ).toBeNull();
+  expect(
+    metrics(
+      db.state(),
+      "2026-11-01",
+      "2026-11-07",
+      new Date("2026-11-03T10:30:00Z"),
+    ).components[4],
+  ).toBeNull();
+  expect(
+    metrics(
+      db.state(),
+      "2026-11-01",
+      "2026-11-07",
+      new Date("2026-11-03T12:00:00Z"),
+    ).components[4],
+  ).toBe(0);
+  db.command({ type: "save", item: { ...plan, status: "done" } });
+  expect(
+    metrics(
+      db.state(),
+      "2026-11-01",
+      "2026-11-07",
+      new Date("2026-11-03T12:00:00Z"),
+    ).components[4],
+  ).toBe(1);
+  db.close();
+});

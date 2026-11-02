@@ -1,6 +1,6 @@
 {
   "name": "focus-os-pro",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.20.0",
@@ -16,7 +16,10 @@
     "test:e2e": "node scripts/e2e.mjs",
     "dist:win": "pnpm build && electron-builder --win --x64 --publish never",
     "rebuild": "electron-builder install-app-deps",
-    "format": "prettier --write apps packages tests scripts *.json *.ts *.js"
+    "format": "prettier --write apps packages tests scripts *.json *.ts *.js",
+    "test:review": "node scripts/review-v020-e2e.mjs",
+    "test:planner": "node scripts/planner-v020-e2e.mjs",
+    "test:fitness": "node scripts/fitness-v020-e2e.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -73,7 +76,8 @@
       "target": [
         "nsis",
         "portable"
-      ]
+      ],
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -81,7 +85,9 @@
     },
     "directories": {
       "output": "release"
-    }
+    },
+    "publish": []
   },
-  "description": "Локальное пространство планирования FOCUS OS PRO"
+  "description": "Локальное пространство планирования FOCUS OS PRO",
+  "author": "FOCUS OS PRO"
 }

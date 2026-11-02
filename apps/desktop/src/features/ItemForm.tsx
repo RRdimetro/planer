@@ -31,7 +31,7 @@ export function ItemForm({
       ...emptyTaskDetails(),
       weeklyWeek:
         item.status === "week"
-          ? (JSON.parse(item.data).weeklyWeekDraft ?? weekDays()[0])
+          ? (safeDraftWeek(item.data) ?? weekDays()[0])
           : null,
     },
   );
@@ -422,4 +422,15 @@ export function ItemForm({
       </form>
     </Modal>
   );
+}
+
+function safeDraftWeek(raw: string): string | undefined {
+  try {
+    const value = JSON.parse(raw)?.weeklyWeekDraft;
+    return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)
+      ? value
+      : undefined;
+  } catch {
+    return undefined;
+  }
 }

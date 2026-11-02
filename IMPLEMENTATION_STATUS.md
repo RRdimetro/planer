@@ -1,51 +1,52 @@
-# FOCUS OS PRO — статус реализации
+# FOCUS OS PRO 0.2.0 — Development Review
 
-**Рабочая предварительная версия. Полное MASTER SPEC ещё не выполнено.** Все 10 разделов имеют реальные операции с SQLite; заглушек финальных экранов и демонстрационных метрик нет. Разделы «Привычки» и «Финансы» не создавались.
+**Кандидат 0.2.0. Windows-релиз ещё не принят: исполнение под Windows и Windows CI не подтверждены.** Проект продолжен от 0.1.0; все 10 страниц сохранены. «Привычки» и «Финансы» не добавлялись. Архив исходного статуса: docs/reports/0.2.0/BASELINE_0.1.0.md.
 
-| Этап | Статус | Результат |
+| Этап | Проверенный результат | Статус |
 |---|---|---|
-| M0 | Готов базовый foundation | Electron/React/TS, 10 маршрутов, WAL, Drizzle, migration v1, sandbox/typed IPC, logging |
-| M1 | MVP работает, расширенные требования частично | CRUD задач/проектов, Kanban/таблица/список, недельный backlog, день/неделя/месяц, DnD, конфликт/undo, история, E2E restart |
-| M2 | Точный импорт и основные операции готовы | 9 предметов, 4 группы, все 54 этапа, tri-state, null-оценки, счётчики, добавление/редактирование предметов, прямые клики, сохранение |
-| M3 | Основные операции готовы, расширения частично | CRUD тренировок, план/факт/темп; Pomodoro/free/pause/recovery; Markdown autosave/export |
-| M4 | Частично | Реальные KPI/score/charts, исторические завершения, immutable snapshots, smart planner preview+atomic apply |
-| M5 | Частично; Windows release не принят | Premium UI, shortcuts, persistent widgets/settings, ZIP backup/restore, security validation, CI definition, Linux package |
+| 1. Нормализация | additive v2/v3, preflight на копии, точный перенос v1 DTO, SQL FK/check, сохранённая v1 SQLite-копия | Проверено в SQLite/Linux |
+| 2. Планировщик | parent tasks/checklist/dependencies/cycle guards, recurrence occurrences, attachments, bulk/filter/tree; день/неделя/месяц, DnD/resize, weekly scope/snapshot, busy slots/rules/preview/atomic apply | Unit + Electron E2E |
+| 3. Fitness | programs/exercises/sets/reps/weights, run metrics, actual volume/PR/charts, rest days | Контрольные наборы + Electron E2E |
+| 4. Premium Forest | индивидуальные экраны, плотная главная, roadmap/notes/files, widget layout, отдельный demo workspace | 60 screenshot checks + UI E2E |
+| 5. Дистрибуция | настоящие NSIS/portable cross-build; Windows CI install/update script | Cross-build проверяется статически; Windows execution НЕ выполнен |
 
-## Проверено
+## Сохранение данных
 
-- Полный файл CODEX_MASTER_SPEC.md прочитан; исходное изображение просмотрено.
-- TypeScript strict, ESLint, production build — успешно.
-- 13/13 unit/integration. Контрольный seed проверяет каждую строку и ячейку.
-- 4 Electron UI E2E прошли: задачи после перезапуска; учебные unknown/not_done/done после перезапуска; фокус/пауза/заметки; ZIP restore.
-- 10 экранов × 3 разрешения = 30 настоящих скриншотов, без renderer error/горизонтального переполнения страницы.
-- 1000 задач batch + read ~133 ms (один замер Linux worker).
-- Linux directory packaging прошёл; smoke report отдельно.
+- Точный импорт: 9 предметов, четыре группы, 54 tri-state значения. Unknown ≠ not_done; исходные Экз/Итог null, агрегаты не удваиваются.
+- Один учебный клик обновляет ровно одну SQL-ячейку и её timestamp.
+- Миграция сначала на отдельной копии с WAL-данными; проверка точного соответствия записей, integrity_check и FK. Сохраняется открываемый pre-vN original. Ошибка не очищает действующую базу.
+- Legacy records остаётся архивом; новые основные записи находятся в нормализованных таблицах.
+- Backup проверяет SHA-256 JSON, истории и SQLite; транзакционное восстановление включает связи/байты вложений. Старые v1 ZIP поддерживаются. Старая undo-очередь после restore очищается.
+- Notes pending autosave сбрасывается при переходе и до закрытия SQLite. Гонка раннего close handshake покрыта повторными GUI-прогонами.
+- Исторические завершения и initial snapshots не переписываются при редактировании/переносе. Повторные задачи получают новые ID, исходный день месяца и смещение срока сохраняются.
+- Месяцы/недели используют календарные даты; новая weekly membership хранит понедельник. Недатированные v1 weekly tasks без известной недели не получают выдуманную историческую неделю.
 
-## Не завершено
+## Проверки
 
-- Полная модель/редактор подзадач, checklist, зависимостей, вложений, повторов/occurrences; массовые изменения и весь набор фильтров.
-- Project milestones/roadmaps и достоверный календарный прогноз завершения.
-- Resize событий календаря, повторяемые шаблоны пар/дороги, ограничения после тренировок и гибкая работа на лекциях.
-- Конвертация учебных агрегатов в детальные работы. Новые группы явно независимы: удвоения нет. Редактор существующего состава групп отсутствует.
-- Структурированные силовые подходы/рекорды, workout templates и полные fitness charts.
-- Расширенные отчёты по переносам/проектам/нагрузке и распределение длительных фокус-сессий по суткам/DST. Настройка timezone сейчас применяется к дате header; остальные локальные даты следуют OS timezone.
-- Вложения заметок, связи с задачами/предметами; CSV import/export; полный редактор рабочего календаря/категорий.
-- Развёрнутая нормализованная SQL-схема ТЗ: сейчас domain-validated JSON payload, FK внутри JSON контролируются не SQL.
-- Полные accessibility/Windows performance tests, независимый security audit, подписанный установщик и Windows release smoke.
+- TypeScript strict, ESLint, production build — прошли.
+- 33 unit/integration — прошли; полный вывод в docs/reports/0.2.0/unit-tests.txt.
+- Миграционный regression fixture использует замороженный настоящий Store 0.1.0.
+- SQL tests: orphan references, checks, cross-group stage FK, cycles, atomic rollback.
+- Контрольные задачи: month-end recurrence/deadline, week scope, stale preview, capacity/deadline/dependencies/midnight, empty/future workout metrics.
+- Fitness control: 2×8×60=960 кг; незавершённый план не попадает в фактический объём/PR.
+- User/demo isolation, отказ cross-mode ZIP/JSON, seed idempotence.
+- Electron: M1/M2/M3/M5 regressions и новые planner/fitness/notes-flush/projects workflows. JSON-отчёты рядом с отчётами этапов.
+- 60 настоящих скриншотов user/demo × 10 страниц × три разрешения; renderer errors и горизонтальное переполнение проверены.
+- Упакованный Linux smoke проверяет SQLite и отсутствие Node/require в renderer. Windows-бинарники этим тестом не проверяются.
 
-## Данные и ограничения
+## Windows gate
 
-Aggregate РК/ДЗ и detailed stages не суммируются. Unknown ≠ not_done. Экз/Итог изначально null. Импорт референса добровольный и не перезаписывает существующие предметы. Все пользовательские данные сохраняются в userData/SQLite; тестовые workspace изолированы в OS temp. Snapshots фиксируют исходные веса/оценки/сроки; completion facts защищают историю от позднего изменения дедлайна.
+Нет приложенного Windows executor; git remote не настроен, GitHub CLI не авторизована. Реальный CI не запускался. Установка, запуск, обновление и OS-specific уведомления Windows НЕ объявляются успешными. Статус явно false в docs/reports/0.2.0/05-windows-status.json.
 
-Единицы: estimate/duration — минуты, focus.seconds — секунды, distance — км. Timestamps UTC; planned date/time — локальные календарные значения. Детали схемы: docs/DATABASE.md.
+Workflow windows-2022 собирает baseline 0.1.0 и 0.2.0, реально устанавливает/обновляет, запускает установленный exe, проверяет данные/учёбу/таймер/backup и сохраняет evidence. Для baseline требуется полная история; приложен repository.bundle. Публикации и обязательного cloud sync нет. Cross-build файлы unsigned, помечены UNTESTED в поставке.
 
-После каждого этапа есть docs/reports/M0.md–M5.md и docs/screenshots/M0.png–M5.png. Windows инструкции — README.md. Подготовлен Windows CI, но его запуск не подтверждён; фиктивного `.exe` нет.
+## Границы, которые ещё не закрывают весь MASTER SPEC
 
-## Development Review 0.2.0 — этап 1
-Нормализация через additive migration v2 реализована. Перенос проверяется на копии с точным сравнением всех DTO; сохраняется открываемая pre-v2 база, legacy records не изменяется. SQL FK/check/transactions включены. 16 тестов, typecheck/lint/build прошли. См. docs/reports/0.2.0/01-normalization.md. Планировщик, fitness и Windows в работе; полная версия 0.2.0 пока не объявлена готовой.
+- Windows execution/signing/SmartScreen и ручные Windows 10/11 usability checks.
+- Явная конвертация учебного aggregate → per-item и редактор уже существующего состава групп; новые группы независимы.
+- CSV/XLSX import/export, расширенные отчёты переносов/нагрузки, распределение долгих focus sessions по смене суток/DST.
+- Унификация выбранного часового пояса во всех журналах (header/Home/Planner учитывают настройку; часть журналов следует OS locale/timezone).
+- Повторы создают следующую occurrence по завершении текущей, не разворачивают бесконечные будущие серии; повторяемые шаблоны событий/пар отдельно не сделаны.
+- Полный независимый accessibility/security/performance audit. Замер 1000 задач относится к текущему Linux worker, не к Windows.
 
-## Development Review 0.2.0 — этап 2
-Планировщик расширен: подзадачи, checklist, зависимости/SQL cycles, recurrence occurrences, вложения и массовые операции; календарь с 42-клеточным месяцем, DnD всех типов и resize длительности. Правила дня/недели, пары/дорога/тренировки, доступная ёмкость, preview и atomic revision-checked apply. GUI E2E этапа прошёл, регрессии M1/M2 также. См. docs/reports/0.2.0/02-planner.md и скриншоты рядом. Fitness/UI присутствуют, их приёмка — следующим этапом.
-
-## Development Review 0.2.0 — этап 3
-Fitness: программы, упражнения, подходы/повторы/веса, бег, PR и графики реальных записей. Контрольные unit-тесты исключают план из факта; E2E создания программы и 960 кг подтверждённого объёма с перезапуском прошёл. См. docs/reports/0.2.0/03-fitness.md. Визуальная доработка остальных экранов и изолированный preview в работе.
+Ни одна из этих границ не помечена завершённой. Учебный референс сохранён без изменений. Данные тестов/демо живут отдельно от пользовательской базы. Запуск Windows и команды проверок: README.md. Подробности этапов: docs/reports/0.2.0/01–05.

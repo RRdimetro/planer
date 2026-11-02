@@ -1,0 +1,1 @@
+{"passed":true,"checks":["project CRUD","milestone create and complete","linked note opens Markdown editor","immediate navigation saves note","restart retains project relations"]}

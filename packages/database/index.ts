@@ -2,7 +2,13 @@ import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { randomUUID } from "node:crypto";
 import { Relations } from "./relations";
-import { nextOccurrenceDate, dateInZone, weekDays, canSchedule } from "../core";
+import {
+  nextOccurrenceDate,
+  dateInZone,
+  weekDays,
+  canSchedule,
+  addDays,
+} from "../core";
 import * as schema from "./schema";
 import { NormalizedRepository } from "./normalized";
 import { migrate } from "./migrations";
@@ -192,6 +198,19 @@ export class Store {
     this.put(item.kind, item);
     if (
       item.kind === "task" &&
+      item.status === "week" &&
+      old?.status !== "week"
+    ) {
+      const row = this.db
+        .prepare("SELECT weekly_week FROM tasks WHERE id=?")
+        .get(item.id) as { weekly_week: string | null };
+      if (!row.weekly_week)
+        this.db
+          .prepare("UPDATE tasks SET weekly_week=? WHERE id=?")
+          .run(weekDays(item.date ?? this.currentDay())[0], item.id);
+    }
+    if (
+      item.kind === "task" &&
       item.status === "done" &&
       old?.status !== "done"
     )
@@ -200,6 +219,16 @@ export class Store {
         task: item,
         at: item.completedAt!,
       });
+  }
+  private currentDay() {
+    const setting = this.db
+      .prepare("SELECT payload FROM settings WHERE key='timezone'")
+      .get() as { payload: string } | undefined;
+    return dateInZone(
+      setting
+        ? JSON.parse(setting.payload)
+        : Intl.DateTimeFormat().resolvedOptions().timeZone,
+    );
   }
   private generateRecurrences(before: string) {
     const previous = new Map<string, Item>(
@@ -221,15 +250,26 @@ export class Store {
         continue;
       const d = details[t.id];
       const rule = d.recurrence!;
-      const date = nextOccurrenceDate(
-        t.date ?? dateInZone(String(this.state().settings.timezone ?? "UTC")),
-        rule,
-      );
-      if (!date) continue;
       const row = this.db
         .prepare("SELECT recurrence_root_id FROM tasks WHERE id=?")
         .get(t.id) as { recurrence_root_id: string | null };
       const root = row.recurrence_root_id ?? t.id;
+      const rootTask = this.repo.list<Item>("task", root)[0];
+      const base =
+        t.date ?? dateInZone(String(this.state().settings.timezone ?? "UTC"));
+      const date = nextOccurrenceDate(
+        base,
+        rule,
+        rootTask?.date ? Number(rootTask.date.slice(8)) : undefined,
+      );
+      if (!date) continue;
+      const shiftedDue =
+        t.due && /^\d{4}-\d{2}-\d{2}/.test(t.due)
+          ? addDays(
+              t.due.slice(0, 10),
+              Math.round((Date.parse(date) - Date.parse(base)) / 86400000),
+            ) + t.due.slice(10)
+          : t.due;
       if (
         this.db
           .prepare(
@@ -245,6 +285,7 @@ export class Store {
         ...t,
         id: randomUUID(),
         date,
+        due: shiftedDue,
         status: "week" as const,
         createdAt: new Date().toISOString(),
         completedAt: null,
@@ -333,7 +374,14 @@ export class Store {
         }
         case "saveTask":
           this.saveItem(c.item);
-          this.relations.saveTask(c.item.id, c.details);
+          this.relations.saveTask(c.item.id, {
+            ...c.details,
+            weeklyWeek:
+              c.details.weeklyWeek ??
+              (c.item.status === "week"
+                ? weekDays(c.item.date ?? this.currentDay())[0]
+                : null),
+          });
           break;
         case "bulkTasks":
           for (const id of c.ids) {
@@ -433,11 +481,20 @@ export class Store {
           this.db.prepare("DELETE FROM study_subjects WHERE id=?").run(c.id);
           break;
         case "stage": {
-          const g = this.state().groups.find((g) => g.id === c.groupId);
-          if (!g || g.values[c.row]?.[c.column] === undefined)
-            throw Error("Этап не найден");
-          g.values[c.row][c.column] = c.status;
-          this.put("group", g);
+          const result = this.db
+            .prepare(
+              "UPDATE study_stage_status SET status=?,updated_at=? WHERE group_id=? AND work_id=(SELECT id FROM study_works WHERE group_id=? AND number=?) AND stage_id=(SELECT id FROM study_stage_definitions WHERE group_id=? AND position=?)",
+            )
+            .run(
+              c.status,
+              new Date().toISOString(),
+              c.groupId,
+              c.groupId,
+              c.column + 1,
+              c.groupId,
+              c.row,
+            );
+          if (result.changes !== 1) throw Error("Этап не найден");
           break;
         }
         case "addGroup":
@@ -468,7 +525,8 @@ export class Store {
                   t.kind === "task" &&
                   (this.relations.taskDetails()[t.id]?.weeklyWeek === c.week ||
                     (!this.relations.taskDetails()[t.id]?.weeklyWeek &&
-                      t.status === "week") ||
+                      t.status === "week" &&
+                      !t.date) ||
                     (t.date &&
                       t.date >= c.week &&
                       t.date <=
@@ -580,6 +638,10 @@ export class Store {
         .run(new Date().toISOString(), "attach", before, this.dump());
     })();
     this.undoStack.push(before);
+    if (this.undoStack.length > 30) this.undoStack.shift();
+  }
+  resetUndo() {
+    this.undoStack = [];
   }
   close() {
     this.db.close();

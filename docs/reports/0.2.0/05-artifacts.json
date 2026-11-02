@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "host": "linux",
+  "version": "0.2.0",
+  "mainAndPreloadMatchFinalBuild": true,
+  "currentFrontendAssetsMatch": true,
+  "currentFrontendFiles": 5,
+  "windowsElectronMachine": "AMD64",
+  "windowsSQLiteMachine": "AMD64",
+  "sqliteExpectedElectronABI": 140,
+  "sqliteSha256": "c9c931f06eaaef782952eb0ad6502a650c9e6c33e9caf8bec2e5847ec67aceef",
+  "artifacts": [
+    {
+      "name": "FOCUS OS PRO Setup 0.2.0.exe",
+      "bytes": 104793980,
+      "sha256": "051a908fb1f44f61bcbe44fec15c5ee38cd9c9d5f1a39462c99b76c3263d782c",
+      "peMachine": 332
+    },
+    {
+      "name": "FOCUS OS PRO 0.2.0.exe",
+      "bytes": 95888572,
+      "sha256": "1217b1924741a1127d8ad87b3a0734544063ee63ed5c60931b59d44da91df373",
+      "peMachine": 332
+    }
+  ],
+  "windowsRuntimeTested": false,
+  "signed": false
+}

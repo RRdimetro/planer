@@ -1,0 +1,12 @@
+{
+  "built": true,
+  "host": "linux",
+  "artifacts": [
+    "/workspace/focus_os_codex/release/windows-cross/FOCUS OS PRO Setup 0.2.0.exe.blockmap",
+    "/workspace/focus_os_codex/release/windows-cross/FOCUS OS PRO Setup 0.2.0.exe",
+    "/workspace/focus_os_codex/release/windows-cross/FOCUS OS PRO 0.2.0.exe"
+  ],
+  "uninstallerExtractedWithNativeReader": true,
+  "windowsRuntimeTested": false,
+  "signed": false
+}

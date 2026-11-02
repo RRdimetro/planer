@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -44,6 +44,7 @@ export function Planner({
   save: (i: Item) => Promise<void>;
   edit: (i: Item) => void;
 }) {
+  const timelineRef = useRef<HTMLDivElement>(null);
   const zone = String(
     s.settings.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
   );
@@ -79,6 +80,10 @@ export function Planner({
   const start = Number(s.settings.workStart ?? 9),
     end = Number(s.settings.workEnd ?? 18),
     capacity = Number(s.settings.dailyCapacity ?? 360);
+  useEffect(() => {
+    if (timelineRef.current)
+      timelineRef.current.scrollTop = Math.max(0, (start - 6) * 64 - 24);
+  }, [view, start]);
   const days = view === "day" ? [date] : week;
   const monthFirst = date.slice(0, 8) + "01";
   const monthStart = weekDays(monthFirst)[0];
@@ -583,7 +588,7 @@ export function Planner({
                   );
                 })}
               </div>
-              <div className="timeline-scroll">
+              <div className="timeline-scroll" ref={timelineRef}>
                 <div
                   className="timeline-grid"
                   style={{
@@ -676,6 +681,7 @@ export function Planner({
                               key={i.id}
                               className={
                                 "calendar-event " +
+                                (duration(i) <= 30 ? "short-event " : "") +
                                 (i.kind === "workout"
                                   ? "workout"
                                   : i.kind === "task"

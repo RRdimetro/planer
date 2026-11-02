@@ -1,3 +1,4 @@
+import { dateInZone, minutes } from "../core";
 import type { State, Item } from "../contracts";
 export function ratio(a: number, b: number): number | null {
   return b > 0 ? Math.min(1, Math.max(0, a / b)) : null;
@@ -13,11 +14,18 @@ export function weightedScore(values: (number | null)[], weights: number[]) {
   });
   return total ? Math.round((100 * sum) / total) : null;
 }
-export function metrics(s: State, from = "0000", to = "9999") {
+export function metrics(
+  s: State,
+  from = "0000",
+  to = "9999",
+  now = new Date(),
+) {
   const tasks = s.items.filter((i) => i.kind === "task");
-  const historical = s.completions.length
-    ? s.completions.map((x) => x.task)
-    : tasks;
+  const recorded = new Set(s.completions.map((x) => x.task.id));
+  const historical = [
+    ...s.completions.map((x) => x.task),
+    ...tasks.filter((t) => !recorded.has(t.id)),
+  ];
   const done = [
     ...new Map(
       historical
@@ -70,9 +78,30 @@ export function metrics(s: State, from = "0000", to = "9999") {
   const accuracy = estimated.length
     ? estimated.reduce((a, b) => a + b, 0) / estimated.length
     : null;
+  const zone = String(
+    s.settings.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+  );
+  const today = dateInZone(zone, now);
+  const timeParts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: zone,
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(now);
+  const currentMinutes =
+    Number(timeParts.find((p) => p.type === "hour")?.value) * 60 +
+    Number(timeParts.find((p) => p.type === "minute")?.value);
+  const observedWorkouts = workouts.filter(
+    (w) =>
+      w.status === "done" ||
+      w.date! < today ||
+      (w.date === today &&
+        w.time &&
+        minutes(w.time) + w.estimate <= currentMinutes),
+  );
   const regularity = ratio(
-    workouts.filter((w) => w.status === "done").length,
-    workouts.length,
+    observedWorkouts.filter((w) => w.status === "done").length,
+    observedWorkouts.length,
   );
   const components = [planned, timely, focus, accuracy, regularity];
   return {

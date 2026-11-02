@@ -1,3 +1,6 @@
+import { flushPending } from "../shared/pending";
+import { Projects } from "../pages/Projects";
+import { Home } from "../pages/Home";
 import { Fitness, WorkoutForm } from "../pages/Fitness";
 import { Tasks } from "../pages/Tasks";
 import { pages } from "../shared/navigation";
@@ -7,7 +10,7 @@ import { Focus } from "../pages/Focus";
 import { Notes } from "../pages/Notes";
 import { Analytics } from "../pages/Analytics";
 import { Preferences } from "../pages/Preferences";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { createRoot } from "react-dom/client";
 import {
   QueryClient,
@@ -30,7 +33,6 @@ import {
   Search,
   Plus,
   PanelLeftClose,
-  ArrowUpRight,
   Leaf,
   Check,
   Trash2,
@@ -41,12 +43,12 @@ import type {
   Item,
   TaskDetails,
 } from "../../../../packages/contracts";
-import { newItem, localDate, conflicts } from "../../../../packages/core";
-import { metrics } from "../../../../packages/analytics";
+import { newItem, conflicts } from "../../../../packages/core";
 import { ItemForm } from "../features/ItemForm";
-import { Empty, Modal } from "../shared/ui";
+import { Modal } from "../shared/ui";
 import "../shared/theme.css";
 import "../shared/features.css";
+import "../shared/premium.css";
 const icons = [
   LayoutDashboard,
   CalendarDays,
@@ -75,19 +77,32 @@ function App() {
   const [error, setError] = useState("");
   const [editing, setEditing] = useState<Item | null>(null);
   const [search, setSearch] = useState("");
+  const [noteSelection, setNoteSelection] = useState<string | null>(null);
   const [palette, setPalette] = useState(false);
   const [toast, setToast] = useState("");
-  async function command(c: Command) {
-    try {
-      const s = await window.focusAPI.command(c);
-      qc.setQueryData(["state"], s);
-      setError("");
-      return s;
-    } catch (e) {
-      setError(String(e));
-      throw e;
-    }
-  }
+  const command = useCallback(
+    async (c: Command) => {
+      try {
+        const s = await window.focusAPI.command(c);
+        qc.setQueryData(["state"], s);
+        setError("");
+        return s;
+      } catch (e) {
+        setError(String(e));
+        throw e;
+      }
+    },
+    [qc],
+  );
+  useEffect(() => window.focusAPI.onCloseRequested(flushPending), []);
+  useEffect(() => {
+    const handler = (e: PromiseRejectionEvent) => {
+      e.preventDefault();
+      setError(String(e.reason));
+    };
+    window.addEventListener("unhandledrejection", handler);
+    return () => window.removeEventListener("unhandledrejection", handler);
+  }, []);
   useEffect(() => {
     const listener = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === "k") {
@@ -127,8 +142,6 @@ function App() {
   const s = q.data;
   const tasks = s.items.filter((i) => i.kind === "task");
   const projects = s.items.filter((i) => i.kind === "project");
-  const today = localDate();
-  const m = metrics(s);
   const collapsed = !!s.settings.collapsed;
   const save = async (i: Item, details?: TaskDetails) => {
     if (
@@ -241,7 +254,7 @@ function App() {
         </nav>
         <div className="sidebarfoot">
           <span className="dot" />
-          {!collapsed && "Локально · без облака"}
+          {!collapsed && (s.diagnostics.workspace==='demo'?'Демо · отдельная база':'Локально · без облака')}
           <button
             className="icon"
             aria-label="Свернуть навигацию"
@@ -269,6 +282,15 @@ function App() {
             <span className="avatar">F</span>
           </div>
         </header>
+        {s.diagnostics.workspace === "demo" && (
+          <div className="demo-banner">
+            <strong>ДИЗАЙН-ПРЕДПРОСМОТР</strong>
+            <span>
+              Изолированная демонстрационная база · показатели не являются
+              вашими данными
+            </span>
+          </div>
+        )}
         <main>
           <motion.div
             initial={{ opacity: 0, y: 5 }}
@@ -332,230 +354,13 @@ function App() {
             </div>
           )}
           {page === 0 && (
-            <>
-              <div className="hero">
-                <div>
-                  <span className="eyebrow">ВАШ ЛИЧНЫЙ COMMAND CENTER</span>
-                  <h2>Сосредоточьтесь на важном.</h2>
-                  <p>Соберите день из осмысленных шагов.</p>
-                </div>
-                <div className="forest">
-                  <span>△</span>
-                  <span>△</span>
-                  <span>△</span>
-                </div>
-              </div>
-              <div className="kpis">
-                {[
-                  [
-                    "Задачи сегодня",
-                    `${tasks.filter((t) => t.date === today && t.status === "done").length} / ${tasks.filter((t) => t.date === today).length}`,
-                    2,
-                  ],
-                  [
-                    "Исходный план",
-                    m.components[0] === null
-                      ? "Нет снимка"
-                      : Math.round(m.components[0] * 100) + "%",
-                    6,
-                  ],
-                  [
-                    "Фокус сегодня",
-                    `${metrics(s, today, today).focusMinutes} мин`,
-                    7,
-                  ],
-                  [
-                    "Эффективность",
-                    m.score === null ? "Нет данных" : m.score + " / 100",
-                    6,
-                  ],
-                ].map(([title, value, target]) => (
-                  <button
-                    key={title}
-                    className="kpi"
-                    onClick={() => go(Number(target))}
-                  >
-                    <span>
-                      {title}
-                      <ArrowUpRight size={16} />
-                    </span>
-                    <strong>{value}</strong>
-                    <small>На основе сохранённых данных</small>
-                  </button>
-                ))}
-              </div>
-              <div
-                className="dashboard"
-                style={{ gridTemplateColumns: "repeat(2,minmax(0,1fr))" }}
-              >
-                {(
-                  (s.settings.dashboard as string[] | undefined) ?? [
-                    "Сегодня",
-                    "Расписание",
-                    "Активные проекты",
-                    "Учебный прогресс",
-                  ]
-                ).map((name, index) => (
-                  <section
-                    key={name}
-                    draggable
-                    onDragStart={(e) =>
-                      e.dataTransfer.setData("widget", String(index))
-                    }
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={(e) => {
-                      if (!e.dataTransfer.types.includes("widget")) return;
-                      const from = Number(e.dataTransfer.getData("widget"));
-                      const layout = [
-                        ...((s.settings.dashboard as string[]) ?? [
-                          "Сегодня",
-                          "Расписание",
-                          "Активные проекты",
-                          "Учебный прогресс",
-                        ]),
-                      ];
-                      [layout[index], layout[from]] = [
-                        layout[from],
-                        layout[index],
-                      ];
-                      void command({
-                        type: "settings",
-                        key: "dashboard",
-                        value: layout,
-                      });
-                    }}
-                    style={{
-                      height: (
-                        s.settings.widgetSizes as
-                          Record<string, number> | undefined
-                      )?.[name],
-                    }}
-                    onMouseUp={(e) => {
-                      const height = Math.min(
-                        1000,
-                        Math.max(230, e.currentTarget.clientHeight),
-                      );
-                      const sizes =
-                        (s.settings.widgetSizes as
-                          Record<string, number> | undefined) ?? {};
-                      if (sizes[name] !== height)
-                        void command({
-                          type: "settings",
-                          key: "widgetSizes",
-                          value: { ...sizes, [name]: height },
-                        });
-                    }}
-                    className="widget"
-                  >
-                    <div className="sectionhead">
-                      <h3>{name}</h3>
-                      <button
-                        className="icon"
-                        aria-label={"Переместить виджет " + name}
-                        onClick={() => {
-                          const layout = [
-                            ...((s.settings.dashboard as string[]) ?? [
-                              "Сегодня",
-                              "Расписание",
-                              "Активные проекты",
-                              "Учебный прогресс",
-                            ]),
-                          ];
-                          const target = (index + 1) % layout.length;
-                          [layout[index], layout[target]] = [
-                            layout[target],
-                            layout[index],
-                          ];
-                          void command({
-                            type: "settings",
-                            key: "dashboard",
-                            value: layout,
-                          });
-                        }}
-                      >
-                        ↕
-                      </button>
-                      <button
-                        className="textbutton"
-                        onClick={() =>
-                          go(
-                            name === "Сегодня"
-                              ? 2
-                              : name === "Расписание"
-                                ? 1
-                                : name === "Активные проекты"
-                                  ? 3
-                                  : 4,
-                          )
-                        }
-                      >
-                        Открыть ↗
-                      </button>
-                    </div>
-                    {name === "Сегодня" ? (
-                      tasks.filter((t) => t.date === today).length ? (
-                        tasks.filter((t) => t.date === today).map(card)
-                      ) : (
-                        <Empty>На сегодня пока нет задач</Empty>
-                      )
-                    ) : name === "Расписание" ? (
-                      s.items.filter((t) => t.date === today && t.time)
-                        .length ? (
-                        s.items
-                          .filter((t) => t.date === today && t.time)
-                          .sort((a, b) => a.time!.localeCompare(b.time!))
-                          .map((t) => (
-                            <div className="scheduleline" key={t.id}>
-                              <time>{t.time}</time>
-                              <button
-                                className="textbutton"
-                                onClick={() => setEditing(t)}
-                              >
-                                {t.title}
-                              </button>
-                              <small>{t.estimate} мин</small>
-                            </div>
-                          ))
-                      ) : (
-                        <Empty>День открыт для ваших планов</Empty>
-                      )
-                    ) : name === "Активные проекты" ? (
-                      projects.length ? (
-                        projects.slice(0, 4).map((p) => (
-                          <div className="scheduleline" key={p.id}>
-                            <FolderKanban size={18} />
-                            <button
-                              className="textbutton"
-                              onClick={() => setEditing(p)}
-                            >
-                              {p.title}
-                            </button>
-                          </div>
-                        ))
-                      ) : (
-                        <Empty>Добавьте первый проект</Empty>
-                      )
-                    ) : s.subjects.length ? (
-                      <>
-                        <div className="bigstat">
-                          {s.subjects.reduce(
-                            (a, x) => a + x.rkDone + x.hwDone,
-                            0,
-                          )}
-                          <small> агрегированных РК и ДЗ сдано</small>
-                        </div>
-                        <p className="muted">
-                          {s.subjects.length} предметов · подробные этапы
-                          учитываются отдельно
-                        </p>
-                      </>
-                    ) : (
-                      <Empty>Импортируйте прогресс в разделе «Учёба»</Empty>
-                    )}
-                  </section>
-                ))}
-              </div>
-            </>
+            <Home
+              s={s}
+              command={command}
+              go={go}
+              edit={setEditing}
+              save={save}
+            />
           )}
           {page === 2 && (
             <Tasks s={s} command={command} edit={setEditing} save={save} />
@@ -570,76 +375,18 @@ function App() {
             />
           )}
           {page === 3 && (
-            <div className="projectgrid">
-              {projects.map((p) => {
-                const ts = tasks.filter((t) => t.projectId === p.id);
-                const total = ts.reduce((a, t) => a + t.weight * t.estimate, 0);
-                const completed = ts
-                  .filter((t) => t.status === "done")
-                  .reduce((a, t) => a + t.weight * t.estimate, 0);
-                return (
-                  <section key={p.id}>
-                    <div className="sectionhead">
-                      <FolderKanban color="#73d69a" />
-                      <button
-                        className="icon"
-                        aria-label="Архивировать проект"
-                        onClick={() => void remove(p)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                    <h2>
-                      <button
-                        className="textbutton"
-                        onClick={() => setEditing(p)}
-                      >
-                        {p.title}
-                      </button>
-                    </h2>
-                    <p className="muted">
-                      {p.description || "Добавьте описание проекта"}
-                    </p>
-                    <div className="progress">
-                      <i
-                        style={{
-                          width: (total ? (completed / total) * 100 : 0) + "%",
-                        }}
-                      />
-                    </div>
-                    <div className="row between">
-                      <span>
-                        {total
-                          ? Math.round((completed / total) * 100) + "%"
-                          : "Нет оценённых задач"}
-                      </span>
-                      <small>
-                        {ts.filter((t) => t.status === "done").length} /{" "}
-                        {ts.length} задач
-                      </small>
-                    </div>
-                    <p className="muted">
-                      Осталось{" "}
-                      {ts
-                        .filter((t) => t.status !== "done")
-                        .reduce((a, t) => a + t.estimate, 0)}{" "}
-                      мин · прогноз требует истории
-                    </p>
-                    {ts.map(card)}
-                    <button
-                      onClick={() =>
-                        setEditing({ ...newItem("task", ""), projectId: p.id })
-                      }
-                    >
-                      + Задача проекта
-                    </button>
-                  </section>
-                );
-              })}
-              {!projects.length && (
-                <Empty>Создайте проект, чтобы объединить задачи</Empty>
-              )}
-            </div>
+            <Projects
+              s={s}
+              command={command}
+              card={card}
+              edit={(i) => {
+                if (i.kind === "note") {
+                  setNoteSelection(i.id);
+                  go(8);
+                } else setEditing(i);
+              }}
+              remove={remove}
+            />
           )}
           {page === 4 && <Study s={s} command={command} />}
           {page === 5 && (
@@ -652,12 +399,19 @@ function App() {
           )}
           {page === 6 && <Analytics s={s} />}
           {page === 7 && <Focus s={s} command={command} />}
-          {page === 8 && <Notes s={s} command={command} remove={remove} />}
+          {page === 8 && (
+            <Notes
+              s={s}
+              command={command}
+              remove={remove}
+              requestedId={noteSelection}
+            />
+          )}
           {page === 9 && <Preferences s={s} command={command} />}
         </main>
         <footer>
           <span className="dot" /> SQLite · Сохранение автоматически{" "}
-          <span>FOCUS OS PRO / 0.1.0</span>
+          <span>FOCUS OS PRO / 0.2.0</span>
         </footer>
       </div>
       {editing?.kind === "workout" ? (

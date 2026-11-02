@@ -7,6 +7,9 @@ import {
   shell,
 } from "electron";
 import path from "node:path";
+import { spawn } from "node:child_process";
+import { seedDesignPreview } from "../../../../packages/database/demo";
+import type { State } from "../../../../packages/contracts";
 import fs from "node:fs";
 import { performance } from "node:perf_hooks";
 import AdmZip from "adm-zip";
@@ -16,10 +19,21 @@ import {
 } from "../../../../packages/database/backup";
 import { Store } from "../../../../packages/database";
 import { commandSchema } from "../../../../packages/contracts";
+const isDemo =
+  process.argv.includes("--focus-demo") || process.env.FOCUS_DEMO === "1";
 app.setName("FOCUS OS PRO");
-app.setPath("userData", path.join(app.getPath("appData"), "FOCUS OS PRO"));
-if (process.env.FOCUS_DATA_DIR)
-  app.setPath("userData", process.env.FOCUS_DATA_DIR);
+app.setPath(
+  "userData",
+  process.env.FOCUS_DATA_DIR ??
+    path.join(
+      app.getPath("appData"),
+      isDemo ? "FOCUS OS PRO Design Preview 0.2" : "FOCUS OS PRO",
+    ),
+);
+const marked = (state: State): State => ({
+  ...state,
+  diagnostics: { ...state.diagnostics, workspace: isDemo ? "demo" : "user" },
+});
 let store: Store;
 let timer: NodeJS.Timeout;
 let last = performance.now();
@@ -28,6 +42,7 @@ app
   .then(() => {
     fs.mkdirSync(app.getPath("userData"), { recursive: true });
     store = new Store(path.join(app.getPath("userData"), "focus.db"));
+    if (isDemo) seedDesignPreview(store, "demo");
     const win = new BrowserWindow({
       width: 1440,
       height: 960,
@@ -42,18 +57,82 @@ app
         sandbox: true,
       },
     });
+    let closeAllowed = false,
+      closing = false;
+    let closeTimeout: NodeJS.Timeout | undefined;
+    win.on("close", (event) => {
+      if (closeAllowed) return;
+      event.preventDefault();
+      if (closing) return;
+      closing = true;
+      win.webContents.send("focus:prepare-close");
+      closeTimeout = setTimeout(async () => {
+        const answer = await dialog.showMessageBox(win, {
+          type: "warning",
+          message: "Не удалось подтвердить сохранение. Остаться в приложении?",
+          buttons: ["Остаться", "Закрыть"],
+          defaultId: 0,
+          cancelId: 0,
+        });
+        closing = false;
+        if (answer.response === 1) {
+          closeAllowed = true;
+          win.close();
+        }
+      }, 5000);
+    });
+    ipcMain.on("focus:close-subscriber-ready", (event) => {
+      if (event.sender === win.webContents && closing)
+        win.webContents.send("focus:prepare-close");
+    });
+    ipcMain.on("focus:close-ready", (event, success) => {
+      if (
+        event.sender !== win.webContents ||
+        !closing ||
+        typeof success !== "boolean"
+      )
+        return;
+      clearTimeout(closeTimeout);
+      closing = false;
+      if (success) {
+        closeAllowed = true;
+        win.close();
+      } else
+        dialog.showErrorBox(
+          "Изменения не сохранены",
+          "Не удалось сохранить последние изменения. Приложение осталось открытым. Повторите сохранение.",
+        );
+    });
     win.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
     win.webContents.on("will-navigate", (event, url) => {
       if (url !== win.webContents.getURL()) event.preventDefault();
     });
-    ipcMain.handle("focus:state", () => store.state());
+    ipcMain.handle("focus:state", () => marked(store.state()));
     ipcMain.handle("focus:command", async (event, input) => {
       if (event.sender !== win.webContents) throw Error("Доступ запрещён");
       const c = commandSchema.parse(input);
       try {
-        if (c.type === "workspace")
-          throw Error("Предпросмотр подключается на следующем этапе");
-        if (c.type !== "file") return store.command(c);
+        if (c.type === "workspace") {
+          const args = app.isPackaged
+            ? ["--focus-demo"]
+            : [app.getAppPath(), "--focus-demo"];
+          if (process.argv.includes("--no-sandbox")) args.push("--no-sandbox");
+          const child = spawn(process.execPath, args, {
+            detached: true,
+            stdio: "ignore",
+            env: {
+              ...process.env,
+              FOCUS_DEMO: "1",
+              FOCUS_DATA_DIR: path.join(
+                app.getPath("appData"),
+                "FOCUS OS PRO Design Preview 0.2",
+              ),
+            },
+          });
+          child.unref();
+          return marked(store.state());
+        }
+        if (c.type !== "file") return marked(store.command(c));
         if (c.action === "attach") {
           if (!c.id) throw Error("Запись не выбрана");
           const r = await dialog.showOpenDialog(win, {
@@ -70,7 +149,7 @@ app
               fs.readFileSync(file),
             );
           }
-          return store.state();
+          return marked(store.state());
         }
         if (c.action === "exportAttachment") {
           const a = store.db
@@ -79,11 +158,11 @@ app
           if (!a) throw Error("Вложение не найдено");
           const r = await dialog.showSaveDialog(win, { defaultPath: a.name });
           if (r.filePath) fs.writeFileSync(r.filePath, a.content);
-          return store.state();
+          return marked(store.state());
         }
         if (c.action === "openData") {
           await shell.openPath(app.getPath("userData"));
-          return store.state();
+          return marked(store.state());
         }
         if (c.action === "backup") {
           const result = await dialog.showSaveDialog(win, {
@@ -91,7 +170,9 @@ app
             filters: [{ name: "ZIP", extensions: ["zip"] }],
           });
           if (result.filePath) {
-            backupArchive(store).writeZip(result.filePath);
+            backupArchive(store, isDemo ? "demo" : "user").writeZip(
+              result.filePath,
+            );
           }
         }
         if (c.action === "restore") {
@@ -100,7 +181,7 @@ app
             properties: ["openFile"],
           });
           if (result.filePaths[0]) {
-            if (fs.statSync(result.filePaths[0]).size > 64 * 1024 * 1024)
+            if (fs.statSync(result.filePaths[0]).size > 512 * 1024 * 1024)
               throw Error("Слишком большой файл");
             const zip = new AdmZip(result.filePaths[0]);
             const answer = await dialog.showMessageBox(win, {
@@ -113,9 +194,9 @@ app
             if (answer.response === 1) {
               fs.writeFileSync(
                 path.join(app.getPath("userData"), "before-restore.json"),
-                store.dump(),
+                store.dump(true),
               );
-              restoreArchive(store, zip);
+              restoreArchive(store, zip, isDemo ? "demo" : "user");
             }
           }
         }
@@ -131,7 +212,10 @@ app
             fs.writeFileSync(
               r.filePath,
               c.action === "export"
-                ? store.dump(true)
+                ? JSON.stringify({
+                    ...JSON.parse(store.dump(true)),
+                    workspace: isDemo ? "demo" : "user",
+                  })
                 : (note?.description ?? ""),
             );
         }
@@ -147,11 +231,19 @@ app
               buttons: ["Отмена", "Импортировать"],
               cancelId: 0,
             });
-            if (answer.response === 1)
-              store.restore(fs.readFileSync(r.filePaths[0], "utf8"));
+            if (answer.response === 1) {
+              if (fs.statSync(r.filePaths[0]).size > 512 * 1024 * 1024)
+                throw Error("Файл слишком большой");
+              const raw = fs.readFileSync(r.filePaths[0], "utf8");
+              const workspace = JSON.parse(raw).workspace ?? "user";
+              if (workspace !== (isDemo ? "demo" : "user"))
+                throw Error("Демо и рабочие данные не смешиваются");
+              store.restore(raw);
+              store.resetUndo();
+            }
           }
         }
-        return store.state();
+        return marked(store.state());
       } catch (e) {
         fs.appendFileSync(
           path.join(app.getPath("userData"), "errors.log"),
@@ -186,7 +278,7 @@ app
     app.quit();
   });
 app.on("window-all-closed", () => app.quit());
-app.on("before-quit", () => {
+app.on("will-quit", () => {
   clearInterval(timer);
   store?.close();
 });

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { registerPending } from "../shared/pending";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Markdown from "react-markdown";
 import type { Item } from "../../../../packages/contracts";
 import { newItem } from "../../../../packages/core";
@@ -8,31 +9,81 @@ export function Notes({
   s,
   command,
   remove,
-}: PageProps & { remove: (i: Item) => Promise<void> }) {
+  requestedId,
+}: PageProps & {
+  remove: (i: Item) => Promise<void>;
+  requestedId?: string | null;
+}) {
   const notes = s.items.filter((i) => i.kind === "note");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(requestedId ?? null);
+  useEffect(() => {
+    if (requestedId) setSelected(requestedId);
+  }, [requestedId]);
   const [filter, setFilter] = useState("");
   const [draft, setDraft] = useState<Item | null>(null);
   const [preview, setPreview] = useState(false);
   const item = notes.find((i) => i.id === selected) ?? notes[0];
+  const latest = useRef<Item | null>(null);
+  const dirty = useRef(false);
+  const saving = useRef(false);
+  const pending = useRef<Promise<void>>(Promise.resolve());
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flush = useCallback(async () => {
+    if (timer.current) clearTimeout(timer.current);
+    if (dirty.current && latest.current) {
+      const value = {
+        ...latest.current,
+        title: latest.current.title.trim() || "Без названия",
+      };
+      dirty.current = false;
+      saving.current = true;
+      pending.current = pending.current
+        .catch(() => {})
+        .then(async () => {
+          try {
+            await command({ type: "save", item: value });
+          } catch (e) {
+            if (latest.current?.id === value.id) dirty.current = true;
+            throw e;
+          } finally {
+            saving.current = false;
+          }
+        });
+    }
+    await pending.current;
+  }, [command]);
   useEffect(() => {
-    setDraft(item ?? null);
-  }, [item?.id, item?.description, item?.title, item?.tags]);
-  useEffect(() => {
-    if (!draft || !item || JSON.stringify(draft) === JSON.stringify(item))
+    if (latest.current?.id === item?.id && (dirty.current || saving.current))
       return;
-    const t = setTimeout(
-      () => void command({ type: "save", item: draft }).catch(() => {}),
-      600,
-    );
-    return () => clearTimeout(t);
-  }, [draft, item, command]);
+    latest.current = item ?? null;
+    dirty.current = false;
+    setDraft(item ?? null);
+  }, [item?.id, item?.description, item?.title, item?.tags, item?.projectId]);
+  useEffect(() => {
+    const unregister = registerPending("notes", flush);
+    return () => {
+      unregister();
+      void flush().catch(() => {});
+    };
+  }, [flush]);
+  const changeDraft = (value: Item) => {
+    latest.current = value;
+    dirty.current = true;
+    setDraft(value);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => void flush().catch(() => {}), 400);
+  };
+  const choose = async (id: string) => {
+    await flush();
+    setSelected(id);
+  };
   return (
     <div className="notesgrid">
       <section className="notelist">
         <button
           className="primary"
           onClick={async () => {
+            await flush();
             const n = newItem("note", "Новая заметка");
             await command({ type: "save", item: n });
             setSelected(n.id);
@@ -53,7 +104,7 @@ export function Notes({
               .includes(filter.toLowerCase()),
           )
           .map((n) => (
-            <button key={n.id} onClick={() => setSelected(n.id)}>
+            <button key={n.id} onClick={() => void choose(n.id)}>
               {n.title}
             </button>
           ))}
@@ -65,7 +116,7 @@ export function Notes({
               aria-label="Название заметки"
               value={draft.title}
               style={{ width: "100%", fontSize: 20 }}
-              onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+              onChange={(e) => changeDraft({ ...draft, title: e.target.value })}
             />
             <div className="toolbar" style={{ marginTop: 16 }}>
               <button onClick={() => setPreview(!preview)}>
@@ -90,7 +141,7 @@ export function Notes({
                 aria-label="Текст заметки"
                 value={draft.description}
                 onChange={(e) =>
-                  setDraft({ ...draft, description: e.target.value })
+                  changeDraft({ ...draft, description: e.target.value })
                 }
               />
             )}
@@ -107,7 +158,9 @@ export function Notes({
               Теги
               <input
                 value={draft.tags}
-                onChange={(e) => setDraft({ ...draft, tags: e.target.value })}
+                onChange={(e) =>
+                  changeDraft({ ...draft, tags: e.target.value })
+                }
               />
             </label>
             <label className="field">
@@ -115,7 +168,7 @@ export function Notes({
               <select
                 value={draft.projectId ?? ""}
                 onChange={(e) =>
-                  setDraft({ ...draft, projectId: e.target.value || null })
+                  changeDraft({ ...draft, projectId: e.target.value || null })
                 }
               >
                 <option value="">Без проекта</option>
@@ -133,7 +186,7 @@ export function Notes({
             </p>
             <button
               onClick={async () => {
-                await command({ type: "save", item: draft });
+                await flush();
                 await command({
                   type: "file",
                   action: "exportNote",
@@ -143,7 +196,13 @@ export function Notes({
             >
               Экспорт .md
             </button>
-            <button className="danger" onClick={() => void remove(draft)}>
+            <button
+              className="danger"
+              onClick={async () => {
+                await flush();
+                await remove(draft);
+              }}
+            >
               Удалить
             </button>
           </>

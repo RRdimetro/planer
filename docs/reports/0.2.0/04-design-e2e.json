@@ -1,0 +1,426 @@
+{
+  "passed": true,
+  "errors": [],
+  "results": [
+    {
+      "mode": "user",
+      "page": "Главная",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Планировщик",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Задачи",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Проекты",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Учёба",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Тренировки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Аналитика",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Фокус",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Заметки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Настройки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Главная",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Планировщик",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Задачи",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Проекты",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Учёба",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Тренировки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Аналитика",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Фокус",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Заметки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Настройки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Главная",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Планировщик",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Задачи",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Проекты",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Учёба",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Тренировки",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Аналитика",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Фокус",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Заметки",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "user",
+      "page": "Настройки",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Главная",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Планировщик",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Задачи",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Проекты",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Учёба",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Тренировки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Аналитика",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Фокус",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Заметки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Настройки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Главная",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Планировщик",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Задачи",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Проекты",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Учёба",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Тренировки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Аналитика",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Фокус",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Заметки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Настройки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Главная",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Планировщик",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Задачи",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Проекты",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Учёба",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Тренировки",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Аналитика",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Фокус",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Заметки",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    },
+    {
+      "mode": "demo",
+      "page": "Настройки",
+      "width": 2560,
+      "height": 1440,
+      "overflow": false
+    }
+  ]
+}

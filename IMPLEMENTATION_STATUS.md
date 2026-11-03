@@ -73,3 +73,10 @@ Windows NSIS 104793980 байт и portable 95888572 байт собраны. PE
 - Windows portable preview собран (96018067 байт) отдельно с маркировкой UNTESTED и CMD-launcher A/B/C/empty. Windows executor/CI отсутствует, реальный запуск Windows НЕ выполнен; unsigned, установка/обновление и DPI не приняты.
 
 Сравнение, рекомендация C, ограничения, команды запуска и список добавленных компонентов: `docs/reports/forest-noir-v4/COMPARISON.md`. Машинные отчёты находятся рядом. Исходники и результаты публикуются в подпапке прежней поставки: https://drive.google.com/drive/folders/1uGsL1ZipowERVsZ9uXg2RoyDiY0zFY8H . Перед переходом к Gate C/D требуется выбор пользователем A/B/C.
+
+## Obsidian Command Center — утверждён B, полное ТЗ A–F
+
+Новое ТЗ полностью прочитано, сохранено в `docs/reports/obsidian/APPROVED_SPEC.md`. Рабочая ветка `feature/obsidian-complete`. Эксперименты A/C прекращены; B — единый эталон.
+
+- Этап A: общие компоненты/токены/Tailwind без preflight, единая навигация и палитра. Home B сохранена: 0 изменённых пикселей в 1366×768 и 1920×1080. 12 настоящих снимков в `docs/screenshots/obsidian/A/`; 38 tests + typecheck/lint/build прошли. База на этом этапе не изменялась.
+- Этапы B–F: в работе, ещё не приняты. Windows execution/CI по-прежнему не выполнены.

@@ -1,6 +1,10 @@
+import { AppShell } from "../design/components";
+import { Sidebar } from "../design/Sidebar";
+import { PageHeader } from "../design/PageHeader";
+import "../design/obsidian.css";
 import { flushPending } from "../shared/pending";
 import { Projects } from "../pages/Projects";
-import { Home } from "../pages/Home";
+
 import { ForestHome } from "../pages/forest-v4/ForestHome";
 import { ForestPalette } from "../pages/forest-v4/ForestPalette";
 import { Fitness, WorkoutForm } from "../pages/Fitness";
@@ -21,25 +25,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { create } from "zustand";
-import {
-  LayoutDashboard,
-  CalendarDays,
-  ListTodo,
-  FolderKanban,
-  GraduationCap,
-  Dumbbell,
-  ChartNoAxesCombined,
-  Timer,
-  NotebookPen,
-  Settings,
-  Search,
-  Plus,
-  PanelLeftClose,
-  Leaf,
-  Check,
-  Trash2,
-} from "lucide-react";
-import { motion } from "motion/react";
+import { Search, Check, Trash2 } from "lucide-react";
 import type {
   Command,
   Item,
@@ -51,18 +37,6 @@ import { Modal } from "../shared/ui";
 import "../shared/theme.css";
 import "../shared/features.css";
 import "../shared/premium.css";
-const icons = [
-  LayoutDashboard,
-  CalendarDays,
-  ListTodo,
-  FolderKanban,
-  GraduationCap,
-  Dumbbell,
-  ChartNoAxesCombined,
-  Timer,
-  NotebookPen,
-  Settings,
-];
 const useUI = create<{ page: number; go: (page: number) => void }>((set) => ({
   page: 0,
   go: (page) => set({ page }),
@@ -78,7 +52,6 @@ function App() {
   });
   const [error, setError] = useState("");
   const [editing, setEditing] = useState<Item | null>(null);
-  const [search, setSearch] = useState("");
   const [noteSelection, setNoteSelection] = useState<string | null>(null);
   const [palette, setPalette] = useState(false);
   const [toast, setToast] = useState("");
@@ -142,15 +115,11 @@ function App() {
       </main>
     );
   const s = q.data;
-  const tasks = s.items.filter((i) => i.kind === "task");
   const projects = s.items.filter((i) => i.kind === "project");
-  const forestConcept =
-    s.diagnostics.workspace === "demo" ? s.diagnostics.homeConcept : undefined;
-  const forestHome = page === 0 && !!forestConcept;
+  const forestConcept = "B" as const;
+  const forestHome = page === 0;
   const collapsed =
-    s.settings.collapsed === undefined && forestHome && forestConcept === "B"
-      ? true
-      : !!s.settings.collapsed;
+    s.settings.collapsed === undefined ? true : !!s.settings.collapsed;
   const save = async (i: Item, details?: TaskDetails) => {
     if (
       conflicts(
@@ -220,13 +189,13 @@ function App() {
     </article>
   );
   return (
-    <div
+    <AppShell
+      data-page={page}
+      reduce={s.settings.animations === false}
       className={
-        "shell " +
+        "shell obsidian-app forest-shell forest-shell-b " +
         (collapsed ? "collapsed " : "") +
-        (forestHome
-          ? `forest-shell forest-shell-${forestConcept!.toLowerCase()}`
-          : "")
+        ""
       }
       style={{
         fontSize: Number(s.settings.fontSize ?? 14),
@@ -234,59 +203,13 @@ function App() {
           s.settings.density === "compact" ? "12px" : "20px",
       }}
     >
-      <aside>
-        <div className="brand">
-          <Leaf size={27} />
-          {!collapsed && (
-            <span>
-              FOCUS OS <b>PRO</b>
-            </span>
-          )}
-        </div>
-        <div className="navlabel">ВАШЕ ПРОСТРАНСТВО</div>
-        <nav>
-          {pages.map((p, i) => {
-            const Icon = icons[i];
-            return (
-              <button
-                key={p}
-                className={page === i ? "selected" : ""}
-                title={p}
-                aria-label={p}
-                onClick={() => go(i)}
-              >
-                <Icon size={19} />
-                {!collapsed && <span>{p}</span>}
-                {i === 2 && !collapsed && (
-                  <small>
-                    {tasks.filter((t) => t.status !== "done").length}
-                  </small>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-        <div className="sidebarfoot">
-          <span className="dot" />
-          {!collapsed &&
-            (s.diagnostics.workspace === "demo"
-              ? "Демо · отдельная база"
-              : "Локально · без облака")}
-          <button
-            className="icon"
-            aria-label="Свернуть навигацию"
-            onClick={() =>
-              void command({
-                type: "settings",
-                key: "collapsed",
-                value: !collapsed,
-              })
-            }
-          >
-            <PanelLeftClose size={18} />
-          </button>
-        </div>
-      </aside>
+      <Sidebar
+        s={s}
+        command={command}
+        page={page}
+        go={go}
+        collapsed={collapsed}
+      />
       <div className="workspace">
         <header>
           <div className="breadcrumb">
@@ -309,75 +232,12 @@ function App() {
           </div>
         )}
         <main>
-          <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18 }}
-            className="pageheading"
-          >
-            <div>
-              <div className="eyebrow">
-                FOCUS OS / {String(page + 1).padStart(2, "0")}
-              </div>
-              <h1>{pages[page]}</h1>
-              <p className="muted">
-                {
-                  [
-                    "Ясность в планах. Пространство для главного.",
-                    "Время под вашим контролем.",
-                    "От намерения — к результату.",
-                    "Большие идеи, понятные шаги.",
-                    "Каждая отметка — шаг вперёд.",
-                    "Движение в своём ритме.",
-                    "Только ваши данные. Честная картина.",
-                    "Одна задача. Полное внимание.",
-                    "Мысли, к которым хочется вернуться.",
-                    "Ваше пространство, ваши правила.",
-                  ][page]
-                }
-              </p>
-            </div>
-            <div className="row">
-              <span className="date">
-                {new Date().toLocaleDateString("ru-RU", {
-                  day: "numeric",
-                  month: "long",
-                  weekday: "short",
-                  timeZone: String(
-                    s.settings.timezone ??
-                      Intl.DateTimeFormat().resolvedOptions().timeZone,
-                  ),
-                })}
-              </span>
-              <button
-                className="primary"
-                onClick={() =>
-                  setEditing(
-                    newItem(
-                      page === 3 ? "project" : page === 5 ? "workout" : "task",
-                      "",
-                    ),
-                  )
-                }
-              >
-                <Plus size={16} /> Добавить
-              </button>
-            </div>
-          </motion.div>
+          <PageHeader s={s} page={page} edit={setEditing} />
           {error && (
             <div className="error" role="alert">
               {error}
               <button onClick={() => setError("")}>Закрыть</button>
             </div>
-          )}
-          {page === 0 && !forestHome && (
-            <Home
-              s={s}
-              command={command}
-              go={go}
-              edit={setEditing}
-              save={save}
-            />
           )}
           {forestHome && forestConcept && (
             <ForestHome
@@ -450,7 +310,7 @@ function App() {
       ) : (
         editing && (
           <ItemForm
-            presentation={forestHome ? "sheet" : undefined}
+            presentation="sheet"
             item={editing}
             projects={projects}
             state={s}
@@ -460,7 +320,7 @@ function App() {
           />
         )
       )}{" "}
-      {palette && forestHome && (
+      {palette && (
         <ForestPalette
           s={s}
           command={command}
@@ -468,48 +328,6 @@ function App() {
           edit={setEditing}
           close={() => setPalette(false)}
         />
-      )}
-      {palette && !forestHome && (
-        <Modal title="Поиск и команды" onClose={() => setPalette(false)}>
-          <input
-            autoFocus
-            placeholder="Раздел, задача, заметка…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <div className="commandlist">
-            {pages
-              .filter((p) => p.toLowerCase().includes(search.toLowerCase()))
-              .map((p) => (
-                <button
-                  key={p}
-                  onClick={() => {
-                    go(pages.indexOf(p));
-                    setPalette(false);
-                    setSearch("");
-                  }}
-                >
-                  {p} ↗
-                </button>
-              ))}
-            {s.items
-              .filter((i) =>
-                i.title.toLowerCase().includes(search.toLowerCase()),
-              )
-              .slice(0, 25)
-              .map((i) => (
-                <button
-                  key={i.id}
-                  onClick={() => {
-                    setEditing(i);
-                    setPalette(false);
-                  }}
-                >
-                  {i.title}
-                </button>
-              ))}
-          </div>
-        </Modal>
       )}
       {!s.settings.onboarded && (
         <Modal
@@ -542,7 +360,7 @@ function App() {
           ✓ {toast}
         </div>
       )}
-    </div>
+    </AppShell>
   );
 }
 

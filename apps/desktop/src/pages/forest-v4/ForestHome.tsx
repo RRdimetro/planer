@@ -1,4 +1,5 @@
-import { useState, type ReactNode } from "react";
+import { BentoPanel as Panel } from "../../design/components";
+import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowUpRight,
@@ -50,40 +51,6 @@ const plural = (n: number, words: [string, string, string]) =>
           : 2
   ];
 
-function Panel({
-  title,
-  label,
-  action,
-  children,
-  className = "",
-}: {
-  title: string;
-  label?: string;
-  action?: () => void;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={`fn-panel ${className}`}>
-      <div className="fn-panel-head">
-        <div>
-          {label && <span className="fn-kicker">{label}</span>}
-          <h2>{title}</h2>
-        </div>
-        {action && (
-          <button
-            className="fn-icon"
-            aria-label={`Открыть: ${title}`}
-            onClick={action}
-          >
-            <ArrowUpRight size={18} />
-          </button>
-        )}
-      </div>
-      {children}
-    </section>
-  );
-}
 function Empty({
   title,
   description,

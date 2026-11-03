@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "demo": true,
+      "page": "Главная",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Задачи",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Учёба",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Главная",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Задачи",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Учёба",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Главная",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Задачи",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Учёба",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Главная",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Задачи",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Учёба",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "platform": "linux",
+  "windowsTested": false
+}

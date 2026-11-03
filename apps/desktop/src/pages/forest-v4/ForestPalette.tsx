@@ -206,7 +206,7 @@ export function ForestPalette({
             <span>
               <kbd>Esc</kbd> закрыть
             </span>
-            <span>Поиск только в этой демо-базе</span>
+            <span>Поиск в локальном пространстве</span>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

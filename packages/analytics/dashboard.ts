@@ -1,6 +1,6 @@
 import type { State } from "../contracts";
 import { addDays, dateInZone, weekDays } from "../core";
-import { metrics } from "./index";
+import { metrics, dailyEfficiency } from "./index";
 
 export function dashboardData(s: State, now = new Date()) {
   const zone = String(
@@ -67,6 +67,7 @@ export function dashboardData(s: State, now = new Date()) {
     projects,
     current,
     previous,
+    dailyScore: dailyEfficiency(s, today).score,
     daily,
     timeline,
     pending,

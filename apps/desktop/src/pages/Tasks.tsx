@@ -1,3 +1,5 @@
+import { DataTable } from "../design/components";
+import { WeeklyTasks } from "../features/WeeklyTasks";
 import { useEffect, useState } from "react";
 import {
   Check,
@@ -8,10 +10,16 @@ import {
   GitBranch,
   Search,
   ListChecks,
+  GripVertical,
 } from "lucide-react";
 import type { Item, Command } from "../../../../packages/contracts";
 import { emptyTaskDetails } from "../../../../packages/contracts";
-import { newItem, localDate, weekDays } from "../../../../packages/core";
+import {
+  newItem,
+  localDate,
+  weekDays,
+  addDays,
+} from "../../../../packages/core";
 import type { PageProps } from "../shared/model";
 import { Empty } from "../shared/ui";
 const labels = {
@@ -113,6 +121,26 @@ export function Tasks({
         onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}
       >
         <div className="row">
+          <span
+            className="obs-drag-handle"
+            role="button"
+            tabIndex={0}
+            draggable
+            aria-label={"Переместить " + t.title}
+            title="Перетащите или используйте стрелки ← / →"
+            onDragStart={(e) => e.dataTransfer.setData("text/plain", t.id)}
+            onKeyDown={(e) => {
+              if (t.date && ["ArrowLeft", "ArrowRight"].includes(e.key)) {
+                e.preventDefault();
+                void save({
+                  ...t,
+                  date: addDays(t.date, e.key === "ArrowRight" ? 1 : -1),
+                });
+              }
+            }}
+          >
+            <GripVertical size={14} />
+          </span>
           <input
             type="checkbox"
             aria-label={"Выбрать " + t.title}
@@ -283,6 +311,7 @@ export function Tasks({
         >
           <option value="kanban">Канбан</option>
           <option value="table">Таблица</option>
+          <option value="week">Недельный список</option>
           <option value="list">Иерархический список</option>
         </select>
         <select
@@ -506,6 +535,8 @@ export function Tasks({
             </div>
           ))}
         </div>
+      ) : view === "week" ? (
+        <WeeklyTasks s={s} command={command} edit={edit} row={row} />
       ) : view === "list" ? (
         <section>
           {filtered
@@ -519,55 +550,61 @@ export function Tasks({
         </section>
       ) : (
         <section className="tablewrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Выбор</th>
-                <th>Задача</th>
-                <th>Статус</th>
-                <th>Дата</th>
-                <th>Дедлайн</th>
-                <th>План / факт</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((t) => (
-                <tr key={t.id}>
-                  <td>
-                    <input
-                      type="checkbox"
-                      aria-label={"Выбрать " + t.title}
-                      checked={selected.includes(t.id)}
-                      onChange={(e) =>
-                        setSelection(
-                          e.target.checked
-                            ? [...selected, t.id]
-                            : selected.filter((id) => id !== t.id),
-                        )
-                      }
-                    />
-                  </td>
-                  <td>
-                    <button className="textbutton" onClick={() => edit(t)}>
-                      {t.title}
-                    </button>
-                  </td>
-                  <td>{labels[t.status]}</td>
-                  <td>{t.date ?? "—"}</td>
-                  <td>{t.due ?? "—"}</td>
-                  <td>
-                    {t.estimate} /{" "}
-                    {Math.round(
-                      s.sessions
-                        .filter((x) => x.taskId === t.id)
-                        .reduce((a, x) => a + x.seconds / 60, 0),
-                    )}{" "}
-                    мин
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <DataTable
+            rows={filtered}
+            rowKey={(t) => t.id}
+            columns={[
+              {
+                title: "Выбор",
+                render: (t) => (
+                  <input
+                    type="checkbox"
+                    aria-label={"Выбрать " + t.title}
+                    checked={selected.includes(t.id)}
+                    onChange={(e) =>
+                      setSelection(
+                        e.target.checked
+                          ? [...selected, t.id]
+                          : selected.filter((id) => id !== t.id),
+                      )
+                    }
+                  />
+                ),
+              },
+              {
+                title: "Задача",
+                render: (t) => (
+                  <button className="textbutton" onClick={() => edit(t)}>
+                    {t.title}
+                  </button>
+                ),
+              },
+              {
+                title: "Статус / P",
+                render: (t) => `${labels[t.status]} · P${t.priority}`,
+              },
+              {
+                title: "Проект / категория",
+                render: (t) =>
+                  `${projects.find((p) => p.id === t.projectId)?.title ?? "—"} / ${t.category || "—"}`,
+              },
+              {
+                title: "Дата / срок",
+                render: (t) => (
+                  <>
+                    {t.date ?? "—"}
+                    <br />
+                    {t.due ?? "—"}
+                  </>
+                ),
+              },
+              {
+                title: "План / факт, мин",
+                render: (t) =>
+                  `${t.estimate} / ${Math.round(s.sessions.filter((x) => x.taskId === t.id && x.kind !== "break").reduce((a, x) => a + x.seconds / 60, 0))}`,
+              },
+            ]}
+          />
         </section>
       )}
     </>

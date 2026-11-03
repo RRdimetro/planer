@@ -62,8 +62,19 @@ for (const demo of [true, false]) {
         [width, height],
       );
       for (let i = 0; i < pages.length; i++) {
-        if (stage === "A" && ![0, 2, 4].includes(i)) continue;
-        await p.locator("nav").getByRole("button", { name: pages[i], exact: true }).click();
+        if (
+          stage !== "F" &&
+          !(
+            { A: [0, 2, 4], B: [0, 1, 2], C: [3, 4], D: [5, 7, 8], E: [6] }[
+              stage
+            ] ?? []
+          ).includes(i)
+        )
+          continue;
+        await p
+          .locator("nav")
+          .getByRole("button", { name: pages[i], exact: true })
+          .click();
         await expect(
           p.getByRole("heading", { name: pages[i], exact: true }),
         ).toBeVisible();

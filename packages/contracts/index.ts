@@ -82,8 +82,28 @@ export interface Session {
   seconds: number;
   state: "running" | "paused" | "done" | "interrupted";
   target: number;
+  kind?: "work" | "break";
 }
 export interface State {
+  noteFolders?: { id: string; name: string }[];
+  noteMembership?: Record<string, string>;
+  links?: {
+    sourceId: string;
+    targetId: string;
+    relation: "related" | "backlink";
+  }[];
+  eventSeries?: {
+    id: string;
+    frequency: "daily" | "weekly" | "monthly";
+    interval: number;
+    until: string | null;
+  }[];
+  eventOccurrences?: {
+    eventId: string;
+    seriesId: string;
+    originalDate: string;
+  }[];
+  movementDays?: { day: string; count: number }[];
   revision: number;
   taskDetails: Record<string, TaskDetails>;
   attachments: AttachmentInfo[];
@@ -122,6 +142,38 @@ export const subjectSchema = z
     "Выполнено не может превышать всего",
   );
 export const commandSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("saveEvent"),
+    item: recordSchema.refine((i) => i.kind === "event"),
+    recurrence: z.object({
+      frequency: z.enum(["daily", "weekly", "monthly"]),
+      interval: z.number().int().min(1).max(365),
+      until: z.iso.date().nullable(),
+    }),
+    count: z.number().int().min(2).max(104),
+  }),
+  z.object({ type: z.literal("studyGroup"), group: z.lazy(() => groupSchema) }),
+  z.object({
+    type: z.literal("studyWorkbook"),
+    subjects: z.array(subjectSchema).max(500),
+    groups: z.array(z.lazy(() => groupSchema)).max(500),
+  }),
+  z.object({
+    type: z.literal("folder"),
+    id: z.string().uuid(),
+    name: z.string().trim().min(1).max(100),
+  }),
+  z.object({
+    type: z.literal("noteFolder"),
+    noteId: z.string().uuid(),
+    folderId: z.string().uuid().nullable(),
+  }),
+  z.object({
+    type: z.literal("link"),
+    sourceId: z.string().uuid(),
+    targetId: z.string().uuid(),
+    remove: z.boolean().optional(),
+  }),
   z.object({
     type: z.literal("applySchedule"),
     items: z.array(recordSchema).min(1).max(1000),
@@ -206,6 +258,18 @@ export const commandSchema = z.discriminatedUnion("type", [
       "afterWorkoutMinutes",
       "complexPriority",
       "taskAdvancedFilter",
+      "taskWeek",
+      "obsidianWidgets",
+      "focusMode",
+      "breakMinutes",
+      "notifications",
+      "notificationLead",
+      "autoBackup",
+      "backupEveryHours",
+      "backupRetention",
+      "lastBackupAt",
+      "lastBackupPath",
+      "uiScale",
     ]),
     value: z.unknown(),
   }),
@@ -214,6 +278,7 @@ export const commandSchema = z.discriminatedUnion("type", [
     type: z.literal("focusStart"),
     taskId: z.string().uuid().nullable(),
     target: z.number().int().min(0).max(86400),
+    kind: z.enum(["work", "break"]).optional(),
   }),
   z.object({
     type: z.literal("focusAction"),
@@ -230,12 +295,26 @@ export const commandSchema = z.discriminatedUnion("type", [
       "openData",
       "attach",
       "exportAttachment",
+      "studyExport",
+      "studyImport",
+      "fullscreen",
+      "integrity",
     ]),
     id: z.string().uuid().optional(),
   }),
 ]);
 export type Command = z.infer<typeof commandSchema>;
 export interface API {
+  history(id: string): Promise<
+    {
+      id: string;
+      at: string;
+      action: string;
+      before: Item | null;
+      after: Item | null;
+    }[]
+  >;
+  readImage(id: string): Promise<string | null>;
   onCloseRequested(callback: () => Promise<void>): () => void;
   state(): Promise<State>;
   command(command: Command): Promise<State>;
@@ -266,9 +345,43 @@ export const sessionSchema = z.object({
   seconds: z.number().min(0).max(10000000),
   state: z.enum(["running", "paused", "done", "interrupted"]),
   target: z.number().int().min(0).max(86400),
+  kind: z.enum(["work", "break"]).optional(),
 });
 export function validateSetting(key: string, value: unknown) {
   switch (key) {
+    case "obsidianWidgets":
+      return z
+        .object({
+          order: z
+            .array(z.string().max(40))
+            .length(10)
+            .refine((a) => new Set(a).size === 10),
+          hidden: z.array(z.string().max(40)).max(9),
+          widths: z
+            .record(z.string(), z.number().int().min(3).max(12))
+            .optional(),
+          sizes: z.record(z.string(), z.number().int().min(230).max(1000)),
+        })
+        .parse(value);
+    case "focusMode":
+      return z.enum(["pomodoro", "free"]).parse(value);
+    case "breakMinutes":
+      return z.number().int().min(1).max(60).parse(value);
+    case "notificationLead":
+      return z.number().int().min(0).max(120).parse(value);
+    case "backupEveryHours":
+      return z.number().int().min(1).max(168).parse(value);
+    case "backupRetention":
+      return z.number().int().min(1).max(100).parse(value);
+    case "lastBackupAt":
+      return z.iso.datetime().parse(value);
+    case "lastBackupPath":
+      return z.string().max(4096).parse(value);
+    case "uiScale":
+      return z.number().min(0.75).max(2).parse(value);
+    case "autoBackup":
+    case "notifications":
+      return z.boolean().parse(value);
     case "workDays":
       return z
         .array(z.number().int().min(1).max(7))
@@ -312,8 +425,10 @@ export function validateSetting(key: string, value: unknown) {
       return z.number().min(15).max(1080).parse(value);
     case "startPage":
       return z.number().int().min(0).max(9).parse(value);
+    case "taskWeek":
+      return z.iso.date().parse(value);
     case "taskView":
-      return z.enum(["kanban", "table", "list"]).parse(value);
+      return z.enum(["kanban", "table", "list", "week"]).parse(value);
     case "taskFilter":
       return z.union([z.literal(""), z.string().uuid()]).parse(value);
     case "weights":

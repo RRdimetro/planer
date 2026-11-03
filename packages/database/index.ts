@@ -82,6 +82,12 @@ export class Store {
           .get() as { n: number }
       ).n,
       ...this.relations.state(),
+      ...this.relations.obsidianState(),
+      movementDays: this.db
+        .prepare(
+          "SELECT substr(at,1,10) day,count(*) count FROM entity_changes WHERE before_json IS NOT NULL AND json_extract(before_json,'$.date') IS NOT json_extract(after_json,'$.date') GROUP BY substr(at,1,10) ORDER BY day",
+        )
+        .all() as { day: string; count: number }[],
       completions: this.list("completion"),
       items: ["task", "project", "event", "workout", "note", "snapshot"]
         .flatMap((k) => this.list<Item>(k))
@@ -97,14 +103,14 @@ export class Store {
           .map((r) => [r.key, JSON.parse(r.payload)]),
       ),
       diagnostics: {
-        version: 3,
+        version: 4,
         integrity: String(this.db.pragma("quick_check", { simple: true })),
       },
     };
   }
   dump(includeBlobs = false) {
     return JSON.stringify({
-      schema: 3,
+      schema: 4,
       relations: this.relations.dump(includeBlobs),
       records: this.repo.records(),
       settings: this.orm.select().from(schema.settings).all(),
@@ -168,7 +174,7 @@ export class Store {
     this.db.transaction(() => {
       this.db.pragma("defer_foreign_keys=ON");
       this.db.exec(
-        "DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM workout_programs;DELETE FROM exercises;DELETE FROM planning_constraints;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
+        "DELETE FROM event_occurrences;DELETE FROM event_series;DELETE FROM entity_links;DELETE FROM note_folder_membership;DELETE FROM note_folders;DELETE FROM session_kinds;DELETE FROM notification_receipts;DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM workout_programs;DELETE FROM exercises;DELETE FROM planning_constraints;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
       );
       this.repo.load(d.records);
       this.relations.load(d.relations);
@@ -196,6 +202,12 @@ export class Store {
           : null,
     };
     this.put(item.kind, item);
+    if (item.kind === "task" && item.date && old?.date !== item.date)
+      this.db
+        .prepare(
+          "UPDATE tasks SET weekly_week=? WHERE id=? AND weekly_week IS NOT NULL",
+        )
+        .run(weekDays(item.date)[0], item.id);
     if (
       item.kind === "task" &&
       item.status === "week" &&
@@ -332,6 +344,113 @@ export class Store {
     this.db.transaction(() => {
       this.db.pragma("defer_foreign_keys=ON");
       switch (c.type) {
+        case "saveEvent": {
+          if (!c.item.date) throw Error("Для повторов нужна дата");
+          if (
+            this.db
+              .prepare("SELECT id FROM event_series WHERE id=?")
+              .get(c.item.id)
+          )
+            throw Error(
+              "Эта серия уже создана. Редактируйте отдельные события",
+            );
+          this.saveItem(c.item);
+          this.db
+            .prepare("INSERT INTO event_series VALUES(?,?,?,?)")
+            .run(
+              c.item.id,
+              c.recurrence.frequency,
+              c.recurrence.interval,
+              c.recurrence.until,
+            );
+          let date = c.item.date;
+          for (let n = 0; n < c.count; n++) {
+            if (n) {
+              const next = nextOccurrenceDate(
+                date,
+                c.recurrence,
+                Number(c.item.date.slice(8)),
+              );
+              if (!next) break;
+              date = next;
+            }
+            if (c.recurrence.until && date > c.recurrence.until) break;
+            const item = n
+              ? {
+                  ...c.item,
+                  id: randomUUID(),
+                  date,
+                  createdAt: new Date().toISOString(),
+                }
+              : c.item;
+            if (n) this.saveItem(item);
+            this.db
+              .prepare("INSERT INTO event_occurrences VALUES(?,?,?)")
+              .run(item.id, c.item.id, date);
+          }
+          break;
+        }
+        case "studyGroup": {
+          const old = this.list<import("../contracts").StudyGroup>(
+            "group",
+          ).find((g) => g.id === c.group.id);
+          if (!old) throw Error("Группа не найдена");
+          if (
+            c.group.subjectId !== old.subjectId ||
+            c.group.stages.length < old.stages.length ||
+            c.group.values[0].length < old.values[0].length
+          )
+            throw Error(
+              "Существующие этапы и работы нельзя удалять этим редактором",
+            );
+          this.put("group", c.group);
+          break;
+        }
+        case "studyWorkbook": {
+          for (const subject of c.subjects) this.put("subject", subject);
+          for (const group of c.groups) {
+            const old = this.list<import("../contracts").StudyGroup>(
+              "group",
+            ).find((g) => g.id === group.id);
+            if (
+              old &&
+              (group.subjectId !== old.subjectId ||
+                group.stages.length < old.stages.length ||
+                group.values[0].length < old.values[0].length)
+            )
+              throw Error("Excel не должен удалять существующие работы/этапы");
+            this.put("group", group);
+          }
+          break;
+        }
+        case "folder":
+          this.repo.upsert("note_folders", { id: c.id, name: c.name });
+          break;
+        case "noteFolder":
+          if (c.folderId)
+            this.repo.upsert("note_folder_membership", {
+              note_id: c.noteId,
+              folder_id: c.folderId,
+            });
+          else
+            this.db
+              .prepare("DELETE FROM note_folder_membership WHERE note_id=?")
+              .run(c.noteId);
+          break;
+        case "link":
+          if (c.remove)
+            this.db
+              .prepare(
+                "DELETE FROM entity_links WHERE source_id=? AND target_id=? AND relation='related'",
+              )
+              .run(c.sourceId, c.targetId);
+          else
+            this.db
+              .prepare(
+                "INSERT OR IGNORE INTO entity_links VALUES(?,?,'related')",
+              )
+              .run(c.sourceId, c.targetId);
+          break;
         case "applySchedule": {
           const state = this.state();
           if (state.revision !== c.expectedRevision)
@@ -377,7 +496,9 @@ export class Store {
           this.relations.saveTask(c.item.id, {
             ...c.details,
             weeklyWeek:
-              c.details.weeklyWeek ??
+              (c.item.date && c.details.weeklyWeek
+                ? weekDays(c.item.date)[0]
+                : c.details.weeklyWeek) ??
               (c.item.status === "week"
                 ? weekDays(c.item.date ?? this.currentDay())[0]
                 : null),
@@ -547,8 +668,8 @@ export class Store {
           )
             throw Error("Задача фокуса не найдена");
           if (
-            this.state().sessions.some(
-              (s) => s.state === "running" || s.state === "paused",
+            this.state().sessions.some((s) =>
+              ["running", "paused", "interrupted"].includes(s.state),
             )
           )
             throw Error("Сначала завершите текущую сессию");
@@ -559,6 +680,7 @@ export class Store {
             seconds: 0,
             state: "running",
             target: c.target,
+            ...(c.kind ? { kind: c.kind } : {}),
           });
           break;
         case "focusAction": {

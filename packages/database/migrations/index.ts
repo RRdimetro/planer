@@ -3,6 +3,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { writeFileSync } from "node:fs";
 import { sql } from "./0002_normalized";
 import { sql as planningSQL } from "./0003_planning";
+import { sql as obsidianSQL } from "./0004_obsidian";
 import { NormalizedRepository } from "../normalized";
 function canonical(x: any): string {
   if (Array.isArray(x)) return "[" + x.map(canonical).join(",") + "]";
@@ -91,6 +92,20 @@ export function applyV3(db: Database.Database) {
     );
   })();
 }
+export function applyV4(db: Database.Database) {
+  db.transaction(() => {
+    const repo = new NormalizedRepository(db);
+    const before = canonical(repo.records());
+    db.exec(obsidianSQL);
+    if (canonical(repo.records()) !== before)
+      throw Error("Миграция изменила исходные данные");
+    if ((db.pragma("foreign_key_check") as unknown[]).length)
+      throw Error("Ошибка связей v4");
+    db.prepare("INSERT INTO schema_migrations VALUES(4,?)").run(
+      new Date().toISOString(),
+    );
+  })();
+}
 export function upgrade(db: Database.Database) {
   const current = (
     db.prepare("SELECT max(version) v FROM schema_migrations").get() as {
@@ -100,6 +115,7 @@ export function upgrade(db: Database.Database) {
   db.transaction(() => {
     if (current === 1) applyV2(db);
     if (current < 3) applyV3(db);
+    if (current < 4) applyV4(db);
   })();
 }
 export function migrate(db: Database.Database, path: string) {
@@ -108,8 +124,8 @@ export function migrate(db: Database.Database, path: string) {
       v: number;
     }
   ).v;
-  if (current > 3) throw Error("База создана более новой версией приложения");
-  if (current === 3) return null;
+  if (current > 4) throw Error("База создана более новой версией приложения");
+  if (current === 4) return null;
   let backupPath: string | null = null;
   if (path !== ":memory:") {
     const stamp = new Date().toISOString().replace(/[:.]/g, "-");

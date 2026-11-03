@@ -10,6 +10,8 @@ import {
   type Command,
   type Item,
 } from "../../../../packages/contracts";
+import { ActivityHistory } from "../design/ActivityHistory";
+import { ContextDrawer } from "../design/components";
 import { Field, Modal } from "../shared/ui";
 export function ItemForm({
   item,
@@ -28,6 +30,11 @@ export function ItemForm({
   onClose: () => void;
   presentation?: "sheet";
 }) {
+  const [eventFrequency, setEventFrequency] = useState<
+    "none" | "daily" | "weekly" | "monthly"
+  >("none");
+  const [eventCount, setEventCount] = useState(4);
+  const EditorDialog = presentation ? ContextDrawer : Modal;
   const [details, setDetails] = useState<TaskDetails>(
     state.taskDetails[item.id] ?? {
       ...emptyTaskDetails(),
@@ -46,7 +53,7 @@ export function ItemForm({
     defaultValues: item,
   });
   return (
-    <Modal
+    <EditorDialog
       presentation={presentation}
       title={
         item.kind === "task"
@@ -60,9 +67,21 @@ export function ItemForm({
       onClose={onClose}
     >
       <form
-        onSubmit={handleSubmit((i) =>
-          onSave(i, item.kind === "task" ? details : undefined),
-        )}
+        onSubmit={handleSubmit(async (i) => {
+          if (i.kind === "event" && eventFrequency !== "none") {
+            await command({
+              type: "saveEvent",
+              item: i,
+              recurrence: {
+                frequency: eventFrequency,
+                interval: 1,
+                until: null,
+              },
+              count: eventCount,
+            });
+            onClose();
+          } else onSave(i, item.kind === "task" ? details : undefined);
+        })}
       >
         <Field label="Название">
           <input autoFocus {...register("title")} />
@@ -184,6 +203,43 @@ export function ItemForm({
             </>
           )}
         </div>
+        {item.kind === "event" && (
+          <section className="obs-event-repeat">
+            <h3>Повторяющиеся события</h3>
+            <label className="field">
+              Повтор события
+              <select
+                aria-label="Повтор события"
+                value={eventFrequency}
+                onChange={(e) =>
+                  setEventFrequency(e.target.value as typeof eventFrequency)
+                }
+              >
+                <option value="none">Только это событие</option>
+                <option value="daily">Каждый день</option>
+                <option value="weekly">Каждую неделю</option>
+                <option value="monthly">Каждый месяц</option>
+              </select>
+            </label>
+            {eventFrequency !== "none" && (
+              <label className="field">
+                Количество встреч
+                <input
+                  aria-label="Количество встреч"
+                  type="number"
+                  min="2"
+                  max="104"
+                  value={eventCount}
+                  onChange={(e) => setEventCount(Number(e.target.value))}
+                />
+              </label>
+            )}
+            <p className="hint">
+              При сохранении создаются отдельные встречи. Их можно переносить
+              независимо; серия не перезаписывает исключения.
+            </p>
+          </section>
+        )}
         {item.kind === "task" && (
           <div className="task-details-editor">
             <h3>Структура и повторение</h3>
@@ -423,7 +479,10 @@ export function ItemForm({
           Сохранить
         </button>
       </form>
-    </Modal>
+      {state.items.some((i) => i.id === item.id) && (
+        <ActivityHistory id={item.id} />
+      )}
+    </EditorDialog>
   );
 }
 

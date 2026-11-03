@@ -80,3 +80,5 @@ Windows NSIS 104793980 байт и portable 95888572 байт собраны. PE
 
 - Этап A: общие компоненты/токены/Tailwind без preflight, единая навигация и палитра. Home B сохранена: 0 изменённых пикселей в 1366×768 и 1920×1080. 12 настоящих снимков в `docs/screenshots/obsidian/A/`; 38 tests + typecheck/lint/build прошли. База на этом этапе не изменялась.
 - Этапы B–F: в работе, ещё не приняты. Windows execution/CI по-прежнему не выполнены.
+
+- Этап B проверен: миграция v4 с копией/восстановлением, события-серии и исключения, lanes конфликтов/свободные окна, недельный список/backlog, virtual DataTable, контекстные панели и история, persisted widgets + reset. 44 unit/integration, typecheck/lint/build и реальный Electron E2E прошли; 12 PNG в `docs/screenshots/obsidian/B/`. Бесконечные серии не объявляются: материализация 2–104 встреч. C–F ещё в работе.

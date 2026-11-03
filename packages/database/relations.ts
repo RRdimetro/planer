@@ -21,38 +21,66 @@ export class Relations {
   taskDetails(): Record<string, TaskDetails> {
     const result: Record<string, TaskDetails> = {};
     for (const t of this.db
-      .prepare("SELECT * FROM tasks ORDER BY rowid")
-      .all() as Row[]) {
-      const rule = this.db
-        .prepare("SELECT * FROM recurrence_rules WHERE task_id=?")
-        .get(t.id) as Row | undefined;
+      .prepare("SELECT id,parent_id,weekly_week FROM tasks ORDER BY rowid")
+      .all() as Row[])
       result[t.id] = {
         parentId: t.parent_id,
         weeklyWeek: t.weekly_week,
-        recurrence: rule
-          ? {
-              frequency: rule.frequency,
-              interval: rule.interval,
-              until: rule.until_date,
-            }
-          : null,
-        dependencies: (
-          this.db
-            .prepare(
-              "SELECT depends_on_id FROM task_dependencies WHERE task_id=? ORDER BY rowid",
-            )
-            .all(t.id) as Row[]
-        ).map((d) => d.depends_on_id),
-        checklist: (
-          this.db
-            .prepare(
-              "SELECT * FROM task_checklist WHERE task_id=? ORDER BY position",
-            )
-            .all(t.id) as Row[]
-        ).map((c) => ({ id: c.id, title: c.title, done: !!c.done })),
+        recurrence: null,
+        dependencies: [],
+        checklist: [],
       };
-    }
+    for (const r of this.db
+      .prepare("SELECT * FROM recurrence_rules")
+      .all() as Row[])
+      result[r.task_id].recurrence = {
+        frequency: r.frequency,
+        interval: r.interval,
+        until: r.until_date,
+      };
+    for (const r of this.db
+      .prepare("SELECT * FROM task_dependencies ORDER BY rowid")
+      .all() as Row[])
+      result[r.task_id].dependencies.push(r.depends_on_id);
+    for (const r of this.db
+      .prepare("SELECT * FROM task_checklist ORDER BY task_id,position")
+      .all() as Row[])
+      result[r.task_id].checklist.push({
+        id: r.id,
+        title: r.title,
+        done: !!r.done,
+      });
     return result;
+  }
+  obsidianState() {
+    const rows = (sql: string) => this.db.prepare(sql).all() as Row[];
+    return {
+      noteFolders: rows("SELECT * FROM note_folders ORDER BY rowid").map(
+        (r) => ({ id: r.id as string, name: r.name as string }),
+      ),
+      noteMembership: Object.fromEntries(
+        rows("SELECT * FROM note_folder_membership").map((r) => [
+          r.note_id,
+          r.folder_id,
+        ]),
+      ),
+      links: rows("SELECT * FROM entity_links").map((r) => ({
+        sourceId: r.source_id as string,
+        targetId: r.target_id as string,
+        relation: r.relation as "related" | "backlink",
+      })),
+      eventSeries: rows("SELECT * FROM event_series").map((r) => ({
+        id: r.id as string,
+        frequency: r.frequency as "daily" | "weekly" | "monthly",
+        interval: r.interval as number,
+        until: r.until_date as string | null,
+      })),
+      eventOccurrences: rows("SELECT * FROM event_occurrences").map((r) => ({
+        eventId: r.event_id as string,
+        seriesId: r.series_id as string,
+        originalDate: r.original_date as string,
+      })),
+    };
   }
   saveTask(id: string, input: TaskDetails) {
     const d = taskDetailsSchema.parse(input);
@@ -260,6 +288,11 @@ export class Relations {
     const state = this.state();
     return {
       ...state,
+      ...this.obsidianState(),
+      sessionKinds: this.db.prepare("SELECT * FROM session_kinds").all(),
+      notificationReceipts: this.db
+        .prepare("SELECT * FROM notification_receipts")
+        .all(),
       entityChanges: this.db
         .prepare("SELECT * FROM entity_changes ORDER BY rowid")
         .all(),
@@ -277,6 +310,32 @@ export class Relations {
   }
   load(raw: any) {
     if (!raw) return;
+    for (const r of raw.noteFolders ?? [])
+      this.db.prepare("INSERT INTO note_folders VALUES(?,?)").run(r.id, r.name);
+    for (const [note, folder] of Object.entries(raw.noteMembership ?? {}))
+      this.db
+        .prepare("INSERT INTO note_folder_membership VALUES(?,?)")
+        .run(note, folder);
+    for (const r of raw.links ?? [])
+      this.db
+        .prepare("INSERT INTO entity_links VALUES(?,?,?)")
+        .run(r.sourceId, r.targetId, r.relation);
+    for (const r of raw.eventSeries ?? [])
+      this.db
+        .prepare("INSERT INTO event_series VALUES(?,?,?,?)")
+        .run(r.id, r.frequency, r.interval, r.until);
+    for (const r of raw.eventOccurrences ?? [])
+      this.db
+        .prepare("INSERT INTO event_occurrences VALUES(?,?,?)")
+        .run(r.eventId, r.seriesId, r.originalDate);
+    for (const r of raw.sessionKinds ?? [])
+      this.db
+        .prepare("INSERT OR REPLACE INTO session_kinds VALUES(?,?)")
+        .run(r.session_id, r.kind);
+    for (const r of raw.notificationReceipts ?? [])
+      this.db
+        .prepare("INSERT INTO notification_receipts VALUES(?,?)")
+        .run(r.key, r.delivered_at);
     for (const b of raw.blobs ?? []) {
       const content = Buffer.from(b.content, "base64");
       if (

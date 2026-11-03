@@ -191,3 +191,123 @@ body:has(.obsidian-app[data-motion="off"]) .modal {
     grid-template-columns: 1fr;
   }
 }
+.obs-history {
+  margin-top: 20px;
+  border-top: 1px solid #a5cdb217;
+  padding-top: 16px;
+  font-size: 12px;
+}
+.obs-history article {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 0;
+  border-bottom: 1px solid #a5cdb217;
+}
+.obs-history time {
+  color: #9fb7a7;
+}
+.obs-widget-settings {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid #a5cdb217;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.obs-widget-settings summary {
+  cursor: pointer;
+  color: #9fb7a7;
+}
+.obs-widget-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid #a5cdb217;
+}
+.obs-widget-row label {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 160px;
+}
+.obs-widget-row select,
+.obs-widget-row button {
+  font-size: 12px;
+  padding: 6px 10px;
+}
+.obs-widget-slot > .fn-panel {
+  height: 100%;
+  grid-row: auto !important;
+  grid-column: auto !important;
+}
+.obs-weekly {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+}
+.obs-week-backlog {
+  align-self: start;
+}
+.obs-week-days {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.obs-week-days section {
+  min-height: 170px;
+}
+.obs-week-days section[data-dragover="true"] {
+  background: #1c3023;
+}
+.obs-agenda-list > div {
+  padding: 16px 0;
+  border-bottom: 1px solid #a5cdb217;
+}
+.obs-agenda-list button {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  padding: 14px;
+  background: transparent !important;
+  text-align: left;
+  margin: 6px 0;
+}
+.obs-agenda-list strong {
+  flex: 1;
+}
+.obs-free-time {
+  margin: 0 0 16px;
+  color: #9fb7a7;
+  font-size: 13px;
+}
+.obs-free-time button {
+  margin: 10px 8px 0 0;
+}
+.obs-event-repeat {
+  padding: 16px;
+  margin-bottom: 16px;
+}
+@media (max-width: 1200px) {
+  .obs-weekly {
+    grid-template-columns: 230px 1fr;
+  }
+  .obs-week-days {
+    grid-template-columns: 1fr;
+  }
+  .fn-custom-layout > .obs-widget-slot {
+    grid-column: span 12 !important;
+  }
+}
+
+.obs-drag-handle {
+  color: #718b7a;
+  cursor: grab;
+  display: inline-flex;
+  flex-shrink: 0;
+  touch-action: none;
+}
+.obs-drag-handle:focus-visible {
+  outline: 2px solid #9aeab6;
+}

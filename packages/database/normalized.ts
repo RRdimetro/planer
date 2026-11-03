@@ -155,6 +155,8 @@ export class NormalizedRepository {
           state: s.state,
           target: s.target,
         });
+        if (s.kind)
+          this.upsert("session_kinds", { session_id: s.id, kind: s.kind });
         break;
       }
       case "snapshot": {
@@ -304,7 +306,9 @@ export class NormalizedRepository {
       case "session":
         rows = (
           this.db
-            .prepare("SELECT * FROM focus_sessions ORDER BY rowid")
+            .prepare(
+              `SELECT f.*, ${this.db.prepare("SELECT name FROM sqlite_master WHERE name='session_kinds'").get() ? "(SELECT kind FROM session_kinds WHERE session_id=f.id)" : "NULL"} AS session_kind FROM focus_sessions f ORDER BY f.rowid`,
+            )
             .all() as Row[]
         ).map((r) => ({
           id: r.id,
@@ -313,6 +317,7 @@ export class NormalizedRepository {
           seconds: r.seconds,
           state: r.state,
           target: r.target,
+          ...(r.session_kind ? { kind: r.session_kind } : {}),
         }));
         break;
       case "snapshot":

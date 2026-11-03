@@ -40,7 +40,10 @@ export function metrics(
   ];
   const due = done.filter((i) => i.due);
   const sessions = s.sessions.filter(
-    (i) => i.startedAt.slice(0, 10) >= from && i.startedAt.slice(0, 10) <= to,
+    (i) =>
+      i.kind !== "break" &&
+      i.startedAt.slice(0, 10) >= from &&
+      i.startedAt.slice(0, 10) <= to,
   );
   const workouts = s.items.filter(
     (i) => i.kind === "workout" && i.date && i.date >= from && i.date <= to,
@@ -118,5 +121,25 @@ export function metrics(
         : [35, 25, 20, 10, 10],
     ),
     focusMinutes: Math.floor(sessions.reduce((a, x) => a + x.seconds, 0) / 60),
+  };
+}
+
+/** Daily plan is the current dated plan; the weekly score retains its frozen-plan definition. */
+export function dailyEfficiency(s: State, day: string) {
+  const m = metrics(s, day, day);
+  const tasks = s.items.filter((i) => i.kind === "task" && i.date === day);
+  const sum = tasks.reduce((n, t) => n + t.weight, 0);
+  const completed = tasks
+    .filter((t) => t.status === "done")
+    .reduce((n, t) => n + t.weight, 0);
+  const components = [ratio(completed, sum), ...m.components.slice(1)];
+  return {
+    components,
+    score: weightedScore(
+      components,
+      Array.isArray(s.settings.weights)
+        ? (s.settings.weights as number[])
+        : [35, 25, 20, 10, 10],
+    ),
   };
 }

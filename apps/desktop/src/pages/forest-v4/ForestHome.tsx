@@ -1,5 +1,10 @@
 import { BentoPanel as Panel } from "../../design/components";
-import { useState } from "react";
+import { useState, cloneElement, type ReactElement } from "react";
+import {
+  WidgetSettings,
+  widgetOrder,
+  type WidgetLayout,
+} from "../../features/WidgetSettings";
 import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowUpRight,
@@ -85,6 +90,13 @@ function Empty({
 
 export function ForestHome({ s, command, go, edit, concept }: Props) {
   const d = dashboardData(s);
+  const widgetConfig = s.settings.obsidianWidgets as WidgetLayout | undefined;
+  const customLayout =
+    !!widgetConfig &&
+    (widgetConfig.order.join() !== widgetOrder.join() ||
+      widgetConfig.hidden.length > 0 ||
+      Object.keys(widgetConfig.sizes).length > 0 ||
+      Object.keys(widgetConfig.widths ?? {}).length > 0);
   const reduce = useReducedMotion();
   const [plain, setPlain] = useState(false);
   const [filter, setFilter] = useState<"all" | "pending" | "done">("all");
@@ -805,7 +817,9 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
             <div className="fn-progress">
               <i style={{ width: `${completionPercent}%` }} />
             </div>
-            <small>{completionPercent}% дневного плана</small>
+            <small>
+              Индекс дня: {d.dailyScore === null ? "—" : d.dailyScore + "%"}
+            </small>
           </div>
           <div className="fn-command-metric">
             <span>Фокус сегодня</span>
@@ -843,48 +857,89 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
           </p>
         </div>
       )}
-      <div className="fn-layout">
-        {concept === "A" ? (
-          <>
-            {taskList}
-            {efficiency}
-            {chart}
-            {focus}
-            {agenda}
-            {projects}
-            {fitness}
-            {deadlines}
-            {study}
-            {week}
-          </>
-        ) : concept === "B" ? (
-          <>
-            {taskList}
-            {agenda}
-            {focus}
-            {chart}
-            {projects}
-            {efficiency}
-            {fitness}
-            {deadlines}
-            {study}
-            {week}
-          </>
-        ) : (
-          <>
-            {efficiency}
-            {taskList}
-            {week}
-            {chart}
-            {fitness}
-            {projects}
-            {focus}
-            {agenda}
-            {deadlines}
-            {study}
-          </>
-        )}
+      <div className={"fn-layout " + (customLayout ? "fn-custom-layout" : "")}>
+        {concept === "B" && customLayout
+          ? ((s.settings.obsidianWidgets as WidgetLayout)?.order ?? widgetOrder)
+              .filter(
+                (id) =>
+                  !(
+                    (s.settings.obsidianWidgets as WidgetLayout)?.hidden ?? []
+                  ).includes(id),
+              )
+              .map((id) => {
+                const config = s.settings.obsidianWidgets as
+                  WidgetLayout | undefined;
+                const parts: Record<string, ReactElement> = {
+                  tasks: taskList,
+                  agenda,
+                  focus,
+                  chart,
+                  projects,
+                  efficiency,
+                  fitness,
+                  deadlines,
+                  study,
+                  week,
+                };
+                return (
+                  <div
+                    key={id}
+                    className="obs-widget-slot"
+                    data-widget={id}
+                    style={{
+                      gridColumn: `span ${config?.widths?.[id] ?? 6}`,
+                      height: config?.sizes[id],
+                      overflow: config?.sizes[id] ? "auto" : undefined,
+                    }}
+                  >
+                    {parts[id] ? cloneElement(parts[id]) : null}
+                  </div>
+                );
+              })
+          : null}
+        {(concept !== "B" || !customLayout) &&
+          (concept === "A" ? (
+            <>
+              {taskList}
+              {efficiency}
+              {chart}
+              {focus}
+              {agenda}
+              {projects}
+              {fitness}
+              {deadlines}
+              {study}
+              {week}
+            </>
+          ) : concept === "B" ? (
+            <>
+              {taskList}
+              {agenda}
+              {focus}
+              {chart}
+              {projects}
+              {efficiency}
+              {fitness}
+              {deadlines}
+              {study}
+              {week}
+            </>
+          ) : (
+            <>
+              {efficiency}
+              {taskList}
+              {week}
+              {chart}
+              {fitness}
+              {projects}
+              {focus}
+              {agenda}
+              {deadlines}
+              {study}
+            </>
+          ))}
       </div>
+      <WidgetSettings s={s} command={command} />
       <div className="fn-local-status">
         <span>
           <i />
@@ -893,7 +948,10 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
             ? "Проверка целостности: OK"
             : s.diagnostics.integrity}
         </span>
-        <span>{names[concept]} / предварительный просмотр</span>
+        <span>
+          {names[concept]}
+          {s.diagnostics.workspace === "demo" ? " / демо" : " / локально"}
+        </span>
         <span>
           Команды <kbd>Ctrl K</kbd> · Новая задача <kbd>Ctrl N</kbd>
         </span>

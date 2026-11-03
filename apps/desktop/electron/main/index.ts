@@ -7,6 +7,7 @@ import {
   shell,
 } from "electron";
 import path from "node:path";
+import { z } from "zod";
 import { spawn } from "node:child_process";
 import { seedDesignPreview } from "../../../../packages/database/demo";
 import type { State } from "../../../../packages/contracts";
@@ -123,7 +124,55 @@ app
     win.webContents.on("will-navigate", (event, url) => {
       if (url !== win.webContents.getURL()) event.preventDefault();
     });
-    ipcMain.handle("focus:state", () => marked(store.state()));
+    ipcMain.handle("focus:state", (event) => {
+      if (event.sender !== win.webContents) throw Error("Доступ запрещён");
+      return marked(store.state());
+    });
+    ipcMain.handle("focus:history", (event, input) => {
+      if (event.sender !== win.webContents) throw Error("Доступ запрещён");
+      const id = z.string().uuid().parse(input);
+      return (
+        store.db
+          .prepare(
+            "SELECT id,at,action,before_json,after_json FROM entity_changes WHERE entity_id=? ORDER BY at DESC,rowid DESC LIMIT 1000",
+          )
+          .all(id) as {
+          id: string;
+          at: string;
+          action: string;
+          before_json: string | null;
+          after_json: string | null;
+        }[]
+      ).map((r) => ({
+        id: r.id,
+        at: r.at,
+        action: r.action,
+        before: r.before_json ? JSON.parse(r.before_json) : null,
+        after: r.after_json ? JSON.parse(r.after_json) : null,
+      }));
+    });
+    ipcMain.handle("focus:image", (event, input) => {
+      if (event.sender !== win.webContents) throw Error("Доступ запрещён");
+      const id = z.string().uuid().parse(input);
+      const row = store.db
+        .prepare("SELECT content FROM attachments WHERE id=?")
+        .get(id) as { content: Buffer } | undefined;
+      if (!row || row.content.length > 10 * 1024 * 1024) return null;
+      const b = row.content;
+      const mime = b
+        .subarray(0, 8)
+        .equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+        ? "image/png"
+        : b[0] === 255 && b[1] === 216
+          ? "image/jpeg"
+          : b.subarray(0, 3).toString() === "GIF"
+            ? "image/gif"
+            : b.subarray(0, 4).toString() === "RIFF" &&
+                b.subarray(8, 12).toString() === "WEBP"
+              ? "image/webp"
+              : null;
+      return mime ? `data:${mime};base64,${b.toString("base64")}` : null;
+    });
     ipcMain.handle("focus:command", async (event, input) => {
       if (event.sender !== win.webContents) throw Error("Доступ запрещён");
       const c = commandSchema.parse(input);
@@ -151,6 +200,22 @@ app
           return marked(store.state());
         }
         if (c.type !== "file") return marked(store.command(c));
+        if (c.action === "fullscreen") {
+          win.setFullScreen(!win.isFullScreen());
+          return marked(store.state());
+        }
+        if (c.action === "integrity") {
+          const integrity = store.db.pragma("integrity_check", {
+            simple: true,
+          });
+          const fks = store.db.pragma("foreign_key_check") as unknown[];
+          if (integrity !== "ok" || fks.length)
+            throw Error("Нарушена целостность базы");
+          await dialog.showMessageBox(win, {
+            message: "SQLite integrity_check: OK. Foreign keys: OK.",
+          });
+          return marked(store.state());
+        }
         if (c.action === "attach") {
           if (!c.id) throw Error("Запись не выбрана");
           const r = await dialog.showOpenDialog(win, {

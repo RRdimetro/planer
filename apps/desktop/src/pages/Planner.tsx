@@ -1,3 +1,4 @@
+import { calendarLanes, freeWindows } from "../../../../packages/core/calendar";
 import React, { useRef, useState, useEffect } from "react";
 import {
   CalendarDays,
@@ -207,6 +208,7 @@ export function Planner({
             ["day", "День"],
             ["week", "Неделя"],
             ["month", "Месяц"],
+            ["agenda", "Список событий"],
           ].map(([value, label]) => (
             <button
               key={value}
@@ -221,6 +223,13 @@ export function Planner({
       <div className="toolbar">
         <button className="primary" onClick={() => newEvent(date)}>
           <Plus size={15} /> Событие
+        </button>
+        <button
+          onClick={() =>
+            edit({ ...newItem("task", ""), date, status: "today" })
+          }
+        >
+          + Задача в календаре
         </button>
         <button onClick={() => setRules(!rules)}>
           <SlidersHorizontal size={15} /> Правила времени
@@ -406,6 +415,27 @@ export function Planner({
           ))}
         </section>
       )}
+      <details className="obs-free-time">
+        <summary>Свободные интервалы · {date}</summary>
+        {freeWindows(date, occupied, start * 60, end * 60, s.constraints).map(
+          (w) => (
+            <button
+              key={w.start}
+              onClick={() =>
+                edit({
+                  ...newItem("task", ""),
+                  date,
+                  time: timeLabel(w.start),
+                  estimate: Math.min(30, w.end - w.start),
+                  status: "today",
+                })
+              }
+            >
+              {timeLabel(w.start)} — {timeLabel(w.end)}
+            </button>
+          ),
+        )}
+      </details>
       <div className="planner-layout">
         <section className="backlog-pro">
           <div className="sectionhead">
@@ -451,7 +481,23 @@ export function Planner({
           </div>
         </section>
         <section className="calendar-pro">
-          {view === "month" ? (
+          {view === "agenda" ? (
+            <div className="obs-agenda-list">
+              {week.map((d) => (
+                <div key={d}>
+                  <h3>{d}</h3>
+                  {dayItems(d).map((i) => (
+                    <button key={i.id} onClick={() => edit(i)}>
+                      <time>{i.time ?? "Весь день"}</time>
+                      <strong>{i.title}</strong>
+                      <span>{i.estimate} мин</span>
+                    </button>
+                  ))}
+                  {!dayItems(d).length && <p className="muted">Записей нет</p>}
+                </div>
+              ))}
+            </div>
+          ) : view === "month" ? (
             <>
               <div className="month-weekdays">
                 {["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"].map((n) => (
@@ -671,6 +717,10 @@ export function Planner({
                       {dayItems(d)
                         .filter((i) => i.time)
                         .map((i) => {
+                          const lane = calendarLanes(dayItems(d))[i.id] ?? {
+                            column: 0,
+                            columns: 1,
+                          };
                           const a = interval({ ...i, estimate: duration(i) })!;
                           const base = Date.parse(d + "T00:00:00Z") / 60000;
                           const from = Math.max(360, a.start - base),
@@ -690,6 +740,9 @@ export function Planner({
                                 (i.status === "done" ? " event-done" : "")
                               }
                               style={{
+                                left: `calc(${(lane.column * 100) / lane.columns}% + 3px)`,
+                                width: `calc(${100 / lane.columns}% - 6px)`,
+                                right: "auto",
                                 top: ((from - 360) * 64) / 60,
                                 height: Math.max(
                                   27,
@@ -715,7 +768,15 @@ export function Planner({
                                   edit(i);
                                 }}
                               >
-                                <span>{i.title}</span>
+                                <span title={i.title}>
+                                  {lane.columns > 1 ? "⚠ " : ""}
+                                  {i.title}
+                                  {s.eventOccurrences?.some(
+                                    (o) => o.eventId === i.id,
+                                  )
+                                    ? " ↻"
+                                    : ""}
+                                </span>
                                 <small>
                                   {i.time} · {duration(i)} мин
                                 </small>

@@ -176,6 +176,7 @@ try {
         passed: true,
         platform: process.platform,
         os: os.release(),
+        installedExecutable: path.join(installation, "FOCUS OS PRO.exe"),
         baselineVersion: version,
         currentVersion: expected,
         checks: [

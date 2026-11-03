@@ -143,6 +143,9 @@ for (const demo of [true, false]) {
       );
       for (let i = 0; i < 10; i++) {
         await nav(names[i]);
+        await expect(
+          p.getByText("Открываем раздел…", { exact: true }),
+        ).toHaveCount(0, { timeout: 15000 });
         await p.waitForTimeout(260);
         const overflow = await p.evaluate(
           () => document.documentElement.scrollWidth > window.innerWidth,
@@ -189,10 +192,14 @@ for (const demo of [true, false]) {
         );
         for (let i = 0; i < 10; i++) {
           await nav(names[i]);
+          await expect(
+            p.getByText("Открываем раздел…", { exact: true }),
+          ).toHaveCount(0, { timeout: 15000 });
           await p.waitForTimeout(200);
           const overflow = await p.evaluate(
             () => document.documentElement.scrollWidth > window.innerWidth,
           );
+          expect(overflow, `${names[i]} Electron zoom ${zoom}`).toBe(false);
           await p.screenshot({
             path: `${folder}/electron-zoom-${zoom}-${i + 1}.png`,
           });

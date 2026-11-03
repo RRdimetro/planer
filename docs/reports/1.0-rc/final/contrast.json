@@ -1,0 +1,122 @@
+[
+  {
+    "page": "Главная",
+    "tested": 194,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Планировщик",
+    "tested": 162,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Задачи",
+    "tested": 78,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Проекты",
+    "tested": 49,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Учёба",
+    "tested": 68,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Тренировки",
+    "tested": 162,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Аналитика",
+    "tested": 158,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Фокус",
+    "tested": 56,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Заметки",
+    "tested": 31,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Настройки",
+    "tested": 73,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Главная",
+    "tested": 116,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Планировщик",
+    "tested": 106,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Задачи",
+    "tested": 16,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Проекты",
+    "tested": 15,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Учёба",
+    "tested": 26,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Тренировки",
+    "tested": 83,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Аналитика",
+    "tested": 94,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Фокус",
+    "tested": 24,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Заметки",
+    "tested": 12,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  },
+  {
+    "page": "Настройки",
+    "tested": 73,
+    "failures": [],
+    "method": "computed color/opacity and solid ancestor backgrounds; gradients require visual review; disabled/decorative text excluded"
+  }
+]

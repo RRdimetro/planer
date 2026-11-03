@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": [
+    "materialized recurring events and agenda view",
+    "weekly list and day drag",
+    "1001 records; bounded table DOM and last-row scrolling",
+    "widget visibility and dimensions persist through commands",
+    "real restart persistence with v4 integrity",
+    "reset restores approved B composition"
+  ],
+  "platform": "linux",
+  "windowsTested": false
+}

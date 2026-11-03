@@ -1,4 +1,6 @@
 import fs from "node:fs";
+const reportDir = process.env.FOCUS_RECHECK_DIR ?? "docs/reports/obsidian/F";
+fs.mkdirSync(reportDir, { recursive: true });
 import { launch, temp, state, poll, expect } from "./obsidian-harness.mjs";
 let h;
 const checks = [];
@@ -84,7 +86,7 @@ try {
   );
   expect(h.errors).toEqual([]);
   fs.writeFileSync(
-    "docs/reports/obsidian/F/calendar-e2e.json",
+    `${reportDir}/calendar-e2e.json`,
     JSON.stringify(
       { passed: true, platform: process.platform, checks },
       null,
@@ -94,7 +96,7 @@ try {
   console.log(checks.join("\n"));
 } catch (e) {
   await h?.p
-    .screenshot({ path: "docs/reports/obsidian/F/calendar-failure.png" })
+    .screenshot({ path: `${reportDir}/calendar-failure.png` })
     .catch(() => {});
   throw e;
 } finally {

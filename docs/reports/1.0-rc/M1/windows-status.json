@@ -1,1 +1,24 @@
-{"status":"not_run","reason":"Linux executor, no git remote, invalid GitHub CLI authorization, no connected Windows runner","windowsCIJobUrl":null,"checks":{"nsisInstall":"not_run","portable":"not_run","emptyFirstRun":"not_run","taskCRUD":"not_run","restartPersistence":"not_run","study":"not_run","calendar":"not_run","minimizedTimer":"not_run","backupRestore":"not_run","upgrade020":"not_run","upgrade030":"not_run","nativeSQLite":"not_run","osNotifications":"not_run","nativeDPI100":"not_run","nativeDPI125":"not_run","nativeDPI150":"not_run"},"stableAccepted":false}
+{
+  "status": "not_run",
+  "reason": "Linux executor; origin RRdimetro/planer configured but GitHub API 401 and push credentials unavailable; no connected Windows runner",
+  "windowsCIJobUrl": null,
+  "checks": {
+    "nsisInstall": "not_run",
+    "portable": "not_run",
+    "emptyFirstRun": "not_run",
+    "taskCRUD": "not_run",
+    "restartPersistence": "not_run",
+    "study": "not_run",
+    "calendar": "not_run",
+    "minimizedTimer": "not_run",
+    "backupRestore": "not_run",
+    "upgrade020": "not_run",
+    "upgrade030": "not_run",
+    "nativeSQLite": "not_run",
+    "osNotifications": "not_run",
+    "nativeDPI100": "not_run",
+    "nativeDPI125": "not_run",
+    "nativeDPI150": "not_run"
+  },
+  "stableAccepted": false
+}

@@ -1,8 +1,8 @@
-# FOCUS OS PRO 0.3.0 — Obsidian Command Center
+# FOCUS OS PRO 1.0.0-rc.1 — Obsidian Command Center
 
 Локальное приложение Electron + React/TypeScript + SQLite для Windows 10/11 x64. Продолжение существующей кодовой базы. Утверждённый вариант B используется на всех десяти страницах. Работает без сети после установки, данные между запусками сохраняются. Реальные данные и дизайн-предпросмотр находятся в разных базах.
 
-**Windows-кандидат пока не принят:** установщик и portable проходят кросс-сборку и статические проверки; реальное выполнение Windows/CI в текущей среде недоступно. Нельзя считать установку, обновление, доставку уведомлений или Windows DPI проверенными. Статус и свидетельства: `docs/reports/obsidian/F/`.
+**Windows-кандидат пока не принят:** установщик и portable проходят кросс-сборку и статические проверки; реальное выполнение Windows/CI в текущей среде недоступно. Нельзя считать установку, обновление, доставку уведомлений или Windows DPI проверенными. Статус и свидетельства: `docs/reports/1.0-rc/`.
 
 ## Windows: запуск из исходников
 
@@ -70,14 +70,15 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm build
-pnpm test:obsidian
-node scripts/obsidian-calendar-e2e.mjs
-node scripts/obsidian-capture.mjs F
+pnpm test:rc
+node scripts/rc-upgrade-fixtures.mjs
+node scripts/rc-visual.mjs final
+node scripts/rc-acceptance-gate.mjs
 ```
 
 Vitest запускается через Electron Node mode, чтобы ABI SQLite совпадал. GUI-проверки используют отдельные временные базы. В текущей Linux-среде использован Xorg :102; тестовый `--no-sandbox` не добавляется в обычный запуск.
 
-Workflow `.github/workflows/windows.yml` подготовлен для настоящего Windows Server 2022 runner: native build, unit/GUI, снимки трёх размеров, реальные NSIS install/update/restart/backup. `windows-install-smoke.mjs` запрещён на Linux. Workflow **не запускался здесь**: нет Windows executor и подключённого git remote. Для upgrade fixture нужна полная история, поставляется `repository.bundle`; её можно клонировать `git clone repository.bundle focus-os-pro`. Нужны push в свой репозиторий и реальный результат CI. Ручные Windows 10/11 проверки остаются отдельной границей.
+Workflow `.github/workflows/windows.yml` подготовлен для настоящего Windows Server 2022 runner: native build, unit/GUI, снимки трёх размеров, реальные NSIS install/update/restart/backup. `rc-windows-upgrade.mjs`, `rc-windows-portable.mjs`, `rc-windows-platform.mjs` запрещены на Linux. Workflow **не запускался здесь**: нет Windows executor; origin `RRdimetro/planer` настроен, но GitHub API возвращает 401, push credentials недоступны. Для upgrade fixture нужна полная история, поставляется `repository.bundle`; её можно клонировать `git clone repository.bundle focus-os-pro`. Нужны push в свой репозиторий и реальный результат CI. Ручные Windows 10/11 проверки остаются отдельной границей.
 
 ## Ограничения
 
@@ -89,4 +90,6 @@ Workflow `.github/workflows/windows.yml` подготовлен для наст�
 - В панели истории отображаются последние 100 записей из максимум 1000 загруженных; полный журнал сохраняется в SQLite и ZIP. Активность проекта в UI показывает изменения проекта и его задач; изменения этапов дополнительно остаются в общем журнале.
 - Изображения — локальные PNG/JPEG/GIF/WebP до 10 МБ; вложения до 25 МБ. Удалённый HTML/изображения не исполняются. ZIP-компонент до 512 МБ, сумма до 1 ГБ.
 
-Подробные этапы, проверки и ограничения: `IMPLEMENTATION_STATUS.md`, `docs/reports/obsidian/A–F/`. Все PNG в `docs/screenshots/obsidian/` сняты с настоящего Electron, не с макетов. Приложение содержит только десять утверждённых разделов.
+RC не является 1.0 Stable: без actual Windows install/portable/upgrade/native DPI/видимого системного уведомления автоматический `rc-acceptance-gate` не принимает версию. Команды и матрица — `docs/reports/1.0-rc/WINDOWS_INSTRUCTIONS.md`.
+
+Подробные этапы, проверки и ограничения: `IMPLEMENTATION_STATUS.md`, `docs/reports/obsidian/A–F/`. Все финальные RC PNG в `docs/screenshots/1.0-rc/final/` сняты с настоящего Electron, не с макетов. Приложение содержит только десять утверждённых разделов.

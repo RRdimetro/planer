@@ -1,4 +1,6 @@
 import fs from "node:fs";
+const reportDir = process.env.FOCUS_RECHECK_DIR ?? "docs/reports/obsidian/F";
+fs.mkdirSync(reportDir, { recursive: true });
 import { launch, temp, state, expect } from "./obsidian-harness.mjs";
 let h;
 try {
@@ -41,7 +43,7 @@ try {
     ),
   ).toBeVisible();
   fs.writeFileSync(
-    "docs/reports/obsidian/F/study-binding-e2e.json",
+    `${reportDir}/study-binding-e2e.json`,
     JSON.stringify(
       {
         passed: true,

@@ -1,4 +1,6 @@
 import fs from "node:fs";
+const reportDir = process.env.FOCUS_RECHECK_DIR ?? "docs/reports/obsidian/F";
+fs.mkdirSync(reportDir, { recursive: true });
 import { clearTimeout } from "node:timers";
 import { spawn } from "node:child_process";
 import electronPath from "electron";
@@ -214,7 +216,7 @@ try {
   expect((await state(p)).diagnostics.integrity).toBe("ok");
   expect(h.errors).toEqual([]);
   fs.writeFileSync(
-    "docs/reports/obsidian/F/desktop-e2e.json",
+    `${reportDir}/desktop-e2e.json`,
     JSON.stringify(
       {
         passed: true,
@@ -229,7 +231,7 @@ try {
   console.log(checks.join("\n"));
 } catch (e) {
   await h?.p
-    .screenshot({ path: "docs/reports/obsidian/F/desktop-failure.png" })
+    .screenshot({ path: `${reportDir}/desktop-failure.png` })
     .catch(() => {});
   throw e;
 } finally {

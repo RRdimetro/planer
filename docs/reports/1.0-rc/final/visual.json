@@ -1,0 +1,608 @@
+{
+  "passed": true,
+  "shots": [
+    {
+      "file": "demo-1-1366.png",
+      "page": "Главная",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-2-1366.png",
+      "page": "Планировщик",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-3-1366.png",
+      "page": "Задачи",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-4-1366.png",
+      "page": "Проекты",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-5-1366.png",
+      "page": "Учёба",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-6-1366.png",
+      "page": "Тренировки",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-7-1366.png",
+      "page": "Аналитика",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-8-1366.png",
+      "page": "Фокус",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-9-1366.png",
+      "page": "Заметки",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-10-1366.png",
+      "page": "Настройки",
+      "width": 1366,
+      "height": 768,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-1-1920.png",
+      "page": "Главная",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-2-1920.png",
+      "page": "Планировщик",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-3-1920.png",
+      "page": "Задачи",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-4-1920.png",
+      "page": "Проекты",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-5-1920.png",
+      "page": "Учёба",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-6-1920.png",
+      "page": "Тренировки",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-7-1920.png",
+      "page": "Аналитика",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-8-1920.png",
+      "page": "Фокус",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-9-1920.png",
+      "page": "Заметки",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-10-1920.png",
+      "page": "Настройки",
+      "width": 1920,
+      "height": 1080,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-1-2560.png",
+      "page": "Главная",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-2-2560.png",
+      "page": "Планировщик",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-3-2560.png",
+      "page": "Задачи",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-4-2560.png",
+      "page": "Проекты",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-5-2560.png",
+      "page": "Учёба",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-6-2560.png",
+      "page": "Тренировки",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-7-2560.png",
+      "page": "Аналитика",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-8-2560.png",
+      "page": "Фокус",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-9-2560.png",
+      "page": "Заметки",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "file": "demo-10-2560.png",
+      "page": "Настройки",
+      "width": 2560,
+      "height": 1440,
+      "mode": "demo",
+      "overflow": false
+    },
+    {
+      "page": "Главная",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Планировщик",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Задачи",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Проекты",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Учёба",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Тренировки",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Аналитика",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Фокус",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Заметки",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Настройки",
+      "electronZoom": 1.25,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Главная",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Планировщик",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Задачи",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Проекты",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Учёба",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Тренировки",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Аналитика",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Фокус",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Заметки",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "page": "Настройки",
+      "electronZoom": 1.5,
+      "windowsDPI": false,
+      "overflow": false
+    },
+    {
+      "file": "empty-1-1366.png",
+      "page": "Главная",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-2-1366.png",
+      "page": "Планировщик",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-3-1366.png",
+      "page": "Задачи",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-4-1366.png",
+      "page": "Проекты",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-5-1366.png",
+      "page": "Учёба",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-6-1366.png",
+      "page": "Тренировки",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-7-1366.png",
+      "page": "Аналитика",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-8-1366.png",
+      "page": "Фокус",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-9-1366.png",
+      "page": "Заметки",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-10-1366.png",
+      "page": "Настройки",
+      "width": 1366,
+      "height": 768,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-1-1920.png",
+      "page": "Главная",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-2-1920.png",
+      "page": "Планировщик",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-3-1920.png",
+      "page": "Задачи",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-4-1920.png",
+      "page": "Проекты",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-5-1920.png",
+      "page": "Учёба",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-6-1920.png",
+      "page": "Тренировки",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-7-1920.png",
+      "page": "Аналитика",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-8-1920.png",
+      "page": "Фокус",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-9-1920.png",
+      "page": "Заметки",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-10-1920.png",
+      "page": "Настройки",
+      "width": 1920,
+      "height": 1080,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-1-2560.png",
+      "page": "Главная",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-2-2560.png",
+      "page": "Планировщик",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-3-2560.png",
+      "page": "Задачи",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-4-2560.png",
+      "page": "Проекты",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-5-2560.png",
+      "page": "Учёба",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-6-2560.png",
+      "page": "Тренировки",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-7-2560.png",
+      "page": "Аналитика",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-8-2560.png",
+      "page": "Фокус",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-9-2560.png",
+      "page": "Заметки",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    },
+    {
+      "file": "empty-10-2560.png",
+      "page": "Настройки",
+      "width": 2560,
+      "height": 1440,
+      "mode": "empty",
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "platform": "linux",
+  "windowsTested": false
+}

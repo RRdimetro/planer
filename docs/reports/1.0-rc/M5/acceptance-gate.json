@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0-rc.1",
+  "stableAccepted": false,
+  "checks": {
+    "upgrade0.2.0": false,
+    "upgrade0.3.0": false,
+    "portable": false,
+    "nativeDPI1": false,
+    "nativeDPI1.25": false,
+    "nativeDPI1.5": false
+  },
+  "missing": [
+    "upgrade0.2.0",
+    "upgrade0.3.0",
+    "portable",
+    "nativeDPI1",
+    "nativeDPI1.25",
+    "nativeDPI1.5"
+  ],
+  "method": "requires actual Windows install/upgrade/portable and native DPI/UIAutomation toast evidence, not Linux or Chromium zoom"
+}

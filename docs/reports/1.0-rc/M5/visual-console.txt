@@ -1,0 +1,1 @@
+{ screenshots: 100, rendererErrors: [], contrastFailures: 0 }

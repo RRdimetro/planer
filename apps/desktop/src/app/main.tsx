@@ -385,7 +385,7 @@ function App() {
         </main>
         <footer>
           <span className="dot" /> SQLite · Сохранение автоматически{" "}
-          <span>FOCUS OS PRO / 0.3.0</span>
+          <span>FOCUS OS PRO / {__APP_VERSION__}</span>
         </footer>
       </div>
       <Suspense fallback={<p role="status">Открываем редактор…</p>}>

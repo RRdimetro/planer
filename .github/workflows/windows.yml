@@ -22,8 +22,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
-      - run: pnpm test:obsidian
-      - run: node scripts/obsidian-capture.mjs F
+      - run: pnpm test:rc
+      - run: node scripts/rc-visual.mjs final
       - run: pnpm dist:win
       - name: Build and install actual 0.2.0 and 0.3.0 baselines
         shell: pwsh
@@ -47,6 +47,11 @@ jobs:
             node scripts/rc-windows-upgrade.mjs
             if ($LASTEXITCODE -ne 0) { throw 'Windows upgrade regression failed' }
           }
+      - run: node scripts/rc-windows-portable.mjs
+      - name: Native scale and visible OS notification evidence
+        run: node scripts/rc-windows-platform.mjs
+      - run: node scripts/rc-acceptance-gate.mjs
+        if: always()
       - uses: actions/upload-artifact@v4
         if: always()
         with:

@@ -1,0 +1,35 @@
+{
+  "version": "1.0.0-rc.1",
+  "platform": "linux",
+  "unitIntegration": {
+    "passed": 66,
+    "files": 23
+  },
+  "guiSuites": 10,
+  "guiChecks": 40,
+  "guiReports": [
+    "core-e2e.json",
+    "workspaces-e2e.json",
+    "lifestyle-e2e.json",
+    "fitness-e2e.json",
+    "insights-e2e.json",
+    "desktop-e2e.json",
+    "calendar-e2e.json",
+    "study-binding-e2e.json",
+    "notes-queue-e2e.json",
+    "ux-e2e.json"
+  ],
+  "visual": {
+    "passed": true,
+    "screenshots": 100,
+    "filledEmptyThreeResolutions": 60,
+    "dialogs": 20,
+    "electronZoom": 20,
+    "rendererErrors": 0,
+    "rootOverflow": 0,
+    "textNodesAudited": 1596,
+    "computedTextContrastFailures": 0
+  },
+  "windowsRuntimeTested": false,
+  "stableAccepted": false
+}

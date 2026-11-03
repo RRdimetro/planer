@@ -1,6 +1,8 @@
 // Real main IPC with deliberate save latency: older responses must not overwrite a newer draft.
 import { launch, temp, expect } from "./obsidian-harness.mjs";
 import fs from "node:fs";
+const reportDir = process.env.FOCUS_RECHECK_DIR ?? "docs/reports/obsidian/F";
+fs.mkdirSync(reportDir, { recursive: true });
 const directory = temp("focus-note-queue-F-");
 let h;
 try {
@@ -53,7 +55,7 @@ try {
     "Последняя версия при закрытии",
   );
   fs.writeFileSync(
-    "docs/reports/obsidian/F/notes-queue-e2e.json",
+    `${reportDir}/notes-queue-e2e.json`,
     JSON.stringify(
       {
         passed: true,

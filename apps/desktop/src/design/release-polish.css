@@ -538,3 +538,16 @@ body:has([role="dialog"]) .obsidian-app .error {
   min-width: 0;
   overflow-wrap: anywhere;
 }
+/* Keep every destination reachable at reduced viewport heights and native DPI. */
+.obsidian-app aside > nav {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #355742 transparent;
+}
+.obsidian-app aside > :is(.brand, .navlabel, .sidebarfoot) {
+  flex-shrink: 0;
+}

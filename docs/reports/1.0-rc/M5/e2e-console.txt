@@ -1,0 +1,35 @@
+[
+  'materialized recurring events and agenda view',
+  'weekly list and day drag',
+  '1001 records; bounded table DOM and last-row scrolling',
+  'widget visibility and dimensions persist through commands',
+  'real restart persistence with v4 integrity',
+  'reset restores approved B composition'
+]
+[
+  'real bundled Excel export/import preview, one changed cell, backup and 9 subjects retained',
+  'group grows without overwriting known statuses',
+  'global palette creates and opens real project; task, Gantt, Kanban and activity work',
+  'process restart preserves study edits and new project'
+]
+notes immediate navigation flush, folders, Markdown internal link/backlink, restore as new version, actual local PNG attachment
+break/free timers, navigation, pause/minimize/resume, real fullscreen
+immediate graceful close retains note; running timer reopens interrupted
+Fitness v0.2.0 E2E passed
+Insights Electron filters and real charts passed
+automatic verified ZIP; manual ZIP/restore with pre-restore copy; actual integrity check
+1000 variable-height table/kanban records, bounded DOM, real last-row scroll (2259 ms)
+single-instance lock preserves active session; minimized + 4.2 s busy main counted correctly
+background notification scheduling and persistent deduplication; request observed, OS delivery not asserted
+00–24h calendar actually shows 02:15 event; keyboard and real pointer resize persist 30→45→75 minutes
+recurrence interval 2 and until date materialize exactly 3 events
+Bound study aggregate read-only editor passed
+Queued note saves preserve latest draft
+[
+  'Ctrl+N → title → Enter creates exactly one SQLite task',
+  'selected task starts actual linked focus session without navigating first',
+  'one-click completion and explicit last-revision undo',
+  'discard requires confirmation; cancel retains draft; Ctrl+N does not replace open editor',
+  'actual rejected IPC save: readable error, retained form, no false success; retry persists',
+  'backup success is acknowledged only after actual archive verification'
+]

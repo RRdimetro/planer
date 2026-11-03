@@ -202,6 +202,30 @@ export class Store {
           : null,
     };
     this.put(item.kind, item);
+    if (item.kind === "note") {
+      this.db
+        .prepare(
+          "DELETE FROM entity_links WHERE source_id=? AND relation='backlink'",
+        )
+        .run(item.id);
+      const targets = new Set(
+        Array.from(
+          item.description.matchAll(/focus-note:([a-f0-9-]{36})/gi),
+          (m) => m[1],
+        ),
+      );
+      for (const id of targets)
+        if (
+          id !== item.id &&
+          this.repo.list<Item>("note", id).some((n) => !n.deletedAt)
+        )
+          this.db
+            .prepare(
+              "INSERT OR IGNORE INTO entity_links VALUES(?,?,'backlink')",
+            )
+            .run(item.id, id);
+    }
+
     if (item.kind === "task" && item.date && old?.date !== item.date)
       this.db
         .prepare(

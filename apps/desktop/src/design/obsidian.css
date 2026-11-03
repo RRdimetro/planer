@@ -394,3 +394,239 @@ body:has(.obsidian-app[data-motion="off"]) .modal {
     grid-template-columns: 1fr;
   }
 }
+
+.obs-focus-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.obsidian-app .obs-focus-stage {
+  padding: 26px 32px;
+  text-align: center;
+  background:
+    radial-gradient(ellipse at 50% 40%, #203c2a88, transparent 65%),
+    linear-gradient(150deg, #14251b, #0d1712);
+  position: relative;
+  overflow: hidden;
+}
+.obs-focus-stage .sectionhead {
+  margin-bottom: 24px;
+}
+.obs-focus-stage h2 {
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.obs-focus-mark {
+  display: inline-flex;
+  padding: 14px;
+  border: 1px solid #40654c;
+  border-radius: 50%;
+  color: #b1e7be;
+  margin: 18px 0;
+}
+.obs-focus-stage input {
+  width: 72px;
+  margin-left: 8px;
+}
+.obs-focus-stage > select {
+  max-width: 90%;
+}
+.obs-focus-dial {
+  margin: 30px auto 24px;
+  width: 270px;
+  height: 270px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(#9cdeb3 var(--focus-angle), #263e2e 0);
+  position: relative;
+  isolation: isolate;
+}
+.obs-focus-dial:before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  background: #13231a;
+  border-radius: 50%;
+  z-index: -1;
+}
+.obs-focus-dial .clock {
+  font-size: 66px;
+  font-weight: 400;
+  letter-spacing: -4px;
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.obs-focus-task {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.obs-focus-insights {
+  display: grid;
+  gap: 20px;
+}
+.obs-focus-insights .kpis {
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+}
+.obs-session-history {
+  max-height: 550px;
+  overflow: auto;
+}
+.obs-session-history small {
+  display: block;
+  margin-top: 7px;
+  color: #8da596;
+}
+.obs-focus-stage .hint {
+  max-width: 500px;
+  margin: 28px auto 0;
+  line-height: 1.7;
+}
+.obsidian-app .notesgrid {
+  grid-template-columns: 225px minmax(320px, 1fr) 280px;
+  align-items: start;
+  gap: 16px;
+}
+.obsidian-app .notelist {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.notelist > button:not(.primary) {
+  text-align: left;
+  padding: 14px 10px;
+  display: grid;
+  gap: 6px;
+}
+.notelist small {
+  font-size: 11px;
+  color: #8da596;
+  overflow-wrap: anywhere;
+}
+.notelist button.active {
+  border-color: #7bbb92;
+  background: #1e3929;
+}
+.notesgrid > section {
+  min-width: 0;
+}
+.notesgrid textarea {
+  min-height: 420px;
+  font:
+    14px/1.8 Manrope,
+    sans-serif;
+}
+.obs-note-image {
+  display: block;
+  max-width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+.obs-note-attachment {
+  padding: 12px 0;
+  border-bottom: 1px solid #2c4033;
+  overflow-wrap: anywhere;
+}
+.obs-note-attachment strong,
+.obs-note-attachment small {
+  display: block;
+}
+.notesgrid .toolbar {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.notesgrid .toolbar select {
+  max-width: 100%;
+}
+.notesgrid .markdown {
+  min-height: 420px;
+  overflow-wrap: anywhere;
+}
+.notesgrid .markdown pre {
+  white-space: pre-wrap;
+}
+.notesgrid .markdown .textbutton {
+  color: #b6e2c1;
+  display: inline;
+  padding: 0;
+  text-decoration: underline;
+}
+.obsidian-app .fitness-hero {
+  background:
+    radial-gradient(ellipse at right, #29463488, transparent 60%), #132319;
+  border-color: #36523f;
+  min-height: 180px;
+}
+.obsidian-app .fitness-hero h2 {
+  font-size: 32px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.obsidian-app .fitness-hero:after {
+  display: none;
+}
+.obsidian-app .fitness-hero > svg {
+  opacity: 0.22;
+}
+.obs-fitness-compare {
+  margin-bottom: 20px;
+}
+.obs-comparisons {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px 0;
+}
+.obs-comparisons > div {
+  display: grid;
+  gap: 8px;
+  border-left: 2px solid #456c50;
+  padding-left: 16px;
+}
+.obs-comparisons strong {
+  font-size: 24px;
+  font-weight: 500;
+}
+.obsidian-app .fitness-week {
+  gap: 5px;
+}
+.obsidian-app .fitness-week > div {
+  background: #102016;
+  border-color: #2b4133;
+}
+.obsidian-app .fitness-log-row {
+  background: transparent;
+  border-bottom: 1px solid #293e30;
+}
+.obsidian-app .program-card {
+  background: #16291d;
+}
+.obsidian-app .fitness-week button {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1200px) {
+  .obsidian-app .notesgrid {
+    grid-template-columns: 190px minmax(300px, 1fr);
+  }
+  .notesgrid > section:last-child {
+    grid-column: 1/-1;
+    display: block;
+  }
+  .obs-focus-layout {
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 1fr);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .obsidian-app * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

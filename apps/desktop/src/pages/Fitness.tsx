@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Dumbbell,
   Plus,
@@ -18,6 +18,8 @@ import {
   Area,
   BarChart,
   Bar,
+  LineChart,
+  Line,
   CartesianGrid,
   XAxis,
   YAxis,
@@ -33,6 +35,7 @@ import type {
 import {
   newItem,
   localDate,
+  dateInZone,
   weekDays,
   addDays,
 } from "../../../../packages/core";
@@ -390,7 +393,20 @@ export function Fitness({
   const [exerciseName, setExerciseName] = useState("");
   const [exerciseGroup, setExerciseGroup] = useState("");
   const [chosenExercise, setChosenExercise] = useState("");
-  const m = fitnessMetrics(s, addDays(localDate(), 1 - range), localDate());
+  const today = dateInZone(String(s.settings.timezone ?? "Europe/Moscow"));
+  const m = useMemo(
+    () => fitnessMetrics(s, addDays(today, 1 - range), today),
+    [s.revision, today, range],
+  );
+  const previous = useMemo(
+    () =>
+      fitnessMetrics(s, addDays(today, 1 - range * 2), addDays(today, -range)),
+    [s.revision, today, range],
+  );
+  const runs = m.done.filter((w) => w.distance && w.duration > 0);
+  const bestPace = runs.length
+    ? Math.min(...runs.map((w) => w.duration / w.distance!))
+    : null;
   const all = s.items.filter((i) => i.kind === "workout");
   const days = weekDays(date);
   const week = all.filter((w) => w.date && days.includes(w.date));
@@ -536,6 +552,44 @@ export function Fitness({
           );
         })}
       </div>
+      <section className="obs-fitness-compare">
+        <div>
+          <span className="eyebrow">PERIOD / ПЛАН И ФАКТ</span>
+          <h3>
+            Последние {range} дней и предыдущие {range}
+          </h3>
+          <p className="muted">
+            Сравниваются завершённые записи за два непересекающихся периода.
+          </p>
+        </div>
+        <div className="obs-comparisons">
+          {[
+            ["Тренировки", m.done.length, previous.done.length, ""],
+            ["Объём", Math.round(m.volume), Math.round(previous.volume), "кг"],
+            ["Бег", m.distance.toFixed(1), previous.distance.toFixed(1), "км"],
+            ["Время", m.duration, previous.duration, "мин"],
+          ].map(([name, now, old, unit]) => (
+            <div key={String(name)}>
+              <small>{name}</small>
+              <strong>
+                {now} <small>{unit}</small>
+              </strong>
+              <span className="muted">
+                было {old} {unit}
+              </span>
+            </div>
+          ))}
+        </div>
+        <p className="hint">
+          {m.planned.length
+            ? `Выполнено ${m.done.length} из ${m.planned.length} записей периода`
+            : "Нет запланированных тренировок в периоде"}{" "}
+          ·{" "}
+          {bestPace === null
+            ? "Темп появится после пробежки"
+            : `Лучший темп: ${Math.floor(bestPace)}:${String(Math.round((bestPace % 1) * 60)).padStart(2, "0")} мин/км`}
+        </p>
+      </section>
       <div className="fitness-layout">
         <section>
           <div className="sectionhead">
@@ -742,6 +796,32 @@ export function Fitness({
             </div>
           ) : (
             <Empty>Добавьте фактическую дистанцию завершённой пробежки.</Empty>
+          )}
+        </section>
+        <section>
+          <h3>Прогресс рабочего веса</h3>
+          {chosenExercise && chartExercise.some((d) => d.max > 0) ? (
+            <div className="chart">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartExercise}>
+                  <CartesianGrid stroke="#294031" vertical={false} />
+                  <XAxis dataKey="label" stroke="#7f9a89" />
+                  <YAxis stroke="#7f9a89" />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Line
+                    dataKey="max"
+                    name="Максимальный вес, кг"
+                    stroke="#a4dfb8"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <Empty>
+              Выберите упражнение над графиком объёма. Учитываются только
+              выполненные подходы завершённых тренировок.
+            </Empty>
           )}
         </section>
         <section>

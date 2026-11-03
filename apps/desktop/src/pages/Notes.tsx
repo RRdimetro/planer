@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Markdown from "react-markdown";
 import type { Item } from "../../../../packages/contracts";
 import { newItem } from "../../../../packages/core";
+import { ActivityHistory } from "../design/ActivityHistory";
+import { LocalImage } from "../features/LocalImage";
 import { Empty } from "../shared/ui";
 import type { PageProps } from "../shared/model";
 export function Notes({
@@ -19,6 +21,11 @@ export function Notes({
   useEffect(() => {
     if (requestedId) setSelected(requestedId);
   }, [requestedId]);
+  const [folder, setFolder] = useState("");
+  const [link, setLink] = useState("");
+  const [related, setRelated] = useState("");
+  const [historyKey, setHistoryKey] = useState(0);
+  const [saveLabel, setSaveLabel] = useState("Сохранено");
   const [filter, setFilter] = useState("");
   const [draft, setDraft] = useState<Item | null>(null);
   const [preview, setPreview] = useState(false);
@@ -42,7 +49,10 @@ export function Notes({
         .then(async () => {
           try {
             await command({ type: "save", item: value });
+            setSaveLabel("Сохранено");
+            setHistoryKey((k) => k + 1);
           } catch (e) {
+            setSaveLabel("Ошибка сохранения");
             if (latest.current?.id === value.id) dirty.current = true;
             throw e;
           } finally {
@@ -67,6 +77,7 @@ export function Notes({
     };
   }, [flush]);
   const changeDraft = (value: Item) => {
+    setSaveLabel("Сохраняется…");
     latest.current = value;
     dirty.current = true;
     setDraft(value);
@@ -80,6 +91,56 @@ export function Notes({
   return (
     <div className="notesgrid">
       <section className="notelist">
+        <span className="eyebrow">KNOWLEDGE / ВАША БИБЛИОТЕКА</span>
+        <h3>
+          Заметки <span className="badge">{notes.length}</span>
+        </h3>
+        <select
+          aria-label="Фильтр папок"
+          value={folder}
+          onChange={(e) => setFolder(e.target.value)}
+        >
+          <option value="">Все заметки</option>
+          <option value="unfiled">Без папки</option>
+          {s.noteFolders?.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
+          ))}
+        </select>
+        <div className="row">
+          <button
+            onClick={() => {
+              const name = window.prompt("Название папки");
+              if (name?.trim())
+                void command({
+                  type: "folder",
+                  id: crypto.randomUUID(),
+                  name: name.trim(),
+                });
+            }}
+          >
+            + Папка
+          </button>
+          {s.noteFolders?.some((f) => f.id === folder) && (
+            <button
+              onClick={() => {
+                const name = window.prompt(
+                  "Новое название папки",
+                  s.noteFolders?.find((f) => f.id === folder)?.name,
+                );
+                if (name?.trim())
+                  void command({
+                    type: "folder",
+                    id: folder,
+                    name: name.trim(),
+                  });
+              }}
+            >
+              Переименовать
+            </button>
+          )}
+        </div>
         <button
           className="primary"
           onClick={async () => {
@@ -98,14 +159,29 @@ export function Notes({
           onChange={(e) => setFilter(e.target.value)}
         />
         {notes
+          .filter(
+            (n) =>
+              !folder ||
+              (folder === "unfiled"
+                ? !s.noteMembership?.[n.id]
+                : s.noteMembership?.[n.id] === folder),
+          )
           .filter((n) =>
             (n.title + n.description + n.tags)
               .toLowerCase()
               .includes(filter.toLowerCase()),
           )
           .map((n) => (
-            <button key={n.id} onClick={() => void choose(n.id)}>
-              {n.title}
+            <button
+              className={draft?.id === n.id ? "active" : ""}
+              key={n.id}
+              onClick={() => void choose(n.id)}
+            >
+              <strong>{n.title}</strong>
+              <small>
+                {n.description.replace(/[#*`]/g, "").slice(0, 80) ||
+                  "Пустая заметка"}
+              </small>
             </button>
           ))}
       </section>
@@ -122,15 +198,64 @@ export function Notes({
               <button onClick={() => setPreview(!preview)}>
                 {preview ? "Редактор" : "Предпросмотр"}
               </button>
-              <span className="muted">Автосохранение · Markdown</span>
+              <span className="muted" role="status">
+                {saveLabel} · Markdown
+              </span>
+              <select
+                aria-label="Вставить ссылку на заметку"
+                value={link}
+                onChange={(e) => {
+                  setLink(e.target.value);
+                  const n = notes.find((n) => n.id === e.target.value);
+                  if (n) {
+                    changeDraft({
+                      ...draft,
+                      description:
+                        draft.description +
+                        `\n[${n.title.replaceAll("[", "").replaceAll("]", "")}](focus-note:${n.id})`,
+                    });
+                    setLink("");
+                  }
+                }}
+              >
+                <option value="">Ссылка на заметку…</option>
+                {notes
+                  .filter((n) => n.id !== draft.id)
+                  .map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.title}
+                    </option>
+                  ))}
+              </select>
             </div>
             {preview ? (
               <div className="markdown">
                 <Markdown
                   skipHtml
+                  urlTransform={(url) =>
+                    /^(focus-note|attachment):[a-f\d-]{36}$/i.test(url)
+                      ? url
+                      : ""
+                  }
                   components={{
-                    img: () => null,
-                    a: ({ children }) => <span>{children}</span>,
+                    img: ({ src, alt }) =>
+                      typeof src === "string" &&
+                      src.startsWith("attachment:") ? (
+                        <LocalImage id={src.slice(11)} alt={alt} />
+                      ) : (
+                        <span>{alt}</span>
+                      ),
+                    a: ({ href, children }) =>
+                      href?.startsWith("focus-note:") ? (
+                        <button
+                          className="textbutton"
+                          onClick={() => void choose(href.slice(11))}
+                        >
+                          {children}
+                        </button>
+                      ) : (
+                        <span>{children}</span>
+                      ),
                   }}
                 >
                   {draft.description}
@@ -151,9 +276,29 @@ export function Notes({
         )}
       </section>
       <section>
-        <h3>Свойства</h3>
+        <h3>Контекст заметки</h3>
         {draft && (
           <>
+            <label className="field">
+              Папка
+              <select
+                aria-label="Папка заметки"
+                value={s.noteMembership?.[draft.id] ?? ""}
+                onChange={(e) => {
+                  const folderId = e.target.value || null;
+                  void flush().then(() =>
+                    command({ type: "noteFolder", noteId: draft.id, folderId }),
+                  );
+                }}
+              >
+                <option value="">Без папки</option>
+                {s.noteFolders?.map((f) => (
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
+                ))}
+              </select>
+            </label>
             <label className="field">
               Теги
               <input
@@ -181,6 +326,144 @@ export function Notes({
                   ))}
               </select>
             </label>
+            <label className="field">
+              Связать с задачей
+              <select
+                aria-label="Связать заметку с задачей"
+                value={related}
+                onChange={(e) => {
+                  const targetId = e.target.value;
+                  setRelated("");
+                  if (targetId)
+                    void flush().then(() =>
+                      command({
+                        type: "link",
+                        sourceId: draft.id,
+                        targetId,
+                      }),
+                    );
+                }}
+              >
+                <option value="">Выберите задачу…</option>
+                {s.items
+                  .filter((t) => t.kind === "task")
+                  .map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.title}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            {(s.links ?? [])
+              .filter(
+                (l) => l.sourceId === draft.id && l.relation === "related",
+              )
+              .map((l) => (
+                <div className="row" key={l.targetId}>
+                  <span className="grow">
+                    {s.items.find((t) => t.id === l.targetId)?.title ??
+                      "Архивная запись"}
+                  </span>
+                  <button
+                    aria-label="Удалить связь"
+                    onClick={() =>
+                      void command({
+                        type: "link",
+                        sourceId: draft.id,
+                        targetId: l.targetId,
+                        remove: true,
+                      })
+                    }
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            <h4>Обратные ссылки</h4>
+            {(s.links ?? [])
+              .filter(
+                (l) => l.targetId === draft.id && l.relation === "backlink",
+              )
+              .map((l) => (
+                <button
+                  className="textbutton"
+                  key={l.sourceId}
+                  onClick={() => void choose(l.sourceId)}
+                >
+                  {notes.find((n) => n.id === l.sourceId)?.title ??
+                    "Архивная заметка"}
+                </button>
+              ))}
+            <h4>Вложения</h4>
+            {s.attachments
+              .filter((a) => a.entityId === draft.id)
+              .map((a) => (
+                <div className="obs-note-attachment" key={a.id}>
+                  <strong>{a.name}</strong>
+                  <small>{(a.size / 1024).toFixed(1)} КБ</small>
+                  {/\.(png|jpe?g|gif|webp)$/i.test(a.name) && (
+                    <>
+                      <LocalImage id={a.id} alt={a.name} />
+                      <button
+                        onClick={() =>
+                          changeDraft({
+                            ...draft,
+                            description:
+                              draft.description +
+                              `\n![${a.name.replaceAll("[", "").replaceAll("]", "")}](attachment:${a.id})`,
+                          })
+                        }
+                      >
+                        Вставить в текст
+                      </button>
+                    </>
+                  )}
+                  <div className="row">
+                    <button
+                      onClick={() =>
+                        void command({
+                          type: "file",
+                          action: "exportAttachment",
+                          id: a.id,
+                        })
+                      }
+                    >
+                      Сохранить файл
+                    </button>
+                    <button
+                      className="danger"
+                      onClick={() => {
+                        if (window.confirm("Удалить вложение?"))
+                          void command({ type: "removeAttachment", id: a.id });
+                      }}
+                    >
+                      Удалить
+                    </button>
+                  </div>
+                </div>
+              ))}
+            <button
+              onClick={() =>
+                void flush().then(() =>
+                  command({ type: "file", action: "attach", id: draft.id }),
+                )
+              }
+            >
+              Прикрепить файл
+            </button>
+            <ActivityHistory
+              key={`${draft.id}-${historyKey}`}
+              id={draft.id}
+              restore={(old) => {
+                changeDraft({
+                  ...draft,
+                  title: old.title,
+                  description: old.description,
+                  tags: old.tags,
+                });
+                void flush();
+              }}
+            />
             <p className="hint">
               HTML и удалённые изображения не исполняются и не загружаются.
             </p>

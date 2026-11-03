@@ -71,7 +71,7 @@ export function metrics(
   const estimated = done
     .map((t) => {
       const actual = s.sessions
-        .filter((x) => x.taskId === t.id)
+        .filter((x) => x.kind !== "break" && x.taskId === t.id)
         .reduce((a, x) => a + x.seconds / 60, 0);
       return actual > 0 && t.estimate > 0
         ? Math.min(actual, t.estimate) / Math.max(actual, t.estimate)

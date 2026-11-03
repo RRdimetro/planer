@@ -1,76 +1,167 @@
 import { useState } from "react";
-import { Empty } from "../shared/ui";
+import { Maximize2, Leaf, Coffee, Target } from "lucide-react";
+import { MetricCard, EmptyState } from "../design/components";
+import { dateInZone } from "../../../../packages/core";
 import type { PageProps } from "../shared/model";
 export function Focus({ s, command }: PageProps) {
   const current = s.sessions.find((x) =>
     ["running", "paused", "interrupted"].includes(x.state),
   );
   const [task, setTask] = useState("");
-  const [mode, setMode] = useState("pomodoro");
+  const mode = String(s.settings.focusMode ?? "pomodoro");
+  const zone = String(s.settings.timezone ?? "Europe/Moscow");
+  const today = dateInZone(zone);
+  const work = s.sessions.filter((x) => x.kind !== "break");
+  const todayWork = work.filter(
+    (x) => dateInZone(zone, new Date(x.startedAt)) === today,
+  );
+  const minutes = (xs: typeof work) =>
+    Math.floor(xs.reduce((a, x) => a + x.seconds, 0) / 60);
   const seconds = current
     ? current.target
       ? Math.max(0, current.target - current.seconds)
       : current.seconds
-    : Number(s.settings.pomodoro ?? 25) * 60;
+    : Number(
+        mode === "break"
+          ? (s.settings.breakMinutes ?? 5)
+          : mode === "free"
+            ? 0
+            : (s.settings.pomodoro ?? 25),
+      ) * 60;
+  const setting = (
+    key: "focusMode" | "breakMinutes" | "pomodoro",
+    value: string | number,
+  ) => void command({ type: "settings", key, value });
   return (
-    <div className="chartgrid">
-      <section className="timer">
-        <div className="eyebrow">DEEP WORK / ВРЕМЯ ДЛЯ ГЛАВНОГО</div>
-        <h2>В потоке</h2>
+    <div className="obs-focus-layout">
+      <section className="obs-focus-stage">
+        <div className="sectionhead">
+          <span className="eyebrow">DEEP WORK / ОДНА ЗАДАЧА</span>
+          <button
+            aria-label="Полноэкранный фокус"
+            onClick={() => void command({ type: "file", action: "fullscreen" })}
+          >
+            <Maximize2 size={16} />
+          </button>
+        </div>
+        <div className="obs-focus-mark">
+          {(current?.kind ?? (mode === "break" ? "break" : "work")) ===
+          "break" ? (
+            <Coffee size={30} />
+          ) : (
+            <Leaf size={30} />
+          )}
+        </div>
+        <h2>
+          {current?.kind === "break" || (!current && mode === "break")
+            ? "Время выдохнуть"
+            : "Пространство для главного"}
+        </h2>
         <div className="toolbar" style={{ justifyContent: "center" }}>
           <select
-            value={mode}
-            onChange={(e) => setMode(e.target.value)}
+            aria-label="Режим фокуса"
             disabled={!!current}
+            value={mode}
+            onChange={(e) => setting("focusMode", e.target.value)}
           >
             <option value="pomodoro">Pomodoro</option>
-            <option value="free">Свободный режим</option>
+            <option value="free">Свободный таймер</option>
+            <option value="break">Перерыв</option>
           </select>
-          <select
-            value={task}
-            onChange={(e) => setTask(e.target.value)}
-            disabled={!!current}
-          >
-            <option value="">Без задачи</option>
-            {s.items
-              .filter((t) => t.kind === "task" && t.status !== "done")
-              .map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.title}
-                </option>
-              ))}
-          </select>
+          {mode !== "free" && (
+            <label>
+              Минут{" "}
+              <input
+                aria-label="Длительность фокуса"
+                type="number"
+                min="1"
+                max={mode === "break" ? 60 : 180}
+                disabled={!!current}
+                value={Number(
+                  mode === "break"
+                    ? (s.settings.breakMinutes ?? 5)
+                    : (s.settings.pomodoro ?? 25),
+                )}
+                onChange={(e) => {
+                  const n = Number(e.target.value);
+                  if (n >= 1 && n <= (mode === "break" ? 60 : 180))
+                    setting(mode === "break" ? "breakMinutes" : "pomodoro", n);
+                }}
+              />
+            </label>
+          )}
         </div>
-        <div className="clock">
-          {String(Math.floor(seconds / 60)).padStart(2, "0")}
-          <span>:</span>
-          {String(Math.floor(seconds % 60)).padStart(2, "0")}
+        <div
+          className="obs-focus-dial"
+          style={
+            {
+              "--focus-angle": `${current?.target ? Math.min(360, (current.seconds / current.target) * 360) : 0}deg`,
+            } as React.CSSProperties
+          }
+        >
+          <div className="clock" role="timer" aria-label="Время сессии">
+            {String(Math.floor(seconds / 60)).padStart(2, "0")}
+            <span>:</span>
+            {String(Math.floor(seconds % 60)).padStart(2, "0")}
+          </div>
         </div>
         <p className="muted">
           {current
             ? current.state === "running"
               ? "Сессия идёт"
               : current.state === "interrupted"
-                ? "Сессия прервана — продолжить или завершить?"
+                ? "Сессия прервана — продолжите или завершите"
                 : "Пауза"
-            : "Выберите задачу и начните с малого"}
+            : "Отключите лишнее. Начните с одного шага."}
         </p>
-        <div className="row" style={{ marginTop: 28 }}>
+        {current ? (
+          <p className="obs-focus-task">
+            <Target size={15} />
+            {s.items.find((t) => t.id === current.taskId)?.title ??
+              (current.kind === "break" ? "Восстановление" : "Свободный фокус")}
+          </p>
+        ) : (
+          mode !== "break" && (
+            <select
+              aria-label="Задача фокуса"
+              value={task}
+              onChange={(e) => setTask(e.target.value)}
+            >
+              <option value="">Без задачи</option>
+              {s.items
+                .filter((t) => t.kind === "task" && t.status !== "done")
+                .map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.title}
+                  </option>
+                ))}
+            </select>
+          )
+        )}
+        <div
+          className="row"
+          style={{ marginTop: 24, justifyContent: "center" }}
+        >
           {!current ? (
             <button
               className="primary"
               onClick={() =>
                 void command({
                   type: "focusStart",
-                  taskId: task || null,
+                  taskId: mode === "break" ? null : task || null,
                   target:
                     mode === "free"
                       ? 0
-                      : Number(s.settings.pomodoro ?? 25) * 60,
+                      : Number(
+                          mode === "break"
+                            ? (s.settings.breakMinutes ?? 5)
+                            : (s.settings.pomodoro ?? 25),
+                        ) * 60,
+                  kind: mode === "break" ? "break" : "work",
                 })
               }
             >
-              Начать фокус
+              {mode === "break" ? "Начать перерыв" : "Начать фокус"}
             </button>
           ) : (
             <>
@@ -96,39 +187,80 @@ export function Focus({ s, command }: PageProps) {
           )}
         </div>
         <p className="hint">
-          Сон и длительные провалы системного таймера не добавляются к сессии.
-          После закрытия незавершённая сессия помечается прерванной.
+          Таймер работает при переходах и сворачивании. Сон компьютера
+          исключается. После закрытия незавершённую сессию можно продолжить.
         </p>
       </section>
-      <section>
-        <h3>Последние сессии</h3>
-        {s.sessions.length ? (
-          s.sessions
-            .slice()
-            .reverse()
-            .map((x) => (
-              <div className="sessionrow" key={x.id}>
-                <div>
-                  {s.items.find((t) => t.id === x.taskId)?.title ??
-                    "Свободный фокус"}
-                  <small style={{ display: "block", marginTop: 5 }}>
-                    {new Date(x.startedAt).toLocaleString("ru-RU")} ·{" "}
-                    {x.state === "done"
-                      ? "Завершена"
-                      : x.state === "interrupted"
-                        ? "Прервана"
-                        : x.state === "paused"
-                          ? "Пауза"
-                          : "Идёт"}
-                  </small>
+      <div className="obs-focus-insights">
+        <div className="kpis">
+          <MetricCard
+            label="Фокус сегодня"
+            value={`${minutes(todayWork)} мин`}
+            hint={`${todayWork.filter((x) => x.state === "done").length} завершённых сессий`}
+          />
+          <MetricCard
+            label="Накоплено"
+            value={`${minutes(work)} мин`}
+            hint="Перерывы исключены"
+          />
+        </div>
+        <section>
+          <div className="sectionhead">
+            <h3>Журнал концентрации</h3>
+            <span className="badge">{s.sessions.length}</span>
+          </div>
+          <div className="obs-session-history">
+            {s.sessions
+              .slice()
+              .reverse()
+              .map((x) => (
+                <div className="sessionrow" key={x.id}>
+                  <div>
+                    <strong>
+                      {x.kind === "break"
+                        ? "Перерыв"
+                        : (s.items.find((t) => t.id === x.taskId)?.title ??
+                          "Свободный фокус")}
+                    </strong>
+                    <small>
+                      {new Date(x.startedAt).toLocaleString("ru-RU", {
+                        timeZone: zone,
+                      })}{" "}
+                      ·{" "}
+                      {
+                        {
+                          done: "Завершена",
+                          interrupted: "Прервана",
+                          paused: "Пауза",
+                          running: "Идёт",
+                        }[x.state]
+                      }
+                    </small>
+                  </div>
+                  <strong>
+                    {Math.floor(x.seconds / 60)}:
+                    {String(Math.floor(x.seconds % 60)).padStart(2, "0")}
+                  </strong>
                 </div>
-                <strong>{Math.floor(x.seconds / 60)} мин</strong>
-              </div>
-            ))
-        ) : (
-          <Empty>Здесь появится история реальных сессий</Empty>
-        )}
-      </section>
+              ))}
+            {!s.sessions.length && (
+              <EmptyState
+                title="Первый тихий час"
+                action={() =>
+                  void command({
+                    type: "focusStart",
+                    taskId: null,
+                    target: 1500,
+                  })
+                }
+                label="Начать 25 минут"
+              >
+                Время появится после начала реальной сессии.
+              </EmptyState>
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

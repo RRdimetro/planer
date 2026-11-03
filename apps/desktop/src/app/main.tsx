@@ -43,7 +43,15 @@ const useUI = create<{ page: number; go: (page: number) => void }>((set) => ({
 }));
 const client = new QueryClient({ defaultOptions: { queries: { retry: 1 } } });
 function App() {
-  const { page, go } = useUI();
+  const { page, go: rawGo } = useUI();
+  const go = useCallback(
+    (next: number) => {
+      void flushPending()
+        .then(() => rawGo(next))
+        .catch((e) => setError(String(e)));
+    },
+    [rawGo],
+  );
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["state"],
@@ -72,6 +80,10 @@ function App() {
   );
   useEffect(() => window.focusAPI.onCloseRequested(flushPending), []);
   useEffect(() => {
+    document.querySelector("main")?.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+  }, [page]);
+  useEffect(() => {
     const handler = (e: PromiseRejectionEvent) => {
       e.preventDefault();
       setError(String(e.reason));
@@ -83,11 +95,13 @@ function App() {
     const listener = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        setPalette((v) => !v);
+        if (!document.querySelector('[role="dialog"]') || palette)
+          setPalette((v) => !v);
       }
       if (e.ctrlKey && e.key.toLowerCase() === "n") {
         e.preventDefault();
-        setEditing(newItem("task", ""));
+        if (!document.querySelector('[role="dialog"]') && !palette)
+          setEditing(newItem("task", ""));
       }
       if (
         e.ctrlKey &&

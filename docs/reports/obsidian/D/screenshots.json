@@ -1,0 +1,92 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "demo": true,
+      "page": "Тренировки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Фокус",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Заметки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Тренировки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Фокус",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Заметки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Тренировки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Фокус",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Заметки",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Тренировки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Фокус",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Заметки",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "platform": "linux",
+  "windowsTested": false
+}

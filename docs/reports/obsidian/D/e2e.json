@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "checks": [
+    "notes immediate navigation flush, folders, Markdown internal link/backlink, restore as new version, actual local PNG attachment",
+    "break/free timers, navigation, pause/minimize/resume, real fullscreen",
+    "immediate graceful close retains note; running timer reopens interrupted"
+  ],
+  "platform": "linux"
+}

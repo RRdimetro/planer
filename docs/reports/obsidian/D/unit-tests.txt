@@ -1,0 +1,33 @@
+
+ RUN  v3.2.7 /workspace/focus_os_codex
+
+ ✓ tests/obsidian-knowledge.test.ts (2 tests) 124ms
+ ✓ tests/demo-isolation.test.ts (3 tests) 987ms
+   ✓ three concept databases persist independently and leave the closed user database byte-identical  543ms
+ ✓ tests/obsidian-study.test.ts (4 tests) 352ms
+stdout | tests/performance.test.ts > M5: batch 1000 tasks is atomic and state remains responsive
+1000 tasks batch/read ms: 269
+
+ ✓ tests/performance.test.ts (1 test) 327ms
+   ✓ M5: batch 1000 tasks is atomic and state remains responsive  325ms
+ ✓ tests/obsidian-core.test.ts (6 tests) 223ms
+ ✓ tests/forest-v4.test.ts (4 tests) 210ms
+ ✓ tests/planning-v2.test.ts (5 tests) 187ms
+ ✓ tests/migration-v2.test.ts (2 tests) 166ms
+ ✓ tests/study.test.ts (3 tests) 115ms
+ ✓ tests/backup.test.ts (3 tests) 123ms
+ ✓ tests/analytics.test.ts (3 tests) 92ms
+ ✓ tests/domain.test.ts (3 tests) 93ms
+ ✓ tests/fitness-v020.test.ts (2 tests) 89ms
+ ✓ tests/modules.test.ts (1 test) 79ms
+ ✓ tests/security.test.ts (2 tests) 74ms
+ ✓ tests/schedule-apply.test.ts (1 test) 58ms
+ ✓ tests/normalized.test.ts (1 test) 51ms
+ ✓ tests/foundation.test.ts (1 test) 20ms
+ ✓ tests/planner-rules.test.ts (3 tests) 6ms
+
+ Test Files  19 passed (19)
+      Tests  50 passed (50)
+   Start at  11:14:07
+   Duration  16.13s (transform 369ms, setup 0ms, collect 7.17s, tests 3.38s, environment 3ms, prepare 1.17s)
+

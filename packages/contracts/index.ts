@@ -377,7 +377,7 @@ export function validateSetting(key: string, value: unknown) {
         })
         .parse(value);
     case "focusMode":
-      return z.enum(["pomodoro", "free"]).parse(value);
+      return z.enum(["pomodoro", "free", "break"]).parse(value);
     case "breakMinutes":
       return z.number().int().min(1).max(60).parse(value);
     case "notificationLead":

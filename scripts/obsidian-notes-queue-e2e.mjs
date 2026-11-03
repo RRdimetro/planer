@@ -1,9 +1,10 @@
 // Real main IPC with deliberate save latency: older responses must not overwrite a newer draft.
 import { launch, temp, expect } from "./obsidian-harness.mjs";
 import fs from "node:fs";
+const directory = temp("focus-note-queue-F-");
 let h;
 try {
-  h = await launch(temp("focus-note-queue-F-"));
+  h = await launch(directory);
   const { p, app, nav } = h;
   await nav("Заметки");
   await p.getByRole("button", { name: "+ Заметка", exact: true }).click();
@@ -38,6 +39,19 @@ try {
   await expect(p.getByLabel("Текст заметки", { exact: true })).toHaveValue(
     "Третья версия во время ожидания",
   );
+  await p
+    .getByLabel("Текст заметки", { exact: true })
+    .fill("Версия перед закрытием");
+  await p.waitForTimeout(450);
+  await p
+    .getByLabel("Текст заметки", { exact: true })
+    .fill("Последняя версия при закрытии");
+  await app.close();
+  h = await launch(directory);
+  await h.nav("Заметки");
+  await expect(h.p.getByLabel("Текст заметки", { exact: true })).toHaveValue(
+    "Последняя версия при закрытии",
+  );
   fs.writeFileSync(
     "docs/reports/obsidian/F/notes-queue-e2e.json",
     JSON.stringify(
@@ -47,6 +61,7 @@ try {
         checks: [
           "overlapping note saves with 900ms actual IPC latency preserve newer draft while navigation waits",
           "edit made while navigation waits is drained before leaving",
+          "graceful close drains two overlapping saves and real restart retains exact last text",
         ],
       },
       null,

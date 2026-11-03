@@ -54,7 +54,7 @@ start=f'''# FOCUS OS PRO 0.3.0 — начать здесь
 (out/'НАЧАТЬ_ЗДЕСЬ.md').write_text(start)
 artifacts=[]
 for p in sorted(out.iterdir()):
- if p.suffix=='.zip' or p.name=='НАЧАТЬ_ЗДЕСЬ.md':artifacts.append({'name':p.name,'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
+ if p.suffix in ['.zip','.md']:artifacts.append({'name':p.name,'size':p.stat().st_size,'sha256':hashlib.sha256(p.read_bytes()).hexdigest()})
 for entry in report['artifacts']:artifacts.append({k:entry[k] for k in ['name','size','sha256']})
 (out/'SHA256SUMS.txt').write_text(''.join(f"{a['sha256']}  {a['name']}\n" for a in artifacts))
 (out/'ARTIFACTS.json').write_text(json.dumps({'version':'0.3.0','sourceCommit':commit,'windowsRuntimeTested':False,'artifacts':artifacts},ensure_ascii=False,indent=2))

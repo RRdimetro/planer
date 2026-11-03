@@ -36,7 +36,7 @@ Windows runtime/install/update/OS notification delivery, подпись и ру�
 
 ## Итог упаковки
 
-NSIS: 89 454 807 байт; Portable: 89 203 385 байт. Дополнительная проверка фактического содержимого обоих готовых EXE успешно извлекла payload и подтвердила 25 совпадающих файлов текущего build, PE AMD64, версию 0.3.0 и реальный export `node_register_module_v140`. Полные SHA-256 — `artifacts.json`. Это статический контроль, Windows execution остаётся false.
+NSIS: 89 452 944 байт; Portable: 89 201 617 байт. Дополнительная проверка фактического содержимого обоих готовых EXE успешно извлекла payload и подтвердила 25 совпадающих файлов текущего build, PE AMD64, версию 0.3.0 и реальный export `node_register_module_v140`. Полные SHA-256 — `artifacts.json`. Это статический контроль, Windows execution остаётся false.
 
 ## Дополнительная регрессия автосохранения
 

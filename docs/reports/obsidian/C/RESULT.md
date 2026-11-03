@@ -6,4 +6,4 @@
 
 XLSX принимает шаблон экспорта приложения, показывает изменения и создаёт копию до атомарного объединения. Формулы требуют предварительной вставки значений; произвольные структуры XLS и сопоставление колонок не реализованы. Пользовательские и demo-книги разделены. Gantt показывает только известные даты; прогноз появляется при достаточной истории.
 
-Windows execution не выполнен. Следующие этапы D–F ещё в работе. Запуск на Windows: Node 22+, Corepack/pnpm 10.20, `pnpm install --frozen-lockfile`, `pnpm run rebuild`, `pnpm dev`. Для отдельной demo-базы: `pnpm preview:design -- --concept B` (см. README).
+Windows execution не выполнен. Следующие этапы D–F ещё в работе. Запуск на Windows: Node 22+, Corepack/pnpm 10.20, `pnpm install --frozen-lockfile`, `pnpm run rebuild`, `pnpm dev`. Для отдельной demo-базы: `pnpm preview:design` (см. README).

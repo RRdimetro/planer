@@ -3,6 +3,7 @@
   "platform": "linux",
   "checks": [
     "overlapping note saves with 900ms actual IPC latency preserve newer draft while navigation waits",
-    "edit made while navigation waits is drained before leaving"
+    "edit made while navigation waits is drained before leaving",
+    "graceful close drains two overlapping saves and real restart retains exact last text"
   ]
 }

@@ -9,12 +9,12 @@
 [
   {
     file: 'FOCUS_OS_PRO_0.3.0_Setup_UNTESTED.exe',
-    size: 89454807,
-    sha256: 'e58aeeddcf4480ebc4ac9001d92167b043d5e272910261bfbaaea88974e8a36d'
+    size: 89452944,
+    sha256: '07efedd9d46e1cc758d3f6f042302d283da8ffe3cb4a52c12f6a37610318ecc2'
   },
   {
     file: 'FOCUS_OS_PRO_0.3.0_Portable_UNTESTED.exe',
-    size: 89203385,
-    sha256: '7fecbd6c93f2318b45cae7f2a010ddf906619474fba918593d5ca3ed1fd81197'
+    size: 89201617,
+    sha256: 'bd220664c79e20d7d20b7afc16df97678b11262296e0bbb05cab5c4ec8d9a34a'
   }
 ]

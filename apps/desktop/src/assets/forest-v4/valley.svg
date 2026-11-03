@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 460" fill="none">
+  <defs>
+    <linearGradient id="sky" x2="1500" y2="460" gradientUnits="userSpaceOnUse"><stop stop-color="#14241C"/><stop offset=".62" stop-color="#41584B"/><stop offset="1" stop-color="#172A22"/></linearGradient>
+    <linearGradient id="mist" x2="0" y2="460" gradientUnits="userSpaceOnUse"><stop stop-color="#C3D1BC" stop-opacity=".46"/><stop offset="1" stop-color="#74947C" stop-opacity="0"/></linearGradient>
+    <linearGradient id="near" x2="0" y2="460" gradientUnits="userSpaceOnUse"><stop stop-color="#1B3629"/><stop offset="1" stop-color="#08160F"/></linearGradient>
+    <radialGradient id="light"><stop stop-color="#D4D6AF" stop-opacity=".34"/><stop offset="1" stop-color="#CAD9B0" stop-opacity="0"/></radialGradient>
+    <filter id="blur"><feGaussianBlur stdDeviation="14"/></filter>
+    <path id="pine" d="M0 0-13 34h7l-15 29h10L-29 96H-5v19H5V96h24L11 63h10L6 34h7Z"/>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h1600v460H0z"/>
+  <ellipse cx="1070" cy="74" rx="360" ry="260" fill="url(#light)"/>
+  <path d="M0 169 125 112 208 140 364 84 486 132 646 71 718 92 845 52 965 102 1086 43 1196 87 1305 37 1415 99 1521 67 1600 83V460H0Z" fill="#819080" opacity=".26"/>
+  <path d="m0 213 116-44 94 30 110-65 135 66 83-47 114 42 139-70 115 49 101-29 132 54 112-77 110 17 139-51 100 16V460H0Z" fill="#587460" opacity=".65"/>
+  <path d="M0 252c220-114 310 54 560-11s280-55 468 26 345-96 572-56v249H0Z" fill="#365844"/>
+  <path d="M320 267c184-43 280-10 467 25s348-40 619-66" stroke="url(#mist)" stroke-width="65" filter="url(#blur)"/>
+  <path d="M0 214c211 14 254 108 468 128s373-69 557-45 319 53 575-20v183H0Z" fill="#254736"/>
+  <path d="M573 347c222-23 337-11 527 9s301-20 500-34" stroke="#BAC8AB" stroke-opacity=".14" stroke-width="25" filter="url(#blur)"/>
+  <path d="M0 337c228-27 273 64 490 53s431-20 620 8 335-45 490-38v100H0Z" fill="url(#near)"/>
+  <g fill="#0C2117" opacity=".9">
+    <use href="#pine" transform="translate(94 275) scale(1.65)"/><use href="#pine" transform="translate(173 312) scale(1.3)"/><use href="#pine" transform="translate(231 334) scale(.8)"/>
+    <use href="#pine" transform="translate(1312 312) scale(1.3)"/><use href="#pine" transform="translate(1390 270) scale(1.75)"/><use href="#pine" transform="translate(1471 326) scale(1.15)"/><use href="#pine" transform="translate(1540 246) scale(2)"/>
+  </g>
+  <path d="M0 457c367-53 607 15 842-5s524-12 758-42v50H0Z" fill="#08150E"/>
+</svg>

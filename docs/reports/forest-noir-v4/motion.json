@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "windowsRuntimeTested": false,
+  "file": "docs/motion/forest-noir-v4/C-interactions.mp4",
+  "actions": [
+    "task completion and undo",
+    "contextual task sheet",
+    "command palette and fuzzy keyboard search",
+    "navigation",
+    "real calendar drag and persisted new date",
+    "focus start/pause/finish"
+  ],
+  "media": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "width": 1366,
+        "height": 768,
+        "r_frame_rate": "25/1"
+      }
+    ],
+    "format": {
+      "duration": "11.640000"
+    }
+  },
+  "note": "25fps capture is video encoding, not a 60fps performance benchmark."
+}

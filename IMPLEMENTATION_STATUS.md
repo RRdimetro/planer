@@ -2,13 +2,13 @@
 
 **Кандидат 0.2.0. Windows-релиз ещё не принят: исполнение под Windows и Windows CI не подтверждены.** Проект продолжен от 0.1.0; все 10 страниц сохранены. «Привычки» и «Финансы» не добавлялись. Архив исходного статуса: docs/reports/0.2.0/BASELINE_0.1.0.md.
 
-| Этап | Проверенный результат | Статус |
-|---|---|---|
-| 1. Нормализация | additive v2/v3, preflight на копии, точный перенос v1 DTO, SQL FK/check, сохранённая v1 SQLite-копия | Проверено в SQLite/Linux |
-| 2. Планировщик | parent tasks/checklist/dependencies/cycle guards, recurrence occurrences, attachments, bulk/filter/tree; день/неделя/месяц, DnD/resize, weekly scope/snapshot, busy slots/rules/preview/atomic apply | Unit + Electron E2E |
-| 3. Fitness | programs/exercises/sets/reps/weights, run metrics, actual volume/PR/charts, rest days | Контрольные наборы + Electron E2E |
-| 4. Premium Forest | индивидуальные экраны, плотная главная, roadmap/notes/files, widget layout, отдельный demo workspace | 60 screenshot checks + UI E2E |
-| 5. Дистрибуция | настоящие NSIS/portable cross-build; Windows CI install/update script | Cross-build проверяется статически; Windows execution НЕ выполнен |
+| Этап              | Проверенный результат                                                                                                                                                                                | Статус                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| 1. Нормализация   | additive v2/v3, preflight на копии, точный перенос v1 DTO, SQL FK/check, сохранённая v1 SQLite-копия                                                                                                 | Проверено в SQLite/Linux                                          |
+| 2. Планировщик    | parent tasks/checklist/dependencies/cycle guards, recurrence occurrences, attachments, bulk/filter/tree; день/неделя/месяц, DnD/resize, weekly scope/snapshot, busy slots/rules/preview/atomic apply | Unit + Electron E2E                                               |
+| 3. Fitness        | programs/exercises/sets/reps/weights, run metrics, actual volume/PR/charts, rest days                                                                                                                | Контрольные наборы + Electron E2E                                 |
+| 4. Premium Forest | индивидуальные экраны, плотная главная, roadmap/notes/files, widget layout, отдельный demo workspace                                                                                                 | 60 screenshot checks + UI E2E                                     |
+| 5. Дистрибуция    | настоящие NSIS/portable cross-build; Windows CI install/update script                                                                                                                                | Cross-build проверяется статически; Windows execution НЕ выполнен |
 
 ## Сохранение данных
 
@@ -52,4 +52,24 @@ Workflow windows-2022 собирает baseline 0.1.0 и 0.2.0, реально �
 Ни одна из этих границ не помечена завершённой. Учебный референс сохранён без изменений. Данные тестов/демо живут отдельно от пользовательской базы. Запуск Windows и команды проверок: README.md. Подробности этапов: docs/reports/0.2.0/01–05.
 
 ## Итоговая фиксация кандидата
+
 Windows NSIS 104793980 байт и portable 95888572 байт собраны. PE/ASAR/native/static integrity проверки прошли, содержимое main/preload/frontend совпадает с финальным build. Реальный UI: 1000 задач + фильтр, create/render 1978 ms на Linux. Контрольные суммы: docs/reports/0.2.0/05-artifacts.json. Полный Windows release по-прежнему НЕ принят: Windows runtime/CI = false. Исходники поставляются с полной git-историей для реального upgrade workflow.
+
+## Forest Noir V4 — Gate B (3 ноября 2026)
+
+Полный приложенный brief прочитан и сохранён в `docs/research/forest-noir-v4/`. Работа в отдельной ветке `design/forest-noir-v4`. Gate A и реализация Gate B завершены; визуальное направление пока не утверждено. Полный редизайн остальных девяти страниц не начинался.
+
+- A Editorial Forest: локальная оригинальная панорама, кириллическая Lora, редакционная иерархия и списки.
+- B Obsidian Command Center: 64px навигация, сводка дня с эффективностью, три рабочие колонки, таймер и расписание.
+- C Atmospheric Bento: асимметричная сетка 5/4/3 и 7/5, одна атмосферная карточка, приоритеты и недельный контекст.
+- Все варианты работают через существующие State/IPC/SQLite команды. Новые компоненты и токены ограничены Home preview и её диалогами. Классическая пользовательская Home сохраняется до выбора направления.
+- Три populated и три empty базы изолированы по каталогам; marker и launcher защищают от случайного открытия рабочей/чужой preview-базы. Никаких изменений схемы v3 и новых миграций. Побайтная неизменность пользовательской SQLite покрыта regression-тестом.
+- Исходный учебный импорт: 9 предметов, 4 группы, все 54 tri-state значения. После UI-операций и перезапуска проверено точное сохранение учебных записей.
+- TypeScript strict, ESLint, production build, 38 unit/integration — прошли. Предупреждения Vite: размер JS chunk и аннотации зависимости Zod.
+- Electron/Linux E2E — прошёл: task create/edit/complete/undo, side-sheet, таймер, fuzzy commands, клавиатура, offline, график, 10 маршрутов, перезапуск всех шести preview-баз.
+- 12 настоящих основных PNG: A/B/C × populated/empty × 1920×1080/1366×768. Дополнительно before, side-sheet, palette и контрольные снимки девяти остальных страниц.
+- Визуальная регрессия остальных страниц: 0 изменённых пикселей на снимках 1366×768. Home A дополнительно проверена на четырёх размерах × zoom 100/125/150%; без горизонтального переполнения. Это Linux Chromium zoom, не Windows DPI certification.
+- Записано реальное MP4 взаимодействий: completion/undo, sheet, commands, navigation, calendar drag и focus. 25fps записи не объявляется 60fps benchmark.
+- Windows portable preview собран (96018067 байт) отдельно с маркировкой UNTESTED и CMD-launcher A/B/C/empty. Windows executor/CI отсутствует, реальный запуск Windows НЕ выполнен; unsigned, установка/обновление и DPI не приняты.
+
+Сравнение, рекомендация C, ограничения, команды запуска и список добавленных компонентов: `docs/reports/forest-noir-v4/COMPARISON.md`. Машинные отчёты находятся рядом. Исходники и результаты публикуются в подпапке прежней поставки: https://drive.google.com/drive/folders/1uGsL1ZipowERVsZ9uXg2RoyDiY0zFY8H . Перед переходом к Gate C/D требуется выбор пользователем A/B/C.

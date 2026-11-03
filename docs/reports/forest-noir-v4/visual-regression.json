@@ -1,0 +1,162 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "page": "Планировщик",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Задачи",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Проекты",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Учёба",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Тренировки",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Аналитика",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Фокус",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Заметки",
+      "changedPixels": 0,
+      "ratio": 0
+    },
+    {
+      "page": "Настройки",
+      "changedPixels": 0,
+      "ratio": 0
+    }
+  ],
+  "zoom": [
+    {
+      "concept": "A",
+      "width": 1366,
+      "height": 768,
+      "factor": 1,
+      "cssWidth": 1366,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1366,
+      "height": 768,
+      "factor": 1.25,
+      "cssWidth": 1093,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1366,
+      "height": 768,
+      "factor": 1.5,
+      "cssWidth": 911,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1920,
+      "height": 1080,
+      "factor": 1,
+      "cssWidth": 1920,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1920,
+      "height": 1080,
+      "factor": 1.25,
+      "cssWidth": 1536,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1920,
+      "height": 1080,
+      "factor": 1.5,
+      "cssWidth": 1280,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1440,
+      "height": 900,
+      "factor": 1,
+      "cssWidth": 1440,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1440,
+      "height": 900,
+      "factor": 1.25,
+      "cssWidth": 1152,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 1440,
+      "height": 900,
+      "factor": 1.5,
+      "cssWidth": 960,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 2560,
+      "height": 1440,
+      "factor": 1,
+      "cssWidth": 1707,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 2560,
+      "height": 1440,
+      "factor": 1.25,
+      "cssWidth": 2048,
+      "overflow": false,
+      "clipped": false
+    },
+    {
+      "concept": "A",
+      "width": 2560,
+      "height": 1440,
+      "factor": 1.5,
+      "cssWidth": 1707,
+      "overflow": false,
+      "clipped": false
+    }
+  ],
+  "scope": "Nine existing pages retain classic rendering. Zoom equivalents are Linux Chromium tests, not Windows DPI certification.",
+  "windowsRuntimeTested": false
+}

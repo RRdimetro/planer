@@ -18,6 +18,7 @@ export function ItemForm({
   onClose,
   state,
   command,
+  presentation,
 }: {
   item: Item;
   projects: Item[];
@@ -25,6 +26,7 @@ export function ItemForm({
   state: State;
   command: (c: Command) => Promise<State | undefined>;
   onClose: () => void;
+  presentation?: "sheet";
 }) {
   const [details, setDetails] = useState<TaskDetails>(
     state.taskDetails[item.id] ?? {
@@ -45,6 +47,7 @@ export function ItemForm({
   });
   return (
     <Modal
+      presentation={presentation}
       title={
         item.kind === "task"
           ? "Задача"

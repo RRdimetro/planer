@@ -103,6 +103,7 @@ export interface State {
     version: number;
     integrity: string;
     workspace?: "user" | "demo";
+    homeConcept?: "A" | "B" | "C";
   };
 }
 export const subjectSchema = z

@@ -4,10 +4,12 @@ export function Modal({
   title,
   children,
   onClose,
+  presentation,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
+  presentation?: "sheet";
 }) {
   return (
     <Dialog.Root
@@ -17,8 +19,10 @@ export function Modal({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="overlay" />
-        <Dialog.Content className="modal">
+        <Dialog.Overlay
+          className={"overlay" + (presentation ? " fn-sheet-overlay" : "")}
+        />
+        <Dialog.Content className={"modal" + (presentation ? " fn-sheet" : "")}>
           <div className="row between">
             <Dialog.Title>{title}</Dialog.Title>
             <Dialog.Close aria-label="Закрыть">×</Dialog.Close>

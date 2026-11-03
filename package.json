@@ -19,7 +19,10 @@
     "format": "prettier --write apps packages tests scripts *.json *.ts *.js",
     "test:review": "node scripts/review-v020-e2e.mjs",
     "test:planner": "node scripts/planner-v020-e2e.mjs",
-    "test:fitness": "node scripts/fitness-v020-e2e.mjs"
+    "test:fitness": "node scripts/fitness-v020-e2e.mjs",
+    "preview:design": "node scripts/design-preview.mjs",
+    "test:forest": "node scripts/forest-v4-e2e.mjs",
+    "test:forest:visual": "node scripts/forest-v4-visual.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

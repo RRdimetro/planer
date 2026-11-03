@@ -1,0 +1,14 @@
+{
+  "crossBuilt": true,
+  "windowsRuntimeTested": false,
+  "signed": false,
+  "host": "linux",
+  "asarVerified": true,
+  "files": [
+    {
+      "file": "/workspace/focus_os_codex/release/forest-noir-v4/FOCUS_OS_PRO_Forest_Noir_V4_Preview_UNTESTED.exe",
+      "size": 96018067,
+      "sha256": "c1ae331200e705b55a034f5255ca5d612529b5af0ccf1901af63c669807e39cb"
+    }
+  ]
+}

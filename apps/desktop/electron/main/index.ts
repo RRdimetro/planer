@@ -10,6 +10,8 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { seedDesignPreview } from "../../../../packages/database/demo";
 import type { State } from "../../../../packages/contracts";
+import { designPreview } from "../../../../packages/core/design-preview";
+import { claimPreviewWorkspace } from "../../../../packages/database/preview-workspace";
 import fs from "node:fs";
 import { performance } from "node:perf_hooks";
 import AdmZip from "adm-zip";
@@ -21,18 +23,24 @@ import { Store } from "../../../../packages/database";
 import { commandSchema } from "../../../../packages/contracts";
 const isDemo =
   process.argv.includes("--focus-demo") || process.env.FOCUS_DEMO === "1";
+const preview = designPreview(
+  isDemo,
+  process.env.FOCUS_HOME_CONCEPT || undefined,
+  process.env.FOCUS_DEMO_EMPTY === "1",
+);
 app.setName("FOCUS OS PRO");
 app.setPath(
   "userData",
   process.env.FOCUS_DATA_DIR ??
-    path.join(
-      app.getPath("appData"),
-      isDemo ? "FOCUS OS PRO Design Preview 0.2" : "FOCUS OS PRO",
-    ),
+    path.join(app.getPath("appData"), preview.directory),
 );
 const marked = (state: State): State => ({
   ...state,
-  diagnostics: { ...state.diagnostics, workspace: isDemo ? "demo" : "user" },
+  diagnostics: {
+    ...state.diagnostics,
+    workspace: isDemo ? "demo" : "user",
+    ...(preview.homeConcept ? { homeConcept: preview.homeConcept } : {}),
+  },
 });
 let store: Store;
 let timer: NodeJS.Timeout;
@@ -41,13 +49,21 @@ app
   .whenReady()
   .then(() => {
     fs.mkdirSync(app.getPath("userData"), { recursive: true });
+    if (preview.homeConcept)
+      claimPreviewWorkspace(
+        app.getPath("userData"),
+        preview.homeConcept,
+        preview.empty,
+      );
     store = new Store(path.join(app.getPath("userData"), "focus.db"));
-    if (isDemo) seedDesignPreview(store, "demo");
+    if (isDemo && !preview.empty) seedDesignPreview(store, "demo");
+    if (preview.empty && !store.state().settings.onboarded)
+      store.setting("onboarded", true);
     const win = new BrowserWindow({
       width: 1440,
       height: 960,
-      minWidth: 1000,
-      minHeight: 680,
+      minWidth: preview.homeConcept ? 1100 : 1000,
+      minHeight: preview.homeConcept ? 700 : 680,
       backgroundColor: "#090F0C",
       title: "FOCUS OS PRO",
       webPreferences: {
@@ -123,6 +139,8 @@ app
             env: {
               ...process.env,
               FOCUS_DEMO: "1",
+              FOCUS_HOME_CONCEPT: "",
+              FOCUS_DEMO_EMPTY: "0",
               FOCUS_DATA_DIR: path.join(
                 app.getPath("appData"),
                 "FOCUS OS PRO Design Preview 0.2",

@@ -89,3 +89,20 @@ cd focus-os-pro
 После добавления своего remote и push запускайте Windows workflow. Он не пометит update test успешным, если baseline отсутствует. Cross-build helpers `prepare-win-cross.mjs`/`build-win-cross.mjs` документируют создание текущих Windows-артефактов из Linux; это не замена Windows CI.
 
 Отчёты этапов: `docs/reports/0.2.0/`. Скриншоты: `docs/screenshots/0.2.0/user/` и `demo/`; все сняты в работающем Electron.
+
+## Forest Noir V4 — три варианта главной
+
+Полный отчёт и сравнение: [COMPARISON.md](docs/reports/forest-noir-v4/COMPARISON.md). Ветка `design/forest-noir-v4`. Классическая рабочая Home сохранена до выбора направления.
+
+После установки зависимостей и `pnpm run rebuild`, `pnpm build`:
+
+```powershell
+pnpm preview:design A
+pnpm preview:design B
+pnpm preview:design C
+pnpm preview:design C --empty
+```
+
+Каждая концепция и каждый empty-режим используют отдельную SQLite-базу. Повторные запуски сохраняют пробные изменения. Снимки настоящего Electron: `docs/screenshots/forest-noir-v4/`; видео — `docs/motion/forest-noir-v4/`. Проверки: `pnpm test:forest` и `pnpm test:forest:visual`.
+
+Windows portable preview помечен UNTESTED: cross-build не подтверждает запуск Windows. Для готового preview используйте CMD-launcher из архива рядом с exe. Полноценный редизайн других страниц продолжается только после выбора A/B/C.

@@ -1,6 +1,8 @@
 import { flushPending } from "../shared/pending";
 import { Projects } from "../pages/Projects";
 import { Home } from "../pages/Home";
+import { ForestHome } from "../pages/forest-v4/ForestHome";
+import { ForestPalette } from "../pages/forest-v4/ForestPalette";
 import { Fitness, WorkoutForm } from "../pages/Fitness";
 import { Tasks } from "../pages/Tasks";
 import { pages } from "../shared/navigation";
@@ -142,7 +144,13 @@ function App() {
   const s = q.data;
   const tasks = s.items.filter((i) => i.kind === "task");
   const projects = s.items.filter((i) => i.kind === "project");
-  const collapsed = !!s.settings.collapsed;
+  const forestConcept =
+    s.diagnostics.workspace === "demo" ? s.diagnostics.homeConcept : undefined;
+  const forestHome = page === 0 && !!forestConcept;
+  const collapsed =
+    s.settings.collapsed === undefined && forestHome && forestConcept === "B"
+      ? true
+      : !!s.settings.collapsed;
   const save = async (i: Item, details?: TaskDetails) => {
     if (
       conflicts(
@@ -213,7 +221,13 @@ function App() {
   );
   return (
     <div
-      className={"shell " + (collapsed ? "collapsed" : "")}
+      className={
+        "shell " +
+        (collapsed ? "collapsed " : "") +
+        (forestHome
+          ? `forest-shell forest-shell-${forestConcept!.toLowerCase()}`
+          : "")
+      }
       style={{
         fontSize: Number(s.settings.fontSize ?? 14),
         ["--density" as string]:
@@ -254,7 +268,10 @@ function App() {
         </nav>
         <div className="sidebarfoot">
           <span className="dot" />
-          {!collapsed && (s.diagnostics.workspace==='demo'?'Демо · отдельная база':'Локально · без облака')}
+          {!collapsed &&
+            (s.diagnostics.workspace === "demo"
+              ? "Демо · отдельная база"
+              : "Локально · без облака")}
           <button
             className="icon"
             aria-label="Свернуть навигацию"
@@ -353,13 +370,22 @@ function App() {
               <button onClick={() => setError("")}>Закрыть</button>
             </div>
           )}
-          {page === 0 && (
+          {page === 0 && !forestHome && (
             <Home
               s={s}
               command={command}
               go={go}
               edit={setEditing}
               save={save}
+            />
+          )}
+          {forestHome && forestConcept && (
+            <ForestHome
+              s={s}
+              command={command}
+              go={go}
+              edit={setEditing}
+              concept={forestConcept}
             />
           )}
           {page === 2 && (
@@ -424,6 +450,7 @@ function App() {
       ) : (
         editing && (
           <ItemForm
+            presentation={forestHome ? "sheet" : undefined}
             item={editing}
             projects={projects}
             state={s}
@@ -433,7 +460,16 @@ function App() {
           />
         )
       )}{" "}
-      {palette && (
+      {palette && forestHome && (
+        <ForestPalette
+          s={s}
+          command={command}
+          go={go}
+          edit={setEditing}
+          close={() => setPalette(false)}
+        />
+      )}
+      {palette && !forestHome && (
         <Modal title="Поиск и команды" onClose={() => setPalette(false)}>
           <input
             autoFocus

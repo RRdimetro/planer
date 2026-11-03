@@ -251,13 +251,45 @@ export function distribute(
   }
   return { result, rejected, reasons };
 }
+const dateFormatters = new Map<string, Intl.DateTimeFormat>();
+const timestampDays = new Map<string, string>();
+export function dateOfTimestamp(iso: string, zone: string) {
+  const key = zone + "/" + iso;
+  let day = timestampDays.get(key);
+  if (day === undefined) {
+    day = dateInZone(zone, new Date(iso));
+    if (timestampDays.size >= 20000) timestampDays.clear();
+    timestampDays.set(key, day);
+  }
+  return day;
+}
+export function deadlineDay(due: string, zone: string) {
+  return due.includes("T") ? dateOfTimestamp(due, zone) : due.slice(0, 10);
+}
+export function isOverdue(due: string, zone: string, now = new Date()) {
+  return due.includes("T")
+    ? Date.parse(due) < now.getTime()
+    : due.slice(0, 10) < dateInZone(zone, now);
+}
+export function onTime(completedAt: string, due: string, zone: string) {
+  return due.includes("T")
+    ? Date.parse(completedAt) <= Date.parse(due)
+    : dateOfTimestamp(completedAt, zone) <= due.slice(0, 10);
+}
 export function dateInZone(timeZone: string, date = new Date()) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
+  let formatter = dateFormatters.get(timeZone);
+  if (!formatter) {
+    formatter = new Intl.DateTimeFormat("en-CA", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    if (dateFormatters.size >= 32)
+      dateFormatters.delete(dateFormatters.keys().next().value!);
+    dateFormatters.set(timeZone, formatter);
+  }
+  const parts = formatter.formatToParts(date);
   const get = (type: string) => parts.find((p) => p.type === type)?.value;
   return `${get("year")}-${get("month")}-${get("day")}`;
 }

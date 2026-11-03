@@ -1,5 +1,12 @@
 import type { State, Item } from "../contracts";
-import { dateInZone, addDays, weekDays } from "../core";
+import {
+  dateInZone,
+  dateOfTimestamp,
+  deadlineDay,
+  isOverdue,
+  addDays,
+  weekDays,
+} from "../core";
 import { metrics, dailyEfficiency } from ".";
 import { fitnessMetrics } from "./fitness";
 export function insightState(s: State, project = "", category = ""): State {
@@ -48,7 +55,7 @@ export function insights(s: State, from: string, to: string, now = new Date()) {
     throw Error("Выберите период от 1 до 366 дней");
   const zone = String(s.settings.timezone ?? "Europe/Moscow"),
     today = dateInZone(zone, now);
-  const dayOf = (iso: string) => dateInZone(zone, new Date(iso));
+  const dayOf = (iso: string) => dateOfTimestamp(iso, zone);
   const m = metrics(s, from, to, now),
     previous = metrics(s, addDays(from, -length), addDays(from, -1), now);
   const tasks = s.items.filter((i) => i.kind === "task");
@@ -62,7 +69,7 @@ export function insights(s: State, from: string, to: string, now = new Date()) {
       done: m.done.filter((t) => dayOf(t.completedAt!) === date).length,
       focus: Math.round(work.reduce((a, x) => a + x.seconds / 60, 0)),
       planned: planned.reduce((a, t) => a + t.estimate, 0),
-      score: dailyEfficiency(s, date).score,
+      score: dailyEfficiency(s, date, now).score,
     };
   });
   const weekdays = Array.from({ length: 7 }, (_, i) => {
@@ -90,9 +97,9 @@ export function insights(s: State, from: string, to: string, now = new Date()) {
     (t) =>
       t.status !== "done" &&
       t.due &&
-      t.due < today &&
-      t.due >= from &&
-      t.due <= to,
+      isOverdue(t.due, zone, now) &&
+      deadlineDay(t.due, zone) >= from &&
+      deadlineDay(t.due, zone) <= to,
   );
   const week = weekDays(to);
   return {
@@ -103,7 +110,7 @@ export function insights(s: State, from: string, to: string, now = new Date()) {
     months,
     moves,
     overdue,
-    daily: dailyEfficiency(s, to),
+    daily: dailyEfficiency(s, to, now),
     weekly: metrics(s, week[0], week[6], now),
     fitness: fitnessMetrics(s, from, to),
   };

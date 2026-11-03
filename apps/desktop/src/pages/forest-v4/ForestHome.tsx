@@ -1,3 +1,4 @@
+import { projectMetrics } from "../../../../../packages/analytics/projects";
 import { BentoPanel as Panel } from "../../design/components";
 import { useState, useId, cloneElement, type ReactElement } from "react";
 import {
@@ -585,12 +586,9 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
     >
       {d.projects.length ? (
         d.projects.map((project, i) => {
-          const ts = d.tasks.filter((t) => t.projectId === project.id);
-          const total = ts.reduce((n, t) => n + t.weight * t.estimate, 0);
-          const done = ts
-            .filter((t) => t.status === "done")
-            .reduce((n, t) => n + t.weight * t.estimate, 0);
-          const percent = total ? Math.round((done / total) * 100) : null;
+          const progress = projectMetrics(s, project.id),
+            ts = progress.tasks,
+            percent = progress.percent;
           return (
             <button
               className={`fn-project fn-project-${i % 3}`}

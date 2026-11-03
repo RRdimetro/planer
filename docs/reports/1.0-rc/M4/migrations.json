@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "windowsInstallerTested": false,
+  "method": "actual baseline Store modules extracted from frozen commits; only temporary databases opened",
+  "results": [
+    {
+      "version": "0.2.0",
+      "passed": true,
+      "beforeSchema": 3,
+      "afterSchema": 5,
+      "exactRecordsPreserved": 14,
+      "subjects": 9,
+      "groups": 4,
+      "statuses": 54,
+      "attachmentBytesPreserved": true,
+      "migrationBackup": true
+    },
+    {
+      "version": "0.3.0",
+      "passed": true,
+      "beforeSchema": 5,
+      "afterSchema": 5,
+      "exactRecordsPreserved": 14,
+      "subjects": 9,
+      "groups": 4,
+      "statuses": 54,
+      "attachmentBytesPreserved": true,
+      "migrationBackup": false
+    }
+  ]
+}

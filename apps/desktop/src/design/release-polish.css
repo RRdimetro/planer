@@ -524,3 +524,17 @@ body:has(.obsidian-app[data-motion="reduce"])
 body:has([role="dialog"]) .obsidian-app .error {
   display: none;
 }
+.rc-metric-value {
+  animation: rc-enter 0.2s ease-out;
+}
+.obs-session-history .obs-virtual-cards {
+  max-height: 540px;
+}
+.obs-session-history .sessionrow {
+  min-height: 65px;
+  gap: 12px;
+}
+.obs-session-history .sessionrow > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}

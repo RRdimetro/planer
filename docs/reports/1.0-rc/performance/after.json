@@ -1,0 +1,72 @@
+{
+  "phase": "after",
+  "platform": "linux",
+  "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+  "fixture": {
+    "visibleTasks": 1000,
+    "historicalCompletions": 3000,
+    "sessions": 3000,
+    "directoryIsTemporary": true
+  },
+  "method": "fresh Electron processes, warm filesystem cache, Playwright/debug overhead included; all figures from this worker, not Windows",
+  "startup": [
+    1604,
+    1525,
+    1624
+  ],
+  "routes": {
+    "Главная": 151,
+    "Планировщик": 666,
+    "Задачи": 567,
+    "Проекты": 82,
+    "Учёба": 84,
+    "Тренировки": 83,
+    "Аналитика": 375,
+    "Фокус": 142,
+    "Заметки": 84,
+    "Настройки": 82
+  },
+  "errors": [],
+  "tableRows": 14,
+  "searchMs": 53,
+  "memory": [
+    {
+      "type": "Browser",
+      "memory": {
+        "workingSetSize": 199052,
+        "peakWorkingSetSize": 202880
+      }
+    },
+    {
+      "type": "GPU",
+      "memory": {
+        "workingSetSize": 88300,
+        "peakWorkingSetSize": 88300
+      }
+    },
+    {
+      "type": "Utility",
+      "memory": {
+        "workingSetSize": 69992,
+        "peakWorkingSetSize": 70192
+      }
+    },
+    {
+      "type": "Tab",
+      "memory": {
+        "workingSetSize": 299228,
+        "peakWorkingSetSize": 300600
+      }
+    }
+  ],
+  "processWorkingSetMiB": 641,
+  "sumOfProcessPeaksMiB": 646,
+  "observed": {
+    "tasks": 1000,
+    "completions": 3000,
+    "sessions": 3000,
+    "integrity": "ok"
+  },
+  "startupMedianMs": 1604,
+  "passed": true
+}

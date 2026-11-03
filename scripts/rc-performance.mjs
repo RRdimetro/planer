@@ -39,7 +39,9 @@ const ready = async (p) => {
   await p.evaluate(() => document.fonts.ready);
   await p.evaluate(
     () =>
-      new Promise((r) => window.requestAnimationFrame(() => window.requestAnimationFrame(r))),
+      new Promise((r) =>
+        window.requestAnimationFrame(() => window.requestAnimationFrame(r)),
+      ),
   );
 };
 try {
@@ -117,9 +119,15 @@ try {
     report.memory = await app.evaluate(({ app }) =>
       app.getAppMetrics().map((p) => ({ type: p.type, memory: p.memory })),
     );
-    report.peakProcessWorkingSetMiB = Math.round(
+    report.processWorkingSetMiB = Math.round(
       report.memory.reduce((a, p) => a + (p.memory?.workingSetSize ?? 0), 0) /
         1024,
+    );
+    report.sumOfProcessPeaksMiB = Math.round(
+      report.memory.reduce(
+        (n, p) => n + (p.memory?.peakWorkingSetSize ?? 0),
+        0,
+      ) / 1024,
     );
     const s = await p.evaluate(() => window.focusAPI.state());
     report.observed = {

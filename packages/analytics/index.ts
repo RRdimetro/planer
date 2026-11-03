@@ -1,16 +1,5 @@
-import { dateInZone, minutes } from "../core";
+import { dateInZone, dateOfTimestamp, onTime, minutes } from "../core";
 import type { State, Item } from "../contracts";
-const dayCache = new Map<string, string>();
-function observedDay(zone: string, iso: string) {
-  const key = zone + "/" + iso;
-  let day = dayCache.get(key);
-  if (!day) {
-    day = dateInZone(zone, new Date(iso));
-    if (dayCache.size > 20000) dayCache.clear();
-    dayCache.set(key, day);
-  }
-  return day;
-}
 export function ratio(a: number, b: number): number | null {
   return b > 0 ? Math.min(1, Math.max(0, a / b)) : null;
 }
@@ -34,7 +23,7 @@ export function metrics(
   const zone = String(
     s.settings.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
   );
-  const dayOf = (iso: string) => observedDay(zone, iso);
+  const dayOf = (iso: string) => dateOfTimestamp(iso, zone);
   const tasks = s.items.filter((i) => i.kind === "task");
   const recorded = new Set(s.completions.map((x) => x.task.id));
   const historical = [
@@ -74,7 +63,7 @@ export function metrics(
     original.reduce((a, t) => a + t.weight, 0),
   );
   const timely = ratio(
-    due.filter((t) => dayOf(t.completedAt!) <= t.due!.slice(0, 10)).length,
+    due.filter((t) => onTime(t.completedAt!, t.due!, zone)).length,
     due.length,
   );
   const targeted = sessions.filter((x) => x.target > 0);
@@ -82,11 +71,16 @@ export function metrics(
     targeted.reduce((a, x) => a + Math.min(x.seconds, x.target), 0),
     targeted.reduce((a, x) => a + x.target, 0),
   );
+  const actualByTask = new Map<string, number>();
+  for (const session of s.sessions)
+    if (session.kind !== "break" && session.taskId)
+      actualByTask.set(
+        session.taskId,
+        (actualByTask.get(session.taskId) ?? 0) + session.seconds / 60,
+      );
   const estimated = done
     .map((t) => {
-      const actual = s.sessions
-        .filter((x) => x.kind !== "break" && x.taskId === t.id)
-        .reduce((a, x) => a + x.seconds / 60, 0);
+      const actual = actualByTask.get(t.id) ?? 0;
       return actual > 0 && t.estimate > 0
         ? Math.min(actual, t.estimate) / Math.max(actual, t.estimate)
         : null;
@@ -136,8 +130,8 @@ export function metrics(
 }
 
 /** Daily plan is the current dated plan; the weekly score retains its frozen-plan definition. */
-export function dailyEfficiency(s: State, day: string) {
-  const m = metrics(s, day, day);
+export function dailyEfficiency(s: State, day: string, now = new Date()) {
+  const m = metrics(s, day, day, now);
   const tasks = s.items.filter((i) => i.kind === "task" && i.date === day);
   const sum = tasks.reduce((n, t) => n + t.weight, 0);
   const completed = tasks

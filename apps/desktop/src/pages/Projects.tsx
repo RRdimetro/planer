@@ -1,3 +1,4 @@
+import { projectMetrics } from "../../../../packages/analytics/projects";
 import { ProjectCard } from "../design/domain";
 import { ProjectGantt } from "../features/ProjectGantt";
 import { ActivityHistory } from "../design/ActivityHistory";
@@ -17,38 +18,9 @@ import {
   Target,
 } from "lucide-react";
 import type { Item, Milestone } from "../../../../packages/contracts";
-import { newItem, addDays, localDate } from "../../../../packages/core";
+import { newItem } from "../../../../packages/core";
 import { Empty, Modal, Field } from "../shared/ui";
 import type { PageProps } from "../shared/model";
-function projectStats(s: PageProps["s"], project: Item) {
-  const tasks = s.items.filter(
-    (t) => t.kind === "task" && t.projectId === project.id,
-  );
-  const total = tasks.reduce((a, t) => a + t.weight * t.estimate, 0),
-    done = tasks
-      .filter((t) => t.status === "done")
-      .reduce((a, t) => a + t.weight * t.estimate, 0),
-    remaining = tasks
-      .filter((t) => t.status !== "done")
-      .reduce((a, t) => a + t.estimate, 0);
-  const facts = s.completions.filter(
-    (f) =>
-      f.task.projectId === project.id &&
-      f.at.slice(0, 10) >= addDays(localDate(), -14),
-  );
-  const pace = facts.reduce((a, f) => a + f.task.estimate, 0) / 14;
-  return {
-    tasks,
-    total,
-    done,
-    remaining,
-    percent: total ? Math.round((done / total) * 100) : null,
-    forecast:
-      remaining > 0 && pace > 0 && facts.length >= 3
-        ? addDays(localDate(), Math.ceil(remaining / pace))
-        : null,
-  };
-}
 export function Projects({
   s,
   command,
@@ -71,7 +43,7 @@ export function Projects({
   const [milestone, setMilestone] = useState<Milestone | null>(null);
   const [query, setQuery] = useState("");
   const active = projects.find((p) => p.id === selected);
-  const stat = active ? projectStats(s, active) : null;
+  const stat = active ? projectMetrics(s, active.id) : null;
   const milestoneForm = milestone && (
     <Modal title="Этап проекта" onClose={() => setMilestone(null)}>
       <form
@@ -524,7 +496,7 @@ export function Projects({
         {projects
           .filter((p) => p.title.toLowerCase().includes(query.toLowerCase()))
           .map((p, index) => {
-            const stats = projectStats(s, p),
+            const stats = projectMetrics(s, p.id),
               stages = s.milestones.filter((m) => m.projectId === p.id);
             return (
               <ProjectCard

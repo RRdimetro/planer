@@ -26,7 +26,9 @@ export function MetricCard({
   return (
     <article className="kpi obs-metric">
       <span>{label}</span>
-      <strong>{value}</strong>
+      <strong key={String(value)} className="rc-metric-value">
+        {value}
+      </strong>
       {hint && <small>{hint}</small>}
     </article>
   );

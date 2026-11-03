@@ -1,6 +1,6 @@
 import { Timeline, CalendarEvent } from "../design/domain";
 import { calendarLanes, freeWindows } from "../../../../packages/core/calendar";
-import React, { useRef, useState, useEffect } from "react";
+import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
   CalendarDays,
   ChevronLeft,
@@ -67,8 +67,9 @@ export function Planner({
   const skipClick = useRef(false);
   const week = weekDays(date);
   const tasks = s.items.filter((t) => t.kind === "task");
-  const occupied = s.items.filter((t) =>
-    ["task", "event", "workout"].includes(t.kind),
+  const occupied = useMemo(
+    () => s.items.filter((t) => ["task", "event", "workout"].includes(t.kind)),
+    [s.items],
   );
   const options: PlannerOptions = {
     workDays: (s.settings.workDays as number[]) ?? [1, 2, 3, 4, 5],
@@ -105,15 +106,34 @@ export function Planner({
   const backlog = tasks.filter(
     (t) => !t.date && t.status !== "done" && !weekly.some((w) => w.id === t.id),
   );
-  const dayItems = (day: string) =>
-    occupied
-      .filter((i) => {
-        const a = interval(i);
-        if (!a) return i.date === day;
+  const dayItems = useMemo(() => {
+    const cache = new Map<string, Item[]>();
+    return (day: string) => {
+      let items = cache.get(day);
+      if (!items) {
         const base = Date.parse(day + "T00:00:00Z") / 60000;
-        return a.start < base + 1440 && a.end > base;
-      })
-      .sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""));
+        items = occupied
+          .filter((i) => {
+            const a = interval(i);
+            return a ? a.start < base + 1440 && a.end > base : i.date === day;
+          })
+          .sort((a, b) => (a.time ?? "").localeCompare(b.time ?? ""));
+        cache.set(day, items);
+      }
+      return items;
+    };
+  }, [occupied, date]);
+  const lanesForDay = useMemo(() => {
+    const cache = new Map<string, ReturnType<typeof calendarLanes>>();
+    return (day: string) => {
+      let value = cache.get(day);
+      if (!value) {
+        value = calendarLanes(dayItems(day));
+        cache.set(day, value);
+      }
+      return value;
+    };
+  }, [dayItems]);
   const shift = (delta: number) => {
     if (view === "month") {
       const d = new Date(monthFirst + "T12:00:00Z");
@@ -718,7 +738,7 @@ export function Planner({
                       {dayItems(d)
                         .filter((i) => i.time)
                         .map((i) => {
-                          const lane = calendarLanes(dayItems(d))[i.id] ?? {
+                          const lane = lanesForDay(d)[i.id] ?? {
                             column: 0,
                             columns: 1,
                           };

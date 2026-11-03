@@ -1,5 +1,5 @@
 import type { Item } from "../contracts";
-import { dateInZone, minutes } from ".";
+import { dateInZone, deadlineDay, minutes } from ".";
 export function dueReminders(
   items: Item[],
   zone: string,
@@ -41,9 +41,14 @@ export function dueReminders(
     if (i.kind === "task" && i.due)
       add(
         i,
-        i.due.slice(0, 10),
-        /^\d{4}-\d\d-\d\dT\d\d:\d\d/.test(i.due)
-          ? i.due.slice(11, 16)
+        deadlineDay(i.due, zone),
+        i.due.includes("T")
+          ? new Intl.DateTimeFormat("en-GB", {
+              timeZone: zone,
+              hour: "2-digit",
+              minute: "2-digit",
+              hourCycle: "h23",
+            }).format(new Date(i.due))
           : "18:00",
         "deadline",
       );

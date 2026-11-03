@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Maximize2, Leaf, Coffee, Target } from "lucide-react";
-import { MetricCard, EmptyState } from "../design/components";
+import { MetricCard, EmptyState, VirtualList } from "../design/components";
 import { dateInZone } from "../../../../packages/core";
 import type { PageProps } from "../shared/model";
 export function Focus({ s, command }: PageProps) {
@@ -11,6 +11,10 @@ export function Focus({ s, command }: PageProps) {
   const mode = String(s.settings.focusMode ?? "pomodoro");
   const zone = String(s.settings.timezone ?? "Europe/Moscow");
   const today = dateInZone(zone);
+  const taskTitles = new Map([
+    ...s.completions.map((c) => [c.task.id, c.task.title] as const),
+    ...s.items.map((t) => [t.id, t.title] as const),
+  ]);
   const work = s.sessions.filter((x) => x.kind !== "break");
   const todayWork = work.filter(
     (x) => dateInZone(zone, new Date(x.startedAt)) === today,
@@ -210,17 +214,17 @@ export function Focus({ s, command }: PageProps) {
             <span className="badge">{s.sessions.length}</span>
           </div>
           <div className="obs-session-history">
-            {s.sessions
-              .slice()
-              .reverse()
-              .map((x) => (
+            <VirtualList
+              rows={s.sessions.slice().reverse()}
+              rowKey={(x) => x.id}
+              render={(x) => (
                 <div className="sessionrow" key={x.id}>
                   <div>
                     <strong>
                       {x.kind === "break"
                         ? "Перерыв"
-                        : (s.items.find((t) => t.id === x.taskId)?.title ??
-                          "Свободный фокус")}
+                        : (taskTitles.get(x.taskId ?? "") ??
+                          (x.taskId ? "Архивная задача" : "Свободный фокус"))}
                     </strong>
                     <small>
                       {new Date(x.startedAt).toLocaleString("ru-RU", {
@@ -242,7 +246,8 @@ export function Focus({ s, command }: PageProps) {
                     {String(Math.floor(x.seconds % 60)).padStart(2, "0")}
                   </strong>
                 </div>
-              ))}
+              )}
+            />
             {!s.sessions.length && (
               <EmptyState
                 title="Первый тихий час"

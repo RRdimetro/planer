@@ -59,7 +59,6 @@
       }
     }
   ],
-  "peakProcessWorkingSetMiB": 718,
   "observed": {
     "tasks": 1000,
     "completions": 3000,
@@ -67,5 +66,7 @@
     "integrity": "ok"
   },
   "startupMedianMs": 5531,
-  "passed": true
+  "passed": true,
+  "processWorkingSetMiB": 718,
+  "sumOfProcessPeaksMiB": 2127
 }

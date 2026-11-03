@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "checks": [
+    "Ctrl+N → title → Enter creates exactly one SQLite task",
+    "selected task starts actual linked focus session without navigating first",
+    "one-click completion and explicit last-revision undo",
+    "discard requires confirmation; cancel retains draft; Ctrl+N does not replace open editor",
+    "actual rejected IPC save: readable error, retained form, no false success; retry persists",
+    "backup success is acknowledged only after actual archive verification"
+  ]
+}

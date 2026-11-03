@@ -1105,4 +1105,8 @@ button:active {
     max-width: 70%;
   }
 }
-.demo-banner{position:sticky;top:0;z-index:25}
+.demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 25;
+}

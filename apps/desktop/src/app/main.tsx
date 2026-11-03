@@ -1,3 +1,4 @@
+import { successFeedback, userError } from "../shared/feedback";
 import { TaskCard } from "../design/domain";
 import { AppShell } from "../design/components";
 import { Sidebar } from "../design/Sidebar";
@@ -38,7 +39,14 @@ const Analytics = lazy(() =>
 const Preferences = lazy(() =>
   import("../pages/Preferences").then((m) => ({ default: m.Preferences })),
 );
-import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { createRoot } from "react-dom/client";
 import {
   QueryClient,
@@ -76,7 +84,7 @@ function App() {
     (next: number) => {
       void flushPending()
         .then(() => rawGo(next))
-        .catch((e) => setError(String(e)));
+        .catch((e) => setError(userError(e)));
     },
     [rawGo],
   );
@@ -92,19 +100,52 @@ function App() {
   const [noteSelection, setNoteSelection] = useState<string | null>(null);
   const [palette, setPalette] = useState(false);
   const [toast, setToast] = useState("");
+  const [toastRevision, setToastRevision] = useState<number | null>(null);
+  const toastTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inform = useCallback((text: string, revision: number | null = null) => {
+    if (toastTimeout.current) clearTimeout(toastTimeout.current);
+    setToast(text);
+    setToastRevision(revision);
+    toastTimeout.current = setTimeout(() => {
+      setToast("");
+      setToastRevision(null);
+    }, 4000);
+  }, []);
+  useEffect(
+    () => () => {
+      if (toastTimeout.current) clearTimeout(toastTimeout.current);
+    },
+    [],
+  );
   const command = useCallback(
     async (c: Command) => {
       try {
         const s = await window.focusAPI.command(c);
         qc.setQueryData(["state"], s);
         setError("");
+        window.dispatchEvent(
+          new CustomEvent("focus-operation-error", { detail: "" }),
+        );
+        const feedback = successFeedback(c);
+        if (s.diagnostics.notice) inform(s.diagnostics.notice);
+        else if (
+          feedback &&
+          !(useUI.getState().page === 0 && c.type === "save")
+        )
+          inform(feedback.text, feedback.undo ? s.revision : null);
         return s;
       } catch (e) {
-        setError(String(e));
+        setError(userError(e));
+        window.dispatchEvent(
+          new CustomEvent("focus-operation-error", { detail: userError(e) }),
+        );
+        setToast("");
+        setToastRevision(null);
+        if (toastTimeout.current) clearTimeout(toastTimeout.current);
         throw e;
       }
     },
-    [qc],
+    [qc, inform],
   );
   useEffect(() => window.focusAPI.onCloseRequested(flushPending), []);
   useEffect(() => {
@@ -114,7 +155,7 @@ function App() {
   useEffect(() => {
     const handler = (e: PromiseRejectionEvent) => {
       e.preventDefault();
-      setError(String(e.reason));
+      setError(userError(e.reason));
     };
     window.addEventListener("unhandledrejection", handler);
     return () => window.removeEventListener("unhandledrejection", handler);
@@ -180,8 +221,7 @@ function App() {
         : { type: "save", item: i },
     );
     setEditing(null);
-    setToast("Сохранено в SQLite");
-    setTimeout(() => setToast(""), 2400);
+    if (page === 0) inform("Изменения сохранены");
   };
   const remove = async (i: Item) => {
     if (
@@ -416,6 +456,14 @@ function App() {
       {toast && (
         <div className="toast" role="status">
           ✓ {toast}
+          {toastRevision !== null && toastRevision === s.revision && (
+            <button onClick={() => void command({ type: "undo" })}>
+              Отменить
+            </button>
+          )}
+          <button aria-label="Скрыть сообщение" onClick={() => setToast("")}>
+            ×
+          </button>
         </div>
       )}
     </AppShell>

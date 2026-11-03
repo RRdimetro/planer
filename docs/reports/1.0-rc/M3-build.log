@@ -1,0 +1,44 @@
+vite v7.3.7 building client environment for production...
+transforming...
+node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.7/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 3067 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                          0.83 kB │ gzip:   0.45 kB
+dist/assets/Manrope-DIRNzeTG.ttf       164.70 kB
+dist/assets/Lora-C1B0tkav.ttf          212.20 kB
+dist/assets/index-BwO_JxG-.css         103.77 kB │ gzip:  22.27 kB
+dist/assets/chevron-right-B7bM_o8o.js    0.21 kB │ gzip:   0.18 kB
+dist/assets/target-Am_2Jqci.js           0.22 kB │ gzip:   0.16 kB
+dist/assets/paperclip-DxEA6oNp.js        0.46 kB │ gzip:   0.31 kB
+dist/assets/fitness-rDlot8pe.js          1.15 kB │ gzip:   0.55 kB
+dist/assets/Focus-CUODWhoM.js            6.25 kB │ gzip:   2.52 kB
+dist/assets/Notes-2c1eUVjX.js            9.15 kB │ gzip:   3.19 kB
+dist/assets/Preferences-BAfqk2vo.js      9.75 kB │ gzip:   3.34 kB
+dist/assets/Study-DUCSCiqW.js           11.70 kB │ gzip:   3.95 kB
+dist/assets/Tasks-Duy56rE_.js           13.97 kB │ gzip:   4.63 kB
+dist/assets/Analytics-DbXpvTwJ.js       14.82 kB │ gzip:   5.27 kB
+dist/assets/Projects-BTcoYiXP.js        16.32 kB │ gzip:   5.69 kB
+dist/assets/Planner-B_C_xVNQ.js         19.49 kB │ gzip:   6.82 kB
+dist/assets/Fitness-BNG_r5Z4.js         23.05 kB │ gzip:   7.01 kB
+dist/assets/validation-C_G5Qy8M.js      90.34 kB │ gzip:  25.73 kB
+dist/assets/markdown-DZeHiEND.js       120.28 kB │ gzip:  37.08 kB
+dist/assets/charts-CumbnvPL.js         441.74 kB │ gzip: 126.17 kB
+dist/assets/index-DEfvzAQl.js          541.97 kB │ gzip: 175.06 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.52s

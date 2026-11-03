@@ -133,6 +133,7 @@ export interface State {
   diagnostics: {
     version: number;
     integrity: string;
+    notice?: string;
     workspace?: "user" | "demo";
     homeConcept?: "A" | "B" | "C";
   };

@@ -58,6 +58,7 @@ export function Sidebar({
               className={page === i ? "selected" : ""}
               title={p}
               aria-label={p}
+              aria-current={page === i ? "page" : undefined}
               onClick={() => go(i)}
             >
               <Icon size={19} />
@@ -77,7 +78,7 @@ export function Sidebar({
             : "Локально · без облака")}
         <button
           className="icon"
-          aria-label="Свернуть навигацию"
+          aria-label={collapsed ? "Развернуть навигацию" : "Свернуть навигацию"}
           onClick={() =>
             void command({
               type: "settings",

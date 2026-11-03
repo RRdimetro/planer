@@ -494,3 +494,33 @@ body:has(.obsidian-app[data-motion="reduce"])
 .obsidian-app .recharts-legend-item-text {
   color: #c9dbce !important;
 }
+.rc-task-focus {
+  padding: 18px 0;
+  margin: 18px 0;
+  border-top: 1px solid #37513f;
+}
+.rc-task-focus .hint {
+  font-size: 12px;
+  color: #b1c5b8;
+}
+.obsidian-app .toast {
+  pointer-events: none;
+}
+.obsidian-app .toast button {
+  pointer-events: auto;
+}
+.modal-error {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  color: #ffcbc6;
+  background: #492722;
+  border: 1px solid #ce8e82;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+body:has([role="dialog"]) .obsidian-app .error {
+  display: none;
+}

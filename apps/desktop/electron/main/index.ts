@@ -43,10 +43,11 @@ app.setPath(
   process.env.FOCUS_DATA_DIR ??
     path.join(app.getPath("appData"), preview.directory),
 );
-const marked = (state: State): State => ({
+const marked = (state: State, notice?: string): State => ({
   ...state,
   diagnostics: {
     ...state.diagnostics,
+    ...(notice ? { notice } : {}),
     workspace: isDemo ? "demo" : "user",
     ...(preview.homeConcept ? { homeConcept: preview.homeConcept } : {}),
   },
@@ -356,6 +357,7 @@ app.on("second-instance", () => {
           });
           if (result.filePath) {
             verifiedBackup(store, result.filePath, isDemo ? "demo" : "user");
+            return marked(store.state(), "Копия проверена и сохранена");
           }
         }
         if (c.action === "restore") {
@@ -385,6 +387,7 @@ app.on("second-instance", () => {
                 isDemo ? "demo" : "user",
               );
               restoreArchive(store, zip, isDemo ? "demo" : "user");
+              return marked(store.state(), "Данные восстановлены из копии");
             }
           }
         }

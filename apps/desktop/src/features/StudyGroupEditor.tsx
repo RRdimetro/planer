@@ -10,7 +10,11 @@ export function StudyGroupEditor({
 }: PageProps & { group: StudyGroup; close: () => void }) {
   const [draft, setDraft] = useState<StudyGroup>(structuredClone(group));
   return (
-    <Modal title="Редактировать группу работ" onClose={close}>
+    <Modal
+      title="Редактировать группу работ"
+      dirty={JSON.stringify(draft) !== JSON.stringify(group)}
+      onClose={close}
+    >
       <form
         onSubmit={async (e) => {
           e.preventDefault();

@@ -1,5 +1,5 @@
 import { weekDays } from "../../../../packages/core";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -24,7 +24,7 @@ export function ItemForm({
 }: {
   item: Item;
   projects: Item[];
-  onSave: (i: Item, details?: TaskDetails) => void;
+  onSave: (i: Item, details?: TaskDetails) => void | Promise<void>;
   state: State;
   command: (c: Command) => Promise<State | undefined>;
   onClose: () => void;
@@ -46,11 +46,12 @@ export function ItemForm({
           : null,
     },
   );
+  const initialDetails = useRef(JSON.stringify(details));
   const {
     register,
     watch,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty, isSubmitting },
   } = useForm<Item>({
     resolver: zodResolver(recordSchema) as never,
     defaultValues: item,
@@ -67,7 +68,15 @@ export function ItemForm({
               ? "Тренировка"
               : "Событие"
       }
-      onClose={onClose}
+      busy={isSubmitting}
+      dirty={
+        isDirty ||
+        JSON.stringify(details) !== initialDetails.current ||
+        eventFrequency !== "none"
+      }
+      onClose={() => {
+        if (!isSubmitting) onClose();
+      }}
     >
       <form
         onSubmit={handleSubmit(async (i) => {
@@ -83,7 +92,7 @@ export function ItemForm({
               count: eventCount,
             });
             onClose();
-          } else onSave(i, item.kind === "task" ? details : undefined);
+          } else await onSave(i, item.kind === "task" ? details : undefined);
         })}
       >
         <Field label="Название">
@@ -511,10 +520,57 @@ export function ItemForm({
         {Object.keys(errors).length > 0 && (
           <p role="alert">Проверьте поля: {Object.keys(errors).join(", ")}</p>
         )}
-        <button className="primary" type="submit">
-          Сохранить
+        <button className="primary" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Сохраняется…" : "Сохранить"}
         </button>
       </form>
+      {item.kind === "task" && state.items.some((t) => t.id === item.id) && (
+        <div className="rc-task-focus">
+          <h3>Работа над задачей</h3>
+          <button
+            type="button"
+            className="primary"
+            disabled={state.sessions.some(
+              (x) =>
+                ["running", "paused", "interrupted"].includes(x.state) &&
+                x.taskId !== item.id,
+            )}
+            onClick={() => {
+              const active = state.sessions.find((x) =>
+                ["running", "paused", "interrupted"].includes(x.state),
+              );
+              void command(
+                active
+                  ? {
+                      type: "focusAction",
+                      action: active.state === "running" ? "pause" : "resume",
+                    }
+                  : {
+                      type: "focusStart",
+                      taskId: item.id,
+                      target: Number(state.settings.pomodoro ?? 25) * 60,
+                    },
+              );
+            }}
+          >
+            {state.sessions.some(
+              (x) => x.taskId === item.id && x.state === "running",
+            )
+              ? "Пауза фокуса"
+              : state.sessions.some(
+                    (x) =>
+                      x.taskId === item.id &&
+                      ["paused", "interrupted"].includes(x.state),
+                  )
+                ? "Продолжить фокус"
+                : "Начать фокус"}
+          </button>
+          <p className="hint">
+            Таймер связан с сохранённой задачей. Другую активную сессию сначала
+            завершите в разделе «Фокус».
+          </p>
+        </div>
+      )}
       {state.items.some((i) => i.id === item.id) && (
         <ActivityHistory id={item.id} />
       )}

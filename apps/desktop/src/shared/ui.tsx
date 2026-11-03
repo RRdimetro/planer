@@ -1,21 +1,37 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 export function ModalDialog({
   title,
   children,
   onClose,
   presentation,
+  dirty = false,
+  busy = false,
 }: {
   title: string;
   children: ReactNode;
   onClose: () => void;
   presentation?: "sheet";
+  dirty?: boolean;
+  busy?: boolean;
 }) {
+  const [operationError, setOperationError] = useState("");
+  useEffect(() => {
+    const update = (event: Event) =>
+      setOperationError(String((event as CustomEvent<string>).detail ?? ""));
+    window.addEventListener("focus-operation-error", update);
+    return () => window.removeEventListener("focus-operation-error", update);
+  }, []);
   return (
     <Dialog.Root
       open
       onOpenChange={(v) => {
-        if (!v) onClose();
+        if (
+          !busy &&
+          !v &&
+          (!dirty || window.confirm("Закрыть без сохранения изменений?"))
+        )
+          onClose();
       }}
     >
       <Dialog.Portal>
@@ -25,11 +41,18 @@ export function ModalDialog({
         <Dialog.Content className={"modal" + (presentation ? " fn-sheet" : "")}>
           <div className="row between">
             <Dialog.Title>{title}</Dialog.Title>
-            <Dialog.Close aria-label="Закрыть">×</Dialog.Close>
+            <Dialog.Close aria-label="Закрыть" disabled={busy}>
+              ×
+            </Dialog.Close>
           </div>
           <Dialog.Description className="muted">
             Изменения сохраняются локально на этом устройстве.
           </Dialog.Description>
+          {operationError && (
+            <p className="modal-error" role="alert" aria-live="assertive">
+              {operationError}
+            </p>
+          )}
           {children}
         </Dialog.Content>
       </Dialog.Portal>

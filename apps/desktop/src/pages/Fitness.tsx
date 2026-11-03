@@ -1,6 +1,6 @@
 import { useReducedMotion } from "motion/react";
 import { WorkoutCard } from "../design/domain";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import {
   Dumbbell,
   Plus,
@@ -73,6 +73,8 @@ export function WorkoutForm({
   const [exerciseId, setExerciseId] = useState(s.exercises[0]?.id ?? "");
   const [error, setError] = useState("");
   const [newExercise, setNewExercise] = useState("");
+  const initialWorkout = useRef(JSON.stringify({ draft, sets, programId }));
+  const [saving, setSaving] = useState(false);
   const set = (key: keyof Item, value: unknown) =>
     setDraft({ ...draft, [key]: value });
   const applyProgram = (id: string) => {
@@ -99,11 +101,22 @@ export function WorkoutForm({
       );
   };
   return (
-    <Modal title="Тренировка · план и факт" onClose={onClose}>
+    <Modal
+      title="Тренировка · план и факт"
+      busy={saving}
+      dirty={
+        JSON.stringify({ draft, sets, programId }) !== initialWorkout.current ||
+        !!newExercise.trim()
+      }
+      onClose={() => {
+        if (!saving) onClose();
+      }}
+    >
       <form
         onSubmit={async (e) => {
           e.preventDefault();
           try {
+            setSaving(true);
             await command({
               type: "saveWorkout",
               item: draft,
@@ -113,6 +126,8 @@ export function WorkoutForm({
             onClose();
           } catch (e) {
             setError(String(e));
+          } finally {
+            setSaving(false);
           }
         }}
       >
@@ -372,7 +387,7 @@ export function WorkoutForm({
             {error}
           </p>
         )}
-        <button className="primary" type="submit">
+        <button className="primary" type="submit" disabled={saving}>
           Сохранить тренировку
         </button>
       </form>

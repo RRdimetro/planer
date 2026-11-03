@@ -27,6 +27,10 @@ export class Store {
   readonly db: Database.Database;
   readonly orm;
   private undoStack: string[] = [];
+  private movementCache: {
+    key: string;
+    rows: NonNullable<State["movementDays"]>;
+  } | null = null;
   readonly repo: NormalizedRepository;
   readonly relations: Relations;
   readonly migrationBackup: string | null;
@@ -74,6 +78,48 @@ export class Store {
       })
       .run();
   }
+  private movementDays(): NonNullable<State["movementDays"]> {
+    const revision = (
+      this.db.prepare("SELECT coalesce(max(id),0) n FROM change_log").get() as {
+        n: number;
+      }
+    ).n;
+    const pref = this.db
+      .prepare("SELECT payload FROM settings WHERE key='timezone'")
+      .get() as { payload: string } | undefined;
+    const zone = pref
+      ? JSON.parse(pref.payload)
+      : Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const key = `${revision}/${zone}`;
+    if (this.movementCache?.key === key) return this.movementCache.rows;
+    const rows = this.db
+      .prepare(
+        "SELECT at,json_extract(after_json,'$.projectId') projectId,json_extract(after_json,'$.category') category FROM entity_changes WHERE before_json IS NOT NULL AND json_extract(after_json,'$.kind')='task' AND json_extract(before_json,'$.date') IS NOT json_extract(after_json,'$.date')",
+      )
+      .all() as { at: string; projectId: string | null; category: string }[];
+    const totals = new Map<
+      string,
+      NonNullable<State["movementDays"]>[number]
+    >();
+    for (const r of rows) {
+      const day = dateInZone(zone, new Date(r.at));
+      const key = JSON.stringify([day, r.projectId, r.category]);
+      const total = totals.get(key);
+      if (total) total.count++;
+      else
+        totals.set(key, {
+          day,
+          projectId: r.projectId,
+          category: r.category,
+          count: 1,
+        });
+    }
+    const result = Array.from(totals.values()).sort((a, b) =>
+      a.day.localeCompare(b.day),
+    );
+    this.movementCache = { key, rows: result };
+    return result;
+  }
   state(): State {
     return {
       revision: (
@@ -83,11 +129,7 @@ export class Store {
       ).n,
       ...this.relations.state(),
       ...this.relations.obsidianState(),
-      movementDays: this.db
-        .prepare(
-          "SELECT substr(at,1,10) day,count(*) count FROM entity_changes WHERE before_json IS NOT NULL AND json_extract(before_json,'$.date') IS NOT json_extract(after_json,'$.date') GROUP BY substr(at,1,10) ORDER BY day",
-        )
-        .all() as { day: string; count: number }[],
+      movementDays: this.movementDays(),
       completions: this.list("completion"),
       items: ["task", "project", "event", "workout", "note", "snapshot"]
         .flatMap((k) => this.list<Item>(k))
@@ -176,6 +218,7 @@ export class Store {
       this.db.exec(
         "DELETE FROM study_aggregate_bindings;DELETE FROM event_occurrences;DELETE FROM event_series;DELETE FROM entity_links;DELETE FROM note_folder_membership;DELETE FROM note_folders;DELETE FROM session_kinds;DELETE FROM notification_receipts;DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM workout_programs;DELETE FROM exercises;DELETE FROM planning_constraints;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
       );
+      this.movementCache = null;
       this.repo.load(d.records);
       this.relations.load(d.relations);
       for (const s of d.settings) {

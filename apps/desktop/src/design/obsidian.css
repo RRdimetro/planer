@@ -630,3 +630,109 @@ body:has(.obsidian-app[data-motion="off"]) .modal {
     transition-duration: 0.01ms !important;
   }
 }
+.obs-insights-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  background: linear-gradient(120deg, #193022, #101c15);
+}
+.obs-insights-header h2 {
+  font-size: 29px;
+  letter-spacing: -1px;
+  font-weight: 500;
+}
+.obs-insights-filter {
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.obs-insights-filter label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.obs-insights-filter select {
+  max-width: 260px;
+}
+.obs-insights-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+.obs-efficiency {
+  grid-row: span 2;
+}
+.obs-insight-wide {
+  grid-column: span 2;
+}
+.obs-insight-full {
+  grid-column: 1/-1;
+}
+.obs-score-pair {
+  display: flex;
+  justify-content: space-around;
+  gap: 20px;
+  margin: 28px 0;
+}
+.obs-score-pair > div {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.obs-score-pair small {
+  color: #91a697;
+  font-size: 10px;
+}
+.obs-months {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 24px;
+}
+.obs-heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  margin-top: 14px;
+}
+.obs-heatmap span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  font-size: 10px;
+  color: #c3d6c8;
+  border-radius: 4px;
+}
+.obs-heatmap span:focus-visible {
+  outline: 2px solid #b9e6c6;
+}
+.obs-project-progress {
+  margin: 20px 0;
+}
+.obs-project-progress small {
+  color: #8ea395;
+}
+.obs-insights-grid .obs-comparisons {
+  grid-template-columns: 1fr 1fr;
+}
+.obs-insights-grid .chart {
+  height: 255px;
+}
+.obs-insights-kpis strong {
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 1450px) {
+  .obs-insights-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .obs-efficiency {
+    grid-row: auto;
+  }
+  .obs-insight-wide {
+    grid-column: auto;
+  }
+  .obs-score-pair .obs-ring {
+    width: 100px;
+    height: 100px;
+  }
+}

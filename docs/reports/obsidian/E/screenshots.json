@@ -1,0 +1,36 @@
+{
+  "passed": true,
+  "results": [
+    {
+      "demo": true,
+      "page": "Аналитика",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": true,
+      "page": "Аналитика",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Аналитика",
+      "width": 1366,
+      "height": 768,
+      "overflow": false
+    },
+    {
+      "demo": false,
+      "page": "Аналитика",
+      "width": 1920,
+      "height": 1080,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "platform": "linux",
+  "windowsTested": false
+}

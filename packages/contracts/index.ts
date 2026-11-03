@@ -109,7 +109,12 @@ export interface State {
     seriesId: string;
     originalDate: string;
   }[];
-  movementDays?: { day: string; count: number }[];
+  movementDays?: {
+    day: string;
+    count: number;
+    projectId?: string | null;
+    category?: string;
+  }[];
   revision: number;
   taskDetails: Record<string, TaskDetails>;
   attachments: AttachmentInfo[];

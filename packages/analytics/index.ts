@@ -1,5 +1,16 @@
 import { dateInZone, minutes } from "../core";
 import type { State, Item } from "../contracts";
+const dayCache = new Map<string, string>();
+function observedDay(zone: string, iso: string) {
+  const key = zone + "/" + iso;
+  let day = dayCache.get(key);
+  if (!day) {
+    day = dateInZone(zone, new Date(iso));
+    if (dayCache.size > 20000) dayCache.clear();
+    dayCache.set(key, day);
+  }
+  return day;
+}
 export function ratio(a: number, b: number): number | null {
   return b > 0 ? Math.min(1, Math.max(0, a / b)) : null;
 }
@@ -20,6 +31,10 @@ export function metrics(
   to = "9999",
   now = new Date(),
 ) {
+  const zone = String(
+    s.settings.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
+  );
+  const dayOf = (iso: string) => observedDay(zone, iso);
   const tasks = s.items.filter((i) => i.kind === "task");
   const recorded = new Set(s.completions.map((x) => x.task.id));
   const historical = [
@@ -32,8 +47,8 @@ export function metrics(
         .filter(
           (i) =>
             i.completedAt &&
-            i.completedAt.slice(0, 10) >= from &&
-            i.completedAt.slice(0, 10) <= to,
+            dayOf(i.completedAt) >= from &&
+            dayOf(i.completedAt) <= to,
         )
         .map((i) => [i.id, i]),
     ).values(),
@@ -42,8 +57,8 @@ export function metrics(
   const sessions = s.sessions.filter(
     (i) =>
       i.kind !== "break" &&
-      i.startedAt.slice(0, 10) >= from &&
-      i.startedAt.slice(0, 10) <= to,
+      dayOf(i.startedAt) >= from &&
+      dayOf(i.startedAt) <= to,
   );
   const workouts = s.items.filter(
     (i) => i.kind === "workout" && i.date && i.date >= from && i.date <= to,
@@ -59,8 +74,7 @@ export function metrics(
     original.reduce((a, t) => a + t.weight, 0),
   );
   const timely = ratio(
-    due.filter((t) => t.completedAt!.slice(0, 10) <= t.due!.slice(0, 10))
-      .length,
+    due.filter((t) => dayOf(t.completedAt!) <= t.due!.slice(0, 10)).length,
     due.length,
   );
   const targeted = sessions.filter((x) => x.target > 0);
@@ -81,9 +95,6 @@ export function metrics(
   const accuracy = estimated.length
     ? estimated.reduce((a, b) => a + b, 0) / estimated.length
     : null;
-  const zone = String(
-    s.settings.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone,
-  );
   const today = dateInZone(zone, now);
   const timeParts = new Intl.DateTimeFormat("en-GB", {
     timeZone: zone,

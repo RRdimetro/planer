@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "checks": [
+    "real charts and score rings",
+    "project/category and period filters",
+    "7 actual heatmap dates",
+    "invalid oversized range handled",
+    "read-only analytics does not mutate SQLite"
+  ]
+}

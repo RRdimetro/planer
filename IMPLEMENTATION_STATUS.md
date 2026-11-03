@@ -86,3 +86,5 @@ Windows NSIS 104793980 байт и portable 95888572 байт собраны. PE
 - Этап C проверен: проекты Kanban/Gantt/активность, редактирование учебных групп, явная привязка агрегатов, настоящий XLSX с предпросмотром/backup. Additive v5, исходные 9/4/54 сохранены. 48 unit/integration + typecheck/lint/build и bundled Electron E2E прошли, 8 PNG. XLSX — шаблон приложения; произвольные XLS/маппинг не заявляются. Windows execution отсутствует, D–F в работе.
 
 - Этап D проверен: Fitness Studio (сравнение периодов/реальный прогресс), Deep Work (Pomodoro/free/break/fullscreen), Knowledge Base (папки/ссылки/локальные изображения/версии/автосохранение). 50 unit/integration + typecheck/lint/build; два реальных Electron E2E, 12 обзорных PNG и контрольные 960 кг. Перерывы исключены из рабочих метрик. E/F ещё в работе; Windows не проверен.
+
+- Этап E проверен: интерактивные Insights, Daily/Weekly Score, периоды/проекты/категории, реальные линии/столбцы/donut/heatmap, нагрузки и переносы с учётом timezone. 53 unit/integration + typecheck/lint/build, реальный Electron E2E, 4 PNG. Историческое время сессии относится к дню начала; ограничение явно описано. F/Windows в работе.

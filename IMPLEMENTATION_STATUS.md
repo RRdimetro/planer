@@ -82,3 +82,5 @@ Windows NSIS 104793980 байт и portable 95888572 байт собраны. PE
 - Этапы B–F: в работе, ещё не приняты. Windows execution/CI по-прежнему не выполнены.
 
 - Этап B проверен: миграция v4 с копией/восстановлением, события-серии и исключения, lanes конфликтов/свободные окна, недельный список/backlog, virtual DataTable, контекстные панели и история, persisted widgets + reset. 44 unit/integration, typecheck/lint/build и реальный Electron E2E прошли; 12 PNG в `docs/screenshots/obsidian/B/`. Бесконечные серии не объявляются: материализация 2–104 встреч. C–F ещё в работе.
+
+- Этап C проверен: проекты Kanban/Gantt/активность, редактирование учебных групп, явная привязка агрегатов, настоящий XLSX с предпросмотром/backup. Additive v5, исходные 9/4/54 сохранены. 48 unit/integration + typecheck/lint/build и bundled Electron E2E прошли, 8 PNG. XLSX — шаблон приложения; произвольные XLS/маппинг не заявляются. Windows execution отсутствует, D–F в работе.

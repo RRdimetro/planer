@@ -8,7 +8,7 @@ import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { dailyEfficiency, metrics } from "../packages/analytics";
-test("v3 to v4 is preflighted on a recoverable copy and preserves all 54 source cells", () => {
+test("v3 to current is preflighted on a recoverable copy and preserves all 54 source cells", () => {
   const dir = mkdtempSync(join(tmpdir(), "focus-v4-migration-"));
   let db = new Store(join(dir, "focus.db"));
   try {
@@ -16,7 +16,7 @@ test("v3 to v4 is preflighted on a recoverable copy and preserves all 54 source 
     db.command({ type: "save", item: newItem("note", "Keep data") });
     const before = db.repo.records();
     db.db.exec(
-      "DROP TABLE event_occurrences;DROP TABLE event_series;DROP TABLE entity_links;DROP TABLE note_folder_membership;DROP TABLE note_folders;DROP TABLE session_kinds;DROP TABLE notification_receipts;DROP INDEX entity_changes_entity_time;DROP INDEX entities_due_active;DELETE FROM schema_migrations WHERE version=4;",
+      "DROP TABLE study_aggregate_bindings;DROP INDEX group_subject_pair;DROP TABLE event_occurrences;DROP TABLE event_series;DROP TABLE entity_links;DROP TABLE note_folder_membership;DROP TABLE note_folders;DROP TABLE session_kinds;DROP TABLE notification_receipts;DROP INDEX entity_changes_entity_time;DROP INDEX entities_due_active;DELETE FROM schema_migrations WHERE version>=4;",
     );
     db.close();
     db = new Store(join(dir, "focus.db"));

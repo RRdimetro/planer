@@ -1,4 +1,8 @@
 import {
+  exportStudyExcel,
+  importStudyExcel,
+} from "../../../../packages/database/study-excel";
+import {
   app,
   BrowserWindow,
   ipcMain,
@@ -134,9 +138,9 @@ app
       return (
         store.db
           .prepare(
-            "SELECT id,at,action,before_json,after_json FROM entity_changes WHERE entity_id=? ORDER BY at DESC,rowid DESC LIMIT 1000",
+            "SELECT id,at,action,before_json,after_json FROM entity_changes WHERE entity_id=? OR entity_id IN(SELECT id FROM tasks WHERE project_id=?) ORDER BY at DESC,rowid DESC LIMIT 1000",
           )
-          .all(id) as {
+          .all(id, id) as {
           id: string;
           at: string;
           action: string;
@@ -214,6 +218,64 @@ app
           await dialog.showMessageBox(win, {
             message: "SQLite integrity_check: OK. Foreign keys: OK.",
           });
+          return marked(store.state());
+        }
+        if (c.action === "studyExport") {
+          const result = await dialog.showSaveDialog(win, {
+            defaultPath: "FOCUS-study.xlsx",
+            filters: [{ name: "Excel", extensions: ["xlsx"] }],
+          });
+          if (result.filePath)
+            fs.writeFileSync(
+              result.filePath,
+              await exportStudyExcel(store.state(), isDemo ? "demo" : "user"),
+            );
+          return marked(store.state());
+        }
+        if (c.action === "studyImport") {
+          const result = await dialog.showOpenDialog(win, {
+            filters: [{ name: "Excel", extensions: ["xlsx"] }],
+            properties: ["openFile"],
+          });
+          if (result.filePaths[0]) {
+            const file = result.filePaths[0];
+            if (fs.statSync(file).size > 50 * 1024 * 1024)
+              throw Error("Excel больше 50 МБ");
+            const data = await importStudyExcel(
+              fs.readFileSync(file),
+              store.state(),
+              isDemo ? "demo" : "user",
+            );
+            const before = store.state();
+            let changed = 0;
+            for (const g of data.groups) {
+              const old = before.groups.find((x) => x.id === g.id);
+              g.values.forEach((row, r) =>
+                row.forEach((v, col) => {
+                  if (old?.values[r]?.[col] !== v) changed++;
+                }),
+              );
+            }
+            const answer = await dialog.showMessageBox(win, {
+              type: "question",
+              message: `Импорт Excel: ${data.subjects.length} предметов, ${data.groups.length} групп, ${data.cells} ячеек. Изменений ячеек: ${changed}. Записи вне файла сохранятся. Продолжить?`,
+              buttons: ["Отмена", "Импортировать"],
+              defaultId: 0,
+              cancelId: 0,
+            });
+            if (answer.response === 1) {
+              const folder = path.join(app.getPath("userData"), "backups");
+              fs.mkdirSync(folder, { recursive: true });
+              backupArchive(store, isDemo ? "demo" : "user").writeZip(
+                path.join(folder, `before-study-import-${Date.now()}.zip`),
+              );
+              store.command({
+                type: "studyWorkbook",
+                subjects: data.subjects,
+                groups: data.groups,
+              });
+            }
+          }
           return marked(store.state());
         }
         if (c.action === "attach") {

@@ -28,7 +28,7 @@ export function backupArchive(
     Buffer.from(
       JSON.stringify({
         app: "FOCUS OS PRO",
-        schema: 4,
+        schema: 5,
         workspace,
         createdAt: new Date().toISOString(),
         sha256: digest(data),
@@ -60,7 +60,7 @@ export function restoreArchive(
   const data = zip.readAsText("data.json");
   const historyText = zip.readAsText("history.json");
   if (
-    ![1, 2, 3, 4].includes(m.schema) ||
+    ![1, 2, 3, 4, 5].includes(m.schema) ||
     m.app !== "FOCUS OS PRO" ||
     digest(data) !== m.sha256 ||
     digest(historyText) !== m.historySha256

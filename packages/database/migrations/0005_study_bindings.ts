@@ -1,0 +1,2 @@
+export const sql = `CREATE UNIQUE INDEX group_subject_pair ON study_work_groups(id,subject_id);
+CREATE TABLE study_aggregate_bindings(subject_id TEXT NOT NULL REFERENCES study_subjects(id) ON DELETE CASCADE,kind TEXT NOT NULL CHECK(kind IN ('rk','hw')),group_id TEXT NOT NULL,stage_position INTEGER NOT NULL CHECK(stage_position>=0),PRIMARY KEY(subject_id,kind),FOREIGN KEY(group_id,subject_id) REFERENCES study_work_groups(id,subject_id) ON DELETE CASCADE,FOREIGN KEY(group_id,stage_position) REFERENCES study_stage_definitions(group_id,position) ON DELETE CASCADE);`;

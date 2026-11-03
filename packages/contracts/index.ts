@@ -85,6 +85,12 @@ export interface Session {
   kind?: "work" | "break";
 }
 export interface State {
+  studyBindings?: {
+    subjectId: string;
+    kind: "rk" | "hw";
+    groupId: string;
+    stageRow: number;
+  }[];
   noteFolders?: { id: string; name: string }[];
   noteMembership?: Record<string, string>;
   links?: {
@@ -142,6 +148,13 @@ export const subjectSchema = z
     "Выполнено не может превышать всего",
   );
 export const commandSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("studyBinding"),
+    subjectId: z.string().uuid(),
+    kind: z.enum(["rk", "hw"]),
+    groupId: z.string().uuid().nullable(),
+    stageRow: z.number().int().min(0).max(19),
+  }),
   z.object({
     type: z.literal("saveEvent"),
     item: recordSchema.refine((i) => i.kind === "event"),

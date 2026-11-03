@@ -52,6 +52,7 @@ function App() {
   });
   const [error, setError] = useState("");
   const [editing, setEditing] = useState<Item | null>(null);
+  const [projectSelection, setProjectSelection] = useState<string | null>(null);
   const [noteSelection, setNoteSelection] = useState<string | null>(null);
   const [palette, setPalette] = useState(false);
   const [toast, setToast] = useState("");
@@ -264,6 +265,7 @@ function App() {
             <Projects
               s={s}
               command={command}
+              requestedId={projectSelection}
               card={card}
               edit={(i) => {
                 if (i.kind === "note") {
@@ -325,7 +327,15 @@ function App() {
           s={s}
           command={command}
           go={go}
-          edit={setEditing}
+          edit={(i) => {
+            if (i.kind === "project" && s.items.some((x) => x.id === i.id)) {
+              setProjectSelection(i.id);
+              go(3);
+            } else if (i.kind === "note") {
+              setNoteSelection(i.id);
+              go(8);
+            } else setEditing(i);
+          }}
           close={() => setPalette(false)}
         />
       )}

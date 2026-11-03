@@ -311,3 +311,86 @@ body:has(.obsidian-app[data-motion="off"]) .modal {
 .obs-drag-handle:focus-visible {
   outline: 2px solid #9aeab6;
 }
+.obsidian-app .project-overview-strip {
+  background: linear-gradient(115deg, #192c20, #101b15);
+  border-color: var(--border-soft);
+  min-height: 170px;
+}
+.obsidian-app .project-overview-strip h2 {
+  font-size: 27px;
+  font-weight: 500;
+}
+.obsidian-app .project-overview-strip em {
+  font-style: normal;
+  color: var(--text-secondary);
+}
+.obsidian-app .project-card {
+  background: var(--surface-1);
+  border-color: var(--border-soft);
+  box-shadow: none;
+}
+.obsidian-app .premium-projects {
+  gap: 16px;
+}
+.obsidian-app .project-detail-hero {
+  padding: 24px;
+}
+.obsidian-app .studygrid {
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: start;
+}
+.obsidian-app .studygrid table {
+  font-size: 13px;
+}
+.obsidian-app .summary td:first-child {
+  position: sticky;
+  left: 0;
+  background: #101b15;
+  z-index: 1;
+}
+.obsidian-app .summary thead {
+  position: sticky;
+  top: 0;
+  background: #101b15;
+  z-index: 2;
+}
+.obsidian-app .studydetails .sectionhead {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.obsidian-app .studygrid .tablewrap {
+  max-height: 660px;
+}
+.obs-project-board .kanban {
+  min-width: 950px;
+}
+.obs-project-board {
+  overflow: auto;
+}
+.obs-gantt-title {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-right: 16px;
+}
+.obs-gantt-title button {
+  white-space: normal;
+  text-align: left;
+  line-height: 18px;
+  background: transparent !important;
+  border: 0;
+  overflow-wrap: anywhere;
+  padding: 8px 0;
+}
+.obs-gantt svg {
+  display: block;
+}
+.obsidian-app .studyinfo {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+@media (max-width: 1200px) {
+  .obsidian-app .studygrid {
+    grid-template-columns: 1fr;
+  }
+}

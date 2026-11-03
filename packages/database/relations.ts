@@ -55,6 +55,14 @@ export class Relations {
   obsidianState() {
     const rows = (sql: string) => this.db.prepare(sql).all() as Row[];
     return {
+      studyBindings: rows("SELECT * FROM study_aggregate_bindings").map(
+        (r) => ({
+          subjectId: r.subject_id as string,
+          kind: r.kind as "rk" | "hw",
+          groupId: r.group_id as string,
+          stageRow: r.stage_position as number,
+        }),
+      ),
       noteFolders: rows("SELECT * FROM note_folders ORDER BY rowid").map(
         (r) => ({ id: r.id as string, name: r.name as string }),
       ),
@@ -289,6 +297,9 @@ export class Relations {
     return {
       ...state,
       ...this.obsidianState(),
+      studyTimestamps: this.db
+        .prepare("SELECT * FROM study_stage_status")
+        .all(),
       sessionKinds: this.db.prepare("SELECT * FROM session_kinds").all(),
       notificationReceipts: this.db
         .prepare("SELECT * FROM notification_receipts")
@@ -310,6 +321,19 @@ export class Relations {
   }
   load(raw: any) {
     if (!raw) return;
+    for (const r of raw.studyBindings ?? [])
+      this.db
+        .prepare("INSERT INTO study_aggregate_bindings VALUES(?,?,?,?)")
+        .run(r.subjectId, r.kind, r.groupId, r.stageRow);
+    for (const r of raw.studyTimestamps ?? []) {
+      if (typeof r.updated_at !== "string")
+        throw Error("Повреждён timestamp учебной ячейки");
+      this.db
+        .prepare(
+          "UPDATE study_stage_status SET updated_at=? WHERE group_id=? AND work_id=? AND stage_id=?",
+        )
+        .run(r.updated_at, r.group_id, r.work_id, r.stage_id);
+    }
     for (const r of raw.noteFolders ?? [])
       this.db.prepare("INSERT INTO note_folders VALUES(?,?)").run(r.id, r.name);
     for (const [note, folder] of Object.entries(raw.noteMembership ?? {}))

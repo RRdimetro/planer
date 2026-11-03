@@ -132,7 +132,7 @@ export class NormalizedRepository {
           row.forEach((status, c) =>
             this.db
               .prepare(
-                "INSERT INTO study_stage_status VALUES(?,?,?,?,?) ON CONFLICT(work_id,stage_id) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at",
+                "INSERT INTO study_stage_status VALUES(?,?,?,?,?) ON CONFLICT(work_id,stage_id) DO UPDATE SET status=excluded.status,updated_at=excluded.updated_at WHERE study_stage_status.status<>excluded.status",
               )
               .run(
                 g.id,

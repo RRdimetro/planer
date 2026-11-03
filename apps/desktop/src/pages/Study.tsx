@@ -1,7 +1,10 @@
+import { StudyGroupEditor } from "../features/StudyGroupEditor";
+import type { StudyGroup } from "../../../../packages/contracts";
 import { useState } from "react";
 import { Empty, Modal } from "../shared/ui";
 import type { PageProps } from "../shared/model";
 export function Study({ s, command }: PageProps) {
+  const [editingGroup, setEditingGroup] = useState<StudyGroup | null>(null);
   const [filter, setFilter] = useState("all");
   const [subject, setSubject] = useState<
     import("../../../../packages/contracts").Subject | null
@@ -34,6 +37,16 @@ export function Study({ s, command }: PageProps) {
         </button>
         <button onClick={() => setGroup(true)} disabled={!s.subjects.length}>
           + Добавить работы
+        </button>
+        <button
+          onClick={() => void command({ type: "file", action: "studyExport" })}
+        >
+          Экспорт Excel
+        </button>
+        <button
+          onClick={() => void command({ type: "file", action: "studyImport" })}
+        >
+          Импорт Excel
         </button>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
           <option value="all">Все этапы</option>
@@ -136,7 +149,18 @@ export function Study({ s, command }: PageProps) {
             <section key={g.id}>
               <div className="sectionhead">
                 <h3>{g.name}</h3>
-                <small>{g.values[0]?.length} работ</small>
+                <div className="row">
+                  <small>
+                    {g.values.flat().filter((v) => v === "done").length}/
+                    {g.values.flat().length} этапов
+                  </small>
+                  <button
+                    aria-label={"Редактировать " + g.name}
+                    onClick={() => setEditingGroup(g)}
+                  >
+                    Изменить
+                  </button>
+                </div>
               </div>
               <div className="tablewrap">
                 <table className="stages">
@@ -161,13 +185,51 @@ export function Study({ s, command }: PageProps) {
                       )
                         return null;
                       return (
-                        <tr key={stage}>
+                        <tr key={row}>
                           <th>{stage}</th>
                           {g.values[row].map((v, col) => (
                             <td key={col}>
                               <button
                                 title={`${g.name} №${col + 1} — ${stage}: ${v === "done" ? "выполнено" : v === "not_done" ? "не выполнено" : "неизвестно"}`}
                                 aria-label={`${g.name} №${col + 1} ${stage}`}
+                                data-cell={`${g.id}-${row}-${col}`}
+                                aria-description={
+                                  v === "done"
+                                    ? "Выполнено"
+                                    : v === "not_done"
+                                      ? "Не выполнено"
+                                      : "Неизвестно"
+                                }
+                                onKeyDown={(e) => {
+                                  const shifts: Record<
+                                    string,
+                                    [number, number]
+                                  > = {
+                                    ArrowUp: [-1, 0],
+                                    ArrowDown: [1, 0],
+                                    ArrowLeft: [0, -1],
+                                    ArrowRight: [0, 1],
+                                  };
+                                  const shift = shifts[e.key];
+                                  if (shift) {
+                                    e.preventDefault();
+                                    document
+                                      .querySelector<HTMLButtonElement>(
+                                        `[data-cell="${g.id}-${Math.min(g.stages.length - 1, Math.max(0, row + shift[0]))}-${Math.min(g.values[0].length - 1, Math.max(0, col + shift[1]))}"]`,
+                                      )
+                                      ?.focus();
+                                  }
+                                  if (e.key === "?") {
+                                    e.preventDefault();
+                                    void command({
+                                      type: "stage",
+                                      groupId: g.id,
+                                      row,
+                                      column: col,
+                                      status: "unknown",
+                                    });
+                                  }
+                                }}
                                 className={"stage " + v}
                                 onClick={(e) =>
                                   void command({
@@ -211,6 +273,14 @@ export function Study({ s, command }: PageProps) {
           ))}
         </div>
       </div>
+      {editingGroup && (
+        <StudyGroupEditor
+          s={s}
+          command={command}
+          group={editingGroup}
+          close={() => setEditingGroup(null)}
+        />
+      )}
       {subject && (
         <Modal
           title="Предмет · количество и оценки"

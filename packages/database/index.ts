@@ -103,14 +103,14 @@ export class Store {
           .map((r) => [r.key, JSON.parse(r.payload)]),
       ),
       diagnostics: {
-        version: 4,
+        version: 5,
         integrity: String(this.db.pragma("quick_check", { simple: true })),
       },
     };
   }
   dump(includeBlobs = false) {
     return JSON.stringify({
-      schema: 4,
+      schema: 5,
       relations: this.relations.dump(includeBlobs),
       records: this.repo.records(),
       settings: this.orm.select().from(schema.settings).all(),
@@ -174,7 +174,7 @@ export class Store {
     this.db.transaction(() => {
       this.db.pragma("defer_foreign_keys=ON");
       this.db.exec(
-        "DELETE FROM event_occurrences;DELETE FROM event_series;DELETE FROM entity_links;DELETE FROM note_folder_membership;DELETE FROM note_folders;DELETE FROM session_kinds;DELETE FROM notification_receipts;DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM workout_programs;DELETE FROM exercises;DELETE FROM planning_constraints;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
+        "DELETE FROM study_aggregate_bindings;DELETE FROM event_occurrences;DELETE FROM event_series;DELETE FROM entity_links;DELETE FROM note_folder_membership;DELETE FROM note_folders;DELETE FROM session_kinds;DELETE FROM notification_receipts;DELETE FROM attachments;DELETE FROM entity_changes;DELETE FROM completion_facts;DELETE FROM weekly_snapshot_items;DELETE FROM weekly_snapshots;DELETE FROM focus_sessions;DELETE FROM task_dependencies;DELETE FROM task_checklist;DELETE FROM recurrence_rules;DELETE FROM workout_sets;DELETE FROM program_exercises;DELETE FROM project_milestones;DELETE FROM tasks;DELETE FROM calendar_events;DELETE FROM notes;DELETE FROM workouts;DELETE FROM projects;DELETE FROM entities;DELETE FROM workout_programs;DELETE FROM exercises;DELETE FROM planning_constraints;DELETE FROM study_work_groups;DELETE FROM study_subjects;DELETE FROM settings;",
       );
       this.repo.load(d.records);
       this.relations.load(d.relations);
@@ -344,6 +344,20 @@ export class Store {
     this.db.transaction(() => {
       this.db.pragma("defer_foreign_keys=ON");
       switch (c.type) {
+        case "studyBinding":
+          if (c.groupId)
+            this.db
+              .prepare(
+                "INSERT INTO study_aggregate_bindings VALUES(?,?,?,?) ON CONFLICT(subject_id,kind) DO UPDATE SET group_id=excluded.group_id,stage_position=excluded.stage_position",
+              )
+              .run(c.subjectId, c.kind, c.groupId, c.stageRow);
+          else
+            this.db
+              .prepare(
+                "DELETE FROM study_aggregate_bindings WHERE subject_id=? AND kind=?",
+              )
+              .run(c.subjectId, c.kind);
+          break;
         case "saveEvent": {
           if (!c.item.date) throw Error("Для повторов нужна дата");
           if (
@@ -697,6 +711,28 @@ export class Store {
           this.put("session", s);
           break;
         }
+      }
+      for (const b of this.db
+        .prepare("SELECT * FROM study_aggregate_bindings")
+        .all() as {
+        subject_id: string;
+        kind: string;
+        group_id: string;
+        stage_position: number;
+      }[]) {
+        const counts = this.db
+          .prepare(
+            "SELECT count(*) total,coalesce(sum(s.status='done'),0) completed FROM study_stage_status s JOIN study_stage_definitions d ON s.stage_id=d.id WHERE s.group_id=? AND d.position=?",
+          )
+          .get(b.group_id, b.stage_position) as {
+          total: number;
+          completed: number;
+        };
+        this.db
+          .prepare(
+            "UPDATE study_aggregate_counts SET total=?,completed=? WHERE subject_id=? AND kind=?",
+          )
+          .run(counts.total, counts.completed, b.subject_id, b.kind);
       }
       this.validateCompletedDependencies();
       this.generateRecurrences(before);

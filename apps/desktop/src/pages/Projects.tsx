@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { ProjectGantt } from "../features/ProjectGantt";
+import { ActivityHistory } from "../design/ActivityHistory";
+import { useState, useEffect } from "react";
 import {
   FolderKanban,
   Plus,
@@ -52,13 +54,18 @@ export function Projects({
   edit,
   remove,
   card,
+  requestedId,
 }: PageProps & {
   edit: (item: Item) => void;
   remove: (item: Item) => Promise<void>;
+  requestedId?: string | null;
   card: (item: Item) => React.ReactNode;
 }) {
   const projects = s.items.filter((i) => i.kind === "project");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(requestedId ?? null);
+  useEffect(() => {
+    if (requestedId) setSelected(requestedId);
+  }, [requestedId]);
   const [tab, setTab] = useState("tasks");
   const [milestone, setMilestone] = useState<Milestone | null>(null);
   const [query, setQuery] = useState("");
@@ -181,6 +188,9 @@ export function Projects({
           <div className="segmented">
             {[
               ["tasks", "Задачи"],
+              ["board", "Kanban"],
+              ["gantt", "Гантт"],
+              ["history", "Активность"],
               ["roadmap", "Дорожная карта"],
               ["knowledge", "Заметки и файлы"],
             ].map(([id, label]) => (
@@ -202,6 +212,49 @@ export function Projects({
             <Plus size={15} /> Задача проекта
           </button>
         </div>
+        {tab === "gantt" && (
+          <section>
+            <h3>Гантт проекта</h3>
+            <ProjectGantt tasks={stat.tasks} s={s} edit={edit} />
+          </section>
+        )}
+        {tab === "history" && (
+          <section>
+            <h3>Изменения проекта и его задач</h3>
+            <ActivityHistory id={active.id} />
+          </section>
+        )}
+        {tab === "board" && (
+          <section className="obs-project-board">
+            <div className="kanban">
+              {(["backlog", "week", "today", "active", "done"] as const).map(
+                (status, index) => (
+                  <div
+                    className="column"
+                    key={status}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      const item = stat.tasks.find(
+                        (t) => t.id === e.dataTransfer.getData("text/plain"),
+                      );
+                      if (item)
+                        void command({
+                          type: "save",
+                          item: { ...item, status },
+                        });
+                    }}
+                  >
+                    <h3>
+                      {["Идеи", "План", "Сегодня", "В работе", "Готово"][index]}
+                    </h3>
+                    {stat.tasks.filter((t) => t.status === status).map(card)}
+                  </div>
+                ),
+              )}
+            </div>
+          </section>
+        )}
         {tab === "tasks" && (
           <div className="project-detail-grid">
             <section>

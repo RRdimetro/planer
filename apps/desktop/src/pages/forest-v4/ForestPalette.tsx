@@ -84,7 +84,23 @@ export function ForestPalette({
               ? "Проекты"
               : "Записи",
         title: item.title,
-        run: () => (item.kind === "note" ? go(8) : edit(item)),
+        run: () => edit(item),
+      })),
+    ...s.items
+      .filter((i) => i.kind === "task")
+      .map((item) => ({
+        id: "status-" + item.id,
+        group: "Статусы задач",
+        title:
+          (item.status === "done" ? "Вернуть · " : "Завершить · ") + item.title,
+        run: () =>
+          void command({
+            type: "save",
+            item: {
+              ...item,
+              status: item.status === "done" ? "today" : "done",
+            },
+          }),
       })),
     ...s.subjects.map((subject) => ({
       id: subject.id,

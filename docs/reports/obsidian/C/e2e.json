@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "real bundled Excel export/import preview, one changed cell, backup and 9 subjects retained",
+    "group grows without overwriting known statuses",
+    "global palette creates and opens real project; task, Gantt, Kanban and activity work",
+    "process restart preserves study edits and new project"
+  ],
+  "platform": "linux",
+  "windowsTested": false
+}

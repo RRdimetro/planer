@@ -86,7 +86,15 @@ export function ItemForm({
         <Field label="Название">
           <input autoFocus {...register("title")} />
         </Field>
-        <Field label="Описание / упражнения, подходы, повторы, вес">
+        <Field
+          label={
+            item.kind === "project"
+              ? "Цель и описание проекта"
+              : item.kind === "task"
+                ? "Описание задачи"
+                : "Описание события"
+          }
+        >
           <textarea rows={3} {...register("description")} />
         </Field>
         <div className="formgrid">

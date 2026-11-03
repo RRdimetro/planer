@@ -1,0 +1,496 @@
+/* Approved Forest Noir / Obsidian B. Quality pass, no alternate theme. */
+.obsidian-app,
+.fn-sheet,
+.fn-command-dialog {
+  --type-xs: 12px;
+  --type-sm: 13px;
+  --type-body: 14px;
+  --type-title: 19px;
+  --type-section: 32px;
+  --type-metric: 48px;
+  --text-primary: #eef5f0;
+  --text-secondary: #b1c5b8;
+  --text-muted: #91aa9a;
+  --border-control: #527b60;
+  --motion-fast: 160ms;
+  --motion-normal: 220ms;
+  --radius-panel: 12px;
+  font-size: var(--type-body);
+  line-height: 1.5;
+}
+.obsidian-app .fn-kicker,
+.obsidian-app .eyebrow {
+  font-size: var(--type-xs);
+  line-height: 1.5;
+  letter-spacing: 1px;
+}
+.obsidian-app small,
+.obsidian-app .hint,
+.obsidian-app .meta,
+.fn-sheet small {
+  font-size: var(--type-xs);
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.obsidian-app .pageheading h1 {
+  font-size: var(--type-section) !important;
+  letter-spacing: -1px;
+  font-weight: 600;
+}
+.obsidian-app :is(input, select, textarea) {
+  font-size: var(--type-body) !important;
+  line-height: 1.5;
+  border-color: var(--border-control) !important;
+}
+.obsidian-app :is(button) {
+  font-size: var(--type-sm);
+  line-height: 1.4;
+}
+.obsidian-app :is(.fn-panel-head h2, h3) {
+  font-size: var(--type-title) !important;
+  font-weight: 550;
+  letter-spacing: -0.35px;
+}
+.obsidian-app .fn-home-b .fn-command-mast {
+  grid-template-columns: 1.4fr 1.15fr 0.85fr 0.85fr;
+  gap: 22px;
+  padding: 22px 26px;
+  min-height: 172px;
+  background:
+    radial-gradient(ellipse at 8% 100%, #20452e66, transparent 65%),
+    linear-gradient(120deg, #14241a, #101b15);
+  position: relative;
+  overflow: hidden;
+}
+.fn-command-mast:after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border: 1px solid #92c8a218;
+  border-radius: 48% 44% 47% 38%;
+  transform: rotate(-25deg);
+  left: -130px;
+  bottom: -280px;
+  box-shadow:
+    0 0 0 24px #92c8a20b,
+    0 0 0 48px #92c8a209,
+    0 0 0 72px #92c8a207;
+}
+.obsidian-app .fn-command-mast > div {
+  z-index: 1;
+}
+.obsidian-app .fn-command-mast h2 {
+  font-size: 28px;
+  line-height: 1.25;
+  max-width: 310px;
+}
+.obsidian-app .fn-command-mast p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.obsidian-app .rc-primary-score > strong {
+  font-size: 72px;
+  line-height: 1.05;
+  font-weight: 500;
+  color: #bbefcd;
+  letter-spacing: -3px;
+  font-variant-numeric: tabular-nums;
+}
+.rc-primary-score > strong small {
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.obsidian-app .fn-command-metric:not(.rc-primary-score) > strong {
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+}
+.obsidian-app .fn-command-metric {
+  gap: 8px;
+  padding-left: 22px;
+}
+.rc-primary-score .fn-link {
+  font-size: 12px;
+  justify-content: flex-start;
+}
+.obsidian-app .fn-home-b .fn-layout {
+  gap: 18px;
+}
+.obsidian-app .fn-home-b .fn-panel {
+  padding: 20px;
+  border-radius: var(--radius-panel);
+  background: linear-gradient(150deg, #142019, #101b15);
+  border: 1px solid #aecab41a;
+}
+.obsidian-app .fn-home-b :is(.fn-tasks, .fn-chart-panel) {
+  grid-column: span 6;
+  grid-row: auto;
+  min-height: 326px;
+}
+.obsidian-app .fn-home-b :is(.fn-agenda, .fn-focus, .fn-efficiency) {
+  grid-column: span 4;
+  grid-row: auto;
+}
+.obsidian-app .fn-home-b .fn-projects {
+  grid-column: span 8;
+}
+.obsidian-app .fn-home-b .fn-fitness {
+  grid-column: span 4;
+}
+.obsidian-app .fn-home-b .fn-deadlines {
+  grid-column: span 4;
+}
+.obsidian-app .fn-home-b .fn-study {
+  grid-column: span 4;
+}
+.obsidian-app .fn-home-b .fn-week {
+  grid-column: span 4;
+}
+.obsidian-app .fn-home-b .fn-score {
+  font-size: 36px;
+  letter-spacing: -1px;
+}
+.fn-home-b .fn-task-rows {
+  max-height: 246px;
+  overflow: auto;
+  scrollbar-width: thin;
+}
+.obsidian-app .fn-home-b .fn-task {
+  padding: 13px 0;
+  gap: 10px;
+}
+.obsidian-app .fn-home-b .fn-task-title strong {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.fn-task-title small {
+  line-height: 1.5;
+}
+.fn-agenda-rows {
+  max-height: 350px;
+  overflow: auto;
+}
+.obsidian-app .fn-priority {
+  font-size: 12px;
+}
+.obsidian-app .fn-duration {
+  font-size: 12px;
+}
+.obsidian-app .fn-task-footer {
+  font-size: 12px;
+}
+.rc-rhythm-svg {
+  width: 100%;
+  height: 190px;
+  display: block;
+  overflow: visible;
+}
+.rc-rhythm {
+  padding-top: 10px;
+}
+.rc-rhythm-svg g[role="button"] {
+  cursor: pointer;
+  outline: none;
+}
+.rc-rhythm-svg g[role="button"]:focus-visible rect {
+  stroke: #b6ecc9;
+  stroke-width: 1;
+  rx: 5;
+}
+.obsidian-app .fn-chart-caption {
+  font-size: 13px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid #aecab41a;
+}
+.obsidian-app .calendar-event {
+  border-left-width: 3px;
+}
+.obsidian-app .time-ruler span {
+  font-size: 12px;
+  color: #b1c5b8;
+}
+.obsidian-app .calendar-day-header {
+  font-size: 13px;
+}
+.obsidian-app .calendar-event .event-main {
+  font-size: 12px;
+  line-height: 1.25;
+}
+.obsidian-app .taskcard-pro .textbutton {
+  font-size: 14px !important;
+  line-height: 1.55;
+}
+.obsidian-app .project-tile {
+  border-radius: 12px;
+  border-top: 2px solid #547d60;
+}
+.obsidian-app .project-tile-title {
+  font-size: 23px;
+  line-height: 1.3;
+}
+.obsidian-app .project-tile:nth-child(3n + 2) {
+  border-top-color: #ad9564;
+}
+.obsidian-app .project-tile:nth-child(3n) {
+  border-top-color: #6c91a0;
+}
+.obsidian-app .studygrid th {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #c6d8cd;
+}
+.obsidian-app .studycell {
+  min-width: 34px;
+  min-height: 34px;
+  font-size: 15px;
+}
+.obsidian-app .fitness-layout > section:nth-child(3n) {
+  background: linear-gradient(145deg, #16281d, #101b15);
+}
+.obsidian-app .record-row strong {
+  font-variant-numeric: tabular-nums;
+}
+.obsidian-app .obs-insights-header {
+  padding: 22px;
+}
+.obsidian-app .obs-insights-header h2 {
+  font-size: 27px;
+  margin: 14px 0;
+}
+.obsidian-app .obs-insights-grid .recharts-cartesian-axis-tick-value {
+  font-size: 12px;
+  fill: #b1c5b8;
+}
+.obsidian-app .notesgrid .notelist {
+  background: #101c15;
+}
+.obsidian-app .notesgrid textarea {
+  font:
+    14px/1.8 "FN Manrope",
+    sans-serif;
+}
+.obsidian-app .settingsgrid > section {
+  border-top: 2px solid #3c6048;
+}
+.obsidian-app button,
+.fn-sheet button {
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    box-shadow var(--motion-fast),
+    transform var(--motion-fast);
+}
+.obsidian-app button:hover {
+  border-color: #719c80;
+}
+.obsidian-app button:active {
+  transform: translateY(1px);
+}
+.obsidian-app :is(button, a, input, select, textarea, [tabindex]):focus-visible,
+.fn-sheet :is(button, input, select, textarea):focus-visible {
+  outline: 2px solid #b6ecc9;
+  outline-offset: 3px;
+}
+.obsidian-app button:disabled {
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+.obsidian-app .check.checked {
+  box-shadow: 0 0 0 3px #73d99b14;
+}
+.obsidian-app .obs-domain-card {
+  animation: rc-enter 0.2s ease-out;
+}
+@keyframes rc-enter {
+  from {
+    opacity: 0.65;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (max-width: 1200px) {
+  .obsidian-app .fn-command-mast {
+    grid-template-columns: 1.2fr 1fr 0.8fr 0.8fr;
+    gap: 14px;
+    padding: 20px;
+  }
+  .obsidian-app .fn-command-mast h2 {
+    font-size: 24px;
+  }
+  .obsidian-app .fn-command-metric {
+    padding-left: 14px;
+  }
+  .obsidian-app .rc-primary-score > strong {
+    font-size: 60px;
+  }
+  .obsidian-app
+    .fn-home-b
+    :is(
+      .fn-agenda,
+      .fn-focus,
+      .fn-efficiency,
+      .fn-projects,
+      .fn-fitness,
+      .fn-deadlines,
+      .fn-study,
+      .fn-week
+    ) {
+    grid-column: span 6;
+  }
+  .obsidian-app .fn-home-b :is(.fn-tasks, .fn-chart-panel) {
+    min-height: 300px;
+  }
+  .obsidian-app .fn-home-b .fn-component-strip {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 900px) {
+  .obsidian-app .fn-command-mast {
+    grid-template-columns: 1fr 1fr;
+  }
+  .obsidian-app .fn-command-mast > div:first-child {
+    grid-column: 1/-1;
+  }
+  .obsidian-app .fn-command-metric {
+    border-left: 0;
+    padding-left: 0;
+  }
+  .obsidian-app .rc-primary-score {
+    grid-row: span 2;
+  }
+  .obsidian-app .fn-home-b .fn-panel {
+    grid-column: 1/-1;
+  }
+  .obsidian-app .obs-insights-grid,
+  .obsidian-app .fitness-layout,
+  .obsidian-app .settingsgrid,
+  .obsidian-app .obs-focus-layout,
+  .obsidian-app .notesgrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .obsidian-app .obs-insight-wide,
+  .obsidian-app .obs-insight-full {
+    grid-column: auto;
+  }
+  .obsidian-app .notesgrid > section:last-child {
+    grid-column: auto;
+  }
+  .obsidian-app .kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .obsidian-app .pageheading {
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .obsidian-app .pageheading > .row {
+    flex-wrap: wrap;
+  }
+  .obsidian-app .studyinfo,
+  .obsidian-app .toolbar {
+    flex-wrap: wrap;
+  }
+  .obsidian-app .projectgrid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .obsidian-app *,
+  .fn-sheet *,
+  .fn-command-dialog * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+.obsidian-app[data-motion="reduce"] * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+.obsidian-app input::placeholder,
+.obsidian-app textarea::placeholder,
+.fn-sheet input::placeholder,
+.fn-command-dialog input::placeholder {
+  color: #91aa9a;
+  opacity: 1;
+}
+.overlay[data-state="open"] {
+  animation: rc-fade 0.16s ease-out;
+}
+.modal[data-state="open"]:not(.fn-sheet) {
+  animation: rc-modal 0.22s ease-out;
+}
+.fn-sheet[data-state="open"] {
+  animation: rc-sheet 0.22s ease-out;
+}
+.fn-sheet[data-state="closed"] {
+  animation: rc-sheet-out 0.16s ease-in;
+}
+@keyframes rc-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes rc-modal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes rc-sheet {
+  from {
+    opacity: 0.5;
+    transform: translateX(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes rc-sheet-out {
+  to {
+    opacity: 0;
+    transform: translateX(22px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .overlay,
+  .fn-sheet,
+  .fn-command-dialog {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+body:has(.obsidian-app[data-motion="reduce"])
+  :is(.modal, .overlay, .fn-sheet, .fn-command-dialog) {
+  animation: none !important;
+  transition: none !important;
+}
+.obsidian-app .calendar-event.event-done {
+  opacity: 1;
+  background: #19251f;
+}
+.obsidian-app .event-done .event-main {
+  text-decoration: line-through;
+}
+.obsidian-app .rest-day {
+  color: #b1c5b8 !important;
+}
+.obsidian-app .recharts-legend-item-text {
+  color: #c9dbce !important;
+}

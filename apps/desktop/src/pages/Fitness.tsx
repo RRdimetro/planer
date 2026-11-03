@@ -1,3 +1,4 @@
+import { useReducedMotion } from "motion/react";
 import { WorkoutCard } from "../design/domain";
 import { useState, useMemo } from "react";
 import {
@@ -387,6 +388,7 @@ export function Fitness({
   edit: (i: Item) => void;
   remove: (i: Item) => Promise<void>;
 }) {
+  const animate = !useReducedMotion() && s.settings.animations !== false;
   const [date, setDate] = useState(localDate());
   const [range, setRange] = useState(90);
   const [program, setProgram] = useState<Program | null>(null);
@@ -762,6 +764,8 @@ export function Fitness({
                   <YAxis stroke="#7f9a89" fontSize={10} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Bar
+                    isAnimationActive={animate}
+                    animationDuration={220}
                     dataKey="volume"
                     name="Объём, кг"
                     fill="#73d69a"
@@ -787,6 +791,8 @@ export function Fitness({
                   <YAxis stroke="#7f9a89" fontSize={10} />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Area
+                    isAnimationActive={animate}
+                    animationDuration={220}
                     dataKey="distance"
                     name="Дистанция, км"
                     stroke="#e8bd6a"
@@ -810,6 +816,8 @@ export function Fitness({
                   <YAxis stroke="#7f9a89" />
                   <Tooltip contentStyle={tooltipStyle} />
                   <Line
+                    isAnimationActive={animate}
+                    animationDuration={220}
                     dataKey="max"
                     name="Максимальный вес, кг"
                     stroke="#a4dfb8"

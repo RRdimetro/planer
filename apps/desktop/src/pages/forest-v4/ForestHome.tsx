@@ -1,5 +1,5 @@
 import { BentoPanel as Panel } from "../../design/components";
-import { useState, cloneElement, type ReactElement } from "react";
+import { useState, useId, cloneElement, type ReactElement } from "react";
 import {
   WidgetSettings,
   widgetOrder,
@@ -97,7 +97,9 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
       widgetConfig.hidden.length > 0 ||
       Object.keys(widgetConfig.sizes).length > 0 ||
       Object.keys(widgetConfig.widths ?? {}).length > 0);
-  const reduce = useReducedMotion();
+  const osReduce = useReducedMotion();
+  const reduce = osReduce || s.settings.animations === false;
+  const chartId = useId().replaceAll(":", "");
   const [plain, setPlain] = useState(false);
   const [filter, setFilter] = useState<"all" | "pending" | "done">("all");
   const [series, setSeries] = useState<"completed" | "focus">("completed");
@@ -441,7 +443,7 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
       {d.daily.some((day) => day.completed || day.focus) ? (
         <>
           <div
-            className="fn-bars"
+            className="rc-rhythm"
             role="group"
             aria-label={
               series === "completed"
@@ -449,35 +451,110 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
                 : "Минуты фокуса за семь дней"
             }
           >
-            <div className="fn-axis">
-              <span>{max}</span>
-              <span>
-                {series === "completed"
-                  ? Math.floor(max / 2)
-                  : Math.round(max / 2)}
-              </span>
-              <span>0</span>
-            </div>
-            {d.daily.map((day, i) => (
-              <button
-                className={hover === i ? "active" : ""}
-                key={day.date}
-                onFocus={() => setHover(i)}
-                onMouseEnter={() => setHover(i)}
-                onClick={() => setHover(i)}
-                aria-label={`${shortDate(day.date)}: ${day.completed} задач; ${day.focus} минут фокуса`}
-              >
-                <span className="fn-bar-slot">
-                  <motion.i
-                    initial={false}
-                    animate={{ height: `${(day[series] / max) * 100}%` }}
-                    transition={{ duration: reduce ? 0 : 0.2 }}
+            <svg
+              className="rc-rhythm-svg"
+              viewBox="0 0 600 190"
+              aria-label="Динамика за семь дней"
+            >
+              <defs>
+                <linearGradient id={chartId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#8de0ad" stopOpacity=".28" />
+                  <stop offset="100%" stopColor="#8de0ad" stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              {Array.from(new Set([0, Math.round(max / 2), max])).map((t) => (
+                <g key={t}>
+                  <line
+                    x1="38"
+                    x2="580"
+                    y1={150 - (t / max) * 125}
+                    y2={150 - (t / max) * 125}
+                    stroke="#34513e"
+                    strokeDasharray="3 5"
                   />
-                  <b>{day[series]}</b>
-                </span>
-                <span>{day.label}</span>
-              </button>
-            ))}
+                  <text
+                    x="28"
+                    y={154 - (t / max) * 125}
+                    textAnchor="end"
+                    fill="#b1c5b8"
+                    fontSize="13"
+                  >
+                    {t}
+                  </text>
+                </g>
+              ))}
+              {(() => {
+                const points = d.daily.map((day, i) => [
+                  38 + (i * 542) / 6,
+                  150 - (day[series] / max) * 125,
+                ]);
+                const line = points
+                  .map(([x, y], i) => (i ? `L ${x} ${y}` : `M ${x} ${y}`))
+                  .join(" ");
+                return (
+                  <>
+                    <path
+                      d={`${line} L 580 150 L 38 150 Z`}
+                      fill={`url(#${chartId})`}
+                    />
+                    <motion.path
+                      d={line}
+                      fill="none"
+                      stroke="#9be5b6"
+                      strokeWidth="2.5"
+                      initial={false}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: reduce ? 0 : 0.22 }}
+                    />
+                    {points.map(([x, y], i) => (
+                      <g
+                        key={d.daily[i].date}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`${shortDate(d.daily[i].date)}: ${d.daily[i].completed} задач; ${d.daily[i].focus} минут фокуса`}
+                        aria-pressed={hover === i}
+                        onFocus={() => setHover(i)}
+                        onMouseEnter={() => setHover(i)}
+                        onClick={() => setHover(i)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            setHover(i);
+                          }
+                        }}
+                      >
+                        <rect
+                          x={x - 30}
+                          y="10"
+                          width="60"
+                          height="155"
+                          fill="transparent"
+                        />
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r={hover === i ? 5 : 3}
+                          fill={hover === i ? "#c8f5d8" : "#85c99f"}
+                          stroke="#14261b"
+                          strokeWidth="2"
+                        />
+                        <text
+                          x={x}
+                          y="181"
+                          textAnchor={
+                            i === 0 ? "start" : i === 6 ? "end" : "middle"
+                          }
+                          fill="#b1c5b8"
+                          fontSize="13"
+                        >
+                          {d.daily[i].label}
+                        </text>
+                      </g>
+                    ))}
+                  </>
+                );
+              })()}
+            </svg>
           </div>
           <div className="fn-chart-caption" aria-live="polite">
             {shortDate(d.daily[hover].date)}
@@ -754,7 +831,7 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
     >
       <div className="fn-page-top">
         <div>
-          <span className="fn-kicker">ЛИЧНОЕ ПРОСТРАНСТВО / {concept}</span>
+          <span className="fn-kicker">ЛИЧНОЕ ПРОСТРАНСТВО / OBSIDIAN</span>
           <h1>Главная</h1>
         </div>
         <div className="fn-top-actions">
@@ -808,8 +885,23 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
               Планировщик недели <ArrowRight size={15} />
             </button>
           </div>
-          <div className="fn-command-metric">
-            <span>Сегодня выполнено</span>
+          <div className="fn-command-metric rc-primary-score">
+            <span>Эффективность дня</span>
+            <strong data-testid="daily-efficiency-score">
+              {d.dailyScore ?? "—"}
+              <small>{d.dailyScore === null ? "" : " / 100"}</small>
+            </strong>
+            <small>
+              {d.dailyScore === null
+                ? "Нет наблюдений для расчёта"
+                : "Текущий план и реальные результаты"}
+            </small>
+            <button className="fn-link" onClick={() => go(6)}>
+              Разобрать показатель <ArrowUpRight size={14} />
+            </button>
+          </div>
+          <div className="fn-command-metric rc-secondary-metric">
+            <span>Задачи сегодня</span>
             <strong>
               {d.doneToday}
               <small> / {d.todayTasks.length}</small>
@@ -818,7 +910,9 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
               <i style={{ width: `${completionPercent}%` }} />
             </div>
             <small>
-              Индекс дня: {d.dailyScore === null ? "—" : d.dailyScore + "%"}
+              {d.todayTasks.length
+                ? `${completionPercent}% плана выполнено`
+                : "План пока свободен"}
             </small>
           </div>
           <div className="fn-command-metric">
@@ -828,18 +922,6 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
               <small> мин</small>
             </strong>
             <small>по сохранённым сессиям</small>
-          </div>
-          <div className="fn-command-metric">
-            <span>Эффективность недели</span>
-            <strong>
-              {score ?? "—"}
-              <small>{score === null ? "" : " %"}</small>
-            </strong>
-            <small>
-              {comparison === null
-                ? "Нет данных для сравнения"
-                : `${comparison >= 0 ? "+" : "−"}${Math.abs(comparison)} п.п. к прошлой неделе`}
-            </small>
           </div>
         </div>
       )}
@@ -914,11 +996,11 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
           ) : concept === "B" ? (
             <>
               {taskList}
+              {chart}
               {agenda}
               {focus}
-              {chart}
-              {projects}
               {efficiency}
+              {projects}
               {fitness}
               {deadlines}
               {study}

@@ -1,3 +1,4 @@
+import { useReducedMotion } from "motion/react";
 import { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
@@ -35,7 +36,25 @@ const colors = [
   "#aa9fb8",
   "#c47f7c",
 ];
+function activityColor(done: number, focus: number) {
+  if (!done && !focus) return { background: "#203226", color: "#c9dbce" };
+  const alpha = Math.min(0.95, 0.2 + done * 0.15 + focus / 300);
+  const rgb = [16, 27, 21].map((v, i) =>
+    Math.round(v + ([132, 210, 160][i] - v) * alpha),
+  );
+  const luminance = rgb
+    .map((v) => {
+      const n = v / 255;
+      return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4;
+    })
+    .reduce((n, v, i) => n + v * [0.2126, 0.7152, 0.0722][i], 0);
+  return {
+    background: `rgb(${rgb.join(",")})`,
+    color: luminance > 0.179 ? "#000000" : "#ffffff",
+  };
+}
 export function Analytics({ s }: { s: State }) {
+  const animate = !useReducedMotion() && s.settings.animations !== false;
   const today = dateInZone(String(s.settings.timezone ?? "Europe/Moscow"));
   const [start, setStart] = useState(addDays(today, -29)),
     [end, setEnd] = useState(today),
@@ -265,6 +284,8 @@ export function Analytics({ s }: { s: State }) {
                       <Tooltip contentStyle={tooltip} />
                       <Legend />
                       <Line
+                        isAnimationActive={animate}
+                        animationDuration={220}
                         yAxisId="tasks"
                         dataKey="done"
                         name="Задачи, шт"
@@ -273,6 +294,8 @@ export function Analytics({ s }: { s: State }) {
                         dot={false}
                       />
                       <Line
+                        isAnimationActive={animate}
+                        animationDuration={220}
                         yAxisId="score"
                         dataKey="score"
                         name="Daily Score"
@@ -306,12 +329,16 @@ export function Analytics({ s }: { s: State }) {
                       <Tooltip contentStyle={tooltip} />
                       <Legend />
                       <Bar
+                        isAnimationActive={animate}
+                        animationDuration={220}
                         dataKey="planned"
                         name="План, мин"
-                        fill="#365742"
+                        fill="#658872"
                         radius={[3, 3, 0, 0]}
                       />
                       <Bar
+                        isAnimationActive={animate}
+                        animationDuration={220}
                         dataKey="focus"
                         name="Фокус, мин"
                         fill="#94dbae"
@@ -340,6 +367,8 @@ export function Analytics({ s }: { s: State }) {
                       <YAxis domain={[0, 100]} stroke="#8ca294" />
                       <Tooltip contentStyle={tooltip} />
                       <Bar
+                        isAnimationActive={animate}
+                        animationDuration={220}
                         dataKey="score"
                         name="Средний индекс"
                         fill="#92cba3"
@@ -359,6 +388,8 @@ export function Analytics({ s }: { s: State }) {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
+                        isAnimationActive={animate}
+                        animationDuration={220}
                         data={breakdown}
                         dataKey="value"
                         nameKey="name"
@@ -400,12 +431,7 @@ export function Analytics({ s }: { s: State }) {
                           tabIndex={0}
                           title={`${d.date}: ${d.done} задач, ${d.focus} мин фокуса`}
                           aria-label={`${d.date}: ${d.done} задач, ${d.focus} минут фокуса`}
-                          style={{
-                            background:
-                              d.done || d.focus
-                                ? `rgba(132,210,160,${Math.min(0.95, 0.2 + d.done * 0.15 + d.focus / 300)})`
-                                : "#203226",
-                          }}
+                          style={activityColor(d.done, d.focus)}
                         >
                           {Number(d.date.slice(-2))}
                         </span>

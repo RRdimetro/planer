@@ -1,11 +1,11 @@
 import type { PageProps } from "../shared/model";
 export const widgetOrder = [
   "tasks",
+  "chart",
   "agenda",
   "focus",
-  "chart",
-  "projects",
   "efficiency",
+  "projects",
   "fitness",
   "deadlines",
   "study",

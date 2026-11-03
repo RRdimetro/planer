@@ -59,6 +59,7 @@ import { Modal } from "../shared/ui";
 import "../shared/theme.css";
 import "../shared/features.css";
 import "../shared/premium.css";
+import "../design/release-polish.css";
 const useUI = create<{ page: number; go: (page: number) => void }>((set) => ({
   page: 0,
   go: (page) => set({ page }),

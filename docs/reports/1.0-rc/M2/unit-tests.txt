@@ -1,0 +1,36 @@
+
+ RUN  v3.2.7 /workspace/focus_os_codex
+
+ ✓ tests/obsidian-desktop.test.ts (6 tests) 1307ms
+   ✓ compact audit scales per changed entity, undo retains versions and attachments, ZIP keeps all history  998ms
+ ✓ tests/demo-isolation.test.ts (3 tests) 998ms
+   ✓ three concept databases persist independently and leave the closed user database byte-identical  550ms
+stdout | tests/performance.test.ts > M5: batch 1000 tasks is atomic and state remains responsive
+1000 tasks batch/read ms: 289
+
+ ✓ tests/performance.test.ts (1 test) 604ms
+   ✓ M5: batch 1000 tasks is atomic and state remains responsive  603ms
+ ✓ tests/obsidian-study.test.ts (4 tests) 370ms
+ ✓ tests/obsidian-core.test.ts (6 tests) 240ms
+ ✓ tests/forest-v4.test.ts (4 tests) 221ms
+ ✓ tests/planning-v2.test.ts (5 tests) 213ms
+ ✓ tests/migration-v2.test.ts (2 tests) 185ms
+ ✓ tests/backup.test.ts (3 tests) 135ms
+ ✓ tests/study.test.ts (3 tests) 143ms
+ ✓ tests/obsidian-knowledge.test.ts (2 tests) 135ms
+ ✓ tests/obsidian-insights.test.ts (3 tests) 127ms
+ ✓ tests/fitness-v020.test.ts (2 tests) 107ms
+ ✓ tests/domain.test.ts (3 tests) 108ms
+ ✓ tests/analytics.test.ts (3 tests) 95ms
+ ✓ tests/modules.test.ts (1 test) 101ms
+ ✓ tests/security.test.ts (2 tests) 81ms
+ ✓ tests/schedule-apply.test.ts (1 test) 77ms
+ ✓ tests/normalized.test.ts (1 test) 67ms
+ ✓ tests/foundation.test.ts (1 test) 33ms
+ ✓ tests/planner-rules.test.ts (3 tests) 6ms
+
+ Test Files  21 passed (21)
+      Tests  59 passed (59)
+   Start at  18:06:46
+   Duration  20.25s (transform 436ms, setup 0ms, collect 8.42s, tests 5.35s, environment 3ms, prepare 1.34s)
+

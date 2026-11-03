@@ -3,7 +3,7 @@ on: [push, workflow_dispatch]
 jobs:
   windows:
     runs-on: windows-2022
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
     steps:
@@ -25,23 +25,28 @@ jobs:
       - run: pnpm test:obsidian
       - run: node scripts/obsidian-capture.mjs F
       - run: pnpm dist:win
-      - name: Build real baseline 0.1.0 installer for upgrade verification
+      - name: Build and install actual 0.2.0 and 0.3.0 baselines
         shell: pwsh
         run: |
-          git cat-file -e 79764b5
-          if ($LASTEXITCODE -ne 0) { throw 'Full repository history with accepted 0.1.0 is required; upgrade test must not be skipped.' }
-          $baseline = Join-Path $env:RUNNER_TEMP 'focus-baseline'
-          git worktree add --detach $baseline 79764b5
-          Push-Location $baseline
-          pnpm install --frozen-lockfile
-          if ($LASTEXITCODE -ne 0) { throw 'Baseline dependency installation failed' }
-          pnpm run rebuild
-          pnpm dist:win
-          if ($LASTEXITCODE -ne 0) { throw 'Baseline Windows installer build failed' }
-          Pop-Location
-          "FOCUS_BASELINE_INSTALLER=$baseline\release\FOCUS OS PRO Setup 0.1.0.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          "FOCUS_CURRENT_INSTALLER=$((Get-Location).Path)\release\FOCUS OS PRO Setup 0.3.0.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-      - run: node scripts/windows-install-smoke.mjs
+          $baselines = @(@{Version='0.2.0';Commit='d9e8446'},@{Version='0.3.0';Commit='ab86f30'})
+          $currentVersion = (Get-Content package.json | ConvertFrom-Json).version
+          $env:FOCUS_CURRENT_INSTALLER = Join-Path (Get-Location) "release/FOCUS OS PRO Setup $currentVersion.exe"
+          foreach ($item in $baselines) {
+            $baseline = Join-Path $env:RUNNER_TEMP "focus-baseline-$($item.Version)"
+            git worktree add --detach $baseline $item.Commit
+            if ($LASTEXITCODE -ne 0) { throw 'Full history required' }
+            Push-Location $baseline
+            pnpm install --frozen-lockfile
+            if ($LASTEXITCODE -ne 0) { throw 'Baseline install failed' }
+            pnpm run rebuild
+            pnpm dist:win
+            if ($LASTEXITCODE -ne 0) { throw 'Baseline build failed' }
+            Pop-Location
+            $env:FOCUS_BASELINE_INSTALLER = Join-Path $baseline "release/FOCUS OS PRO Setup $($item.Version).exe"
+            $env:FOCUS_BASELINE_VERSION = $item.Version
+            node scripts/rc-windows-upgrade.mjs
+            if ($LASTEXITCODE -ne 0) { throw 'Windows upgrade regression failed' }
+          }
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -49,4 +54,6 @@ jobs:
           path: |
             release/*.exe
             docs/reports/obsidian/
+            docs/reports/1.0-rc/
             docs/screenshots/obsidian/F/
+            docs/screenshots/1.0-rc/

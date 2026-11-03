@@ -135,6 +135,7 @@ try {
     publish: "never",
     config: {
       ...pkg.build,
+      compression: "normal",
       electronVersion: "39.8.10",
       directories: { output },
       win: {
@@ -164,6 +165,7 @@ try {
         windowsRuntimeTested: false,
         signed: false,
         host: process.platform,
+        compression: "normal",
         version: "0.3.0",
         electron: "39.8.10",
         nativeSQLite: "12.11.1 / Electron ABI 140 / PE x64",

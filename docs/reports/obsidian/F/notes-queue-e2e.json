@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "checks": [
+    "overlapping note saves with 900ms actual IPC latency preserve newer draft while navigation waits",
+    "edit made while navigation waits is drained before leaving"
+  ]
+}

@@ -33,34 +33,46 @@ export function Notes({
   const latest = useRef<Item | null>(null);
   const dirty = useRef(false);
   const saving = useRef(false);
+  const queued = useRef(0);
   const pending = useRef<Promise<void>>(Promise.resolve());
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flush = useCallback(async () => {
-    if (timer.current) clearTimeout(timer.current);
-    if (dirty.current && latest.current) {
-      const value = {
-        ...latest.current,
-        title: latest.current.title.trim() || "Без названия",
-      };
-      dirty.current = false;
-      saving.current = true;
-      pending.current = pending.current
-        .catch(() => {})
-        .then(async () => {
-          try {
-            await command({ type: "save", item: value });
-            setSaveLabel("Сохранено");
-            setHistoryKey((k) => k + 1);
-          } catch (e) {
-            setSaveLabel("Ошибка сохранения");
-            if (latest.current?.id === value.id) dirty.current = true;
-            throw e;
-          } finally {
-            saving.current = false;
-          }
-        });
+    // A navigation/close flush drains both queued saves and edits made while waiting.
+    for (;;) {
+      if (timer.current) clearTimeout(timer.current);
+      if (dirty.current && latest.current) {
+        const value = {
+          ...latest.current,
+          title: latest.current.title.trim() || "Без названия",
+        };
+        dirty.current = false;
+        queued.current++;
+        saving.current = true;
+        pending.current = pending.current
+          .catch(() => {})
+          .then(async () => {
+            try {
+              await command({ type: "save", item: value });
+              setSaveLabel(
+                queued.current > 1 || dirty.current
+                  ? "Сохраняется…"
+                  : "Сохранено",
+              );
+              setHistoryKey((k) => k + 1);
+            } catch (e) {
+              setSaveLabel("Ошибка сохранения");
+              if (latest.current?.id === value.id) dirty.current = true;
+              throw e;
+            } finally {
+              queued.current--;
+              saving.current = queued.current > 0;
+            }
+          });
+      }
+      const observed = pending.current;
+      await observed;
+      if (!dirty.current && observed === pending.current) return;
     }
-    await pending.current;
   }, [command]);
   useEffect(() => {
     if (latest.current?.id === item?.id && (dirty.current || saving.current))

@@ -61,6 +61,9 @@ for (const demo of [true, false]) {
           BrowserWindow.getAllWindows()[0].setContentSize(w, h),
         [width, height],
       );
+      expect(
+        await p.evaluate(() => [window.innerWidth, window.innerHeight]),
+      ).toEqual([width, height]);
       for (let i = 0; i < pages.length; i++) {
         if (
           stage !== "F" &&

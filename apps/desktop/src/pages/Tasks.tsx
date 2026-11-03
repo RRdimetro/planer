@@ -1,3 +1,5 @@
+import { TaskCard } from "../design/domain";
+import { VirtualList } from "../design/components";
 import { DataTable } from "../design/components";
 import { WeeklyTasks } from "../features/WeeklyTasks";
 import { useEffect, useState } from "react";
@@ -111,7 +113,8 @@ export function Tasks({
     );
     const checked = d.checklist.filter((x) => x.done).length;
     return (
-      <article
+      <TaskCard
+        item={t}
         key={t.id}
         className={
           "taskcard taskcard-pro " + (t.status === "done" ? "task-done" : "")
@@ -248,7 +251,7 @@ export function Tasks({
               {c.title}
             </label>
           ))}
-      </article>
+      </TaskCard>
     );
   };
   function tree(t: Item, depth = 0): React.ReactNode {
@@ -520,7 +523,11 @@ export function Tasks({
                   {filtered.filter((t) => t.status === status).length}
                 </small>
               </h3>
-              {filtered.filter((t) => t.status === status).map((t) => row(t))}
+              <VirtualList
+                rows={filtered.filter((t) => t.status === status)}
+                rowKey={(t) => t.id}
+                render={(t) => row(t)}
+              />
               <button
                 className="addcolumn"
                 onClick={() =>

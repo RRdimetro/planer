@@ -1,3 +1,4 @@
+import { auditDelta } from "./audit-delta";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { randomUUID } from "node:crypto";
@@ -26,7 +27,7 @@ import {
 export class Store {
   readonly db: Database.Database;
   readonly orm;
-  private undoStack: string[] = [];
+  private undoStack: { snapshot: string; action: string }[] = [];
   private movementCache: {
     key: string;
     rows: NonNullable<State["movementDays"]>;
@@ -403,8 +404,56 @@ export class Store {
     if (c.type === "file")
       throw Error("Файловая операция доступна только в desktop");
     if (c.type === "undo") {
-      const prev = this.undoStack.pop();
-      if (prev) this.restore(prev);
+      const prev = this.undoStack.at(-1);
+      if (prev) {
+        const before = this.dump();
+        this.db.transaction(() => {
+          const target = JSON.parse(prev.snapshot),
+            current = JSON.parse(before);
+          const known = new Set(
+            target.records.map((r: { id: string }) => r.id),
+          );
+          for (const r of current.records)
+            if (
+              !known.has(r.id) &&
+              ["task", "project", "event", "workout", "note"].includes(r.kind)
+            )
+              target.records.push({
+                ...r,
+                payload: JSON.stringify({
+                  ...JSON.parse(r.payload),
+                  deletedAt: new Date().toISOString(),
+                }),
+              });
+          // Timer and background service state are independent of the edited task/note.
+          target.records = target.records
+            .filter((r: { kind: string }) => r.kind !== "session")
+            .concat(
+              current.records.filter(
+                (r: { kind: string }) => r.kind === "session",
+              ),
+            );
+          target.relations.sessionKinds = current.relations.sessionKinds;
+          target.relations.notificationReceipts =
+            current.relations.notificationReceipts;
+          target.settings = target.settings
+            .filter(
+              (r: { key: string }) =>
+                !["lastBackupAt", "lastBackupPath"].includes(r.key),
+            )
+            .concat(
+              current.settings.filter((r: { key: string }) =>
+                ["lastBackupAt", "lastBackupPath"].includes(r.key),
+              ),
+            );
+          target.relations.entityChanges = this.db
+            .prepare("SELECT * FROM entity_changes ORDER BY rowid")
+            .all();
+          this.restore(JSON.stringify(target));
+          this.audit(before, "undo");
+        })();
+        this.undoStack.pop();
+      }
       return this.state();
     }
     const before = this.dump();
@@ -427,6 +476,8 @@ export class Store {
           break;
         case "saveEvent": {
           if (!c.item.date) throw Error("Для повторов нужна дата");
+          if (c.recurrence.until && c.recurrence.until < c.item.date)
+            throw Error("Последняя дата серии раньше первой встречи");
           if (
             this.db
               .prepare("SELECT id FROM event_series WHERE id=?")
@@ -803,44 +854,48 @@ export class Store {
       }
       this.validateCompletedDependencies();
       this.generateRecurrences(before);
-      const afterState = this.dump();
-      const previous = JSON.parse(before).records as {
-        id: string;
-        kind: string;
-        payload: string;
-      }[];
-      const prevMap = new Map(
-        previous
-          .filter((r) =>
-            ["task", "project", "workout", "event", "note"].includes(r.kind),
-          )
-          .map((r) => [r.id, r.payload]),
-      );
-      for (const r of this.repo
-        .records()
-        .filter((r) =>
-          ["task", "project", "workout", "event", "note"].includes(r.kind),
-        ))
-        if (prevMap.get(r.id) !== r.payload)
-          this.db
-            .prepare("INSERT INTO entity_changes VALUES(?,?,?,?,?,?)")
-            .run(
-              randomUUID(),
-              r.id,
-              new Date().toISOString(),
-              c.type,
-              prevMap.get(r.id) ?? null,
-              r.payload,
-            );
-      this.db
-        .prepare(
-          "INSERT INTO change_log(at,action,before_json,after_json) VALUES(?,?,?,?)",
-        )
-        .run(new Date().toISOString(), c.type, before, afterState);
+      this.audit(before, c.type);
     })();
-    this.undoStack.push(before);
+    if (c.type !== "focusStart" && c.type !== "focusAction")
+      this.undoStack.push({ snapshot: before, action: c.type });
     if (this.undoStack.length > 30) this.undoStack.shift();
     return this.state();
+  }
+  private audit(before: string, action: string) {
+    const afterState = this.dump();
+    const previous = JSON.parse(before).records as {
+      id: string;
+      kind: string;
+      payload: string;
+    }[];
+    const prevMap = new Map(
+      previous
+        .filter((r) =>
+          ["task", "project", "workout", "event", "note"].includes(r.kind),
+        )
+        .map((r) => [r.id, r.payload]),
+    );
+    for (const r of this.repo
+      .records()
+      .filter((r) =>
+        ["task", "project", "workout", "event", "note"].includes(r.kind),
+      ))
+      if (prevMap.get(r.id) !== r.payload)
+        this.db
+          .prepare("INSERT INTO entity_changes VALUES(?,?,?,?,?,?)")
+          .run(
+            randomUUID(),
+            r.id,
+            new Date().toISOString(),
+            action,
+            prevMap.get(r.id) ?? null,
+            r.payload,
+          );
+    this.db
+      .prepare(
+        "INSERT INTO change_log(at,action,before_json,after_json) VALUES(?,?,?,?)",
+      )
+      .run(new Date().toISOString(), action, ...auditDelta(before, afterState));
   }
   attach(entityId: string, name: string, mimeType: string, content: Buffer) {
     const before = this.dump();
@@ -860,9 +915,13 @@ export class Store {
         .prepare(
           "INSERT INTO change_log(at,action,before_json,after_json) VALUES(?,?,?,?)",
         )
-        .run(new Date().toISOString(), "attach", before, this.dump());
+        .run(
+          new Date().toISOString(),
+          "attach",
+          ...auditDelta(before, this.dump()),
+        );
     })();
-    this.undoStack.push(before);
+    this.undoStack.push({ snapshot: before, action: "attach" });
     if (this.undoStack.length > 30) this.undoStack.shift();
   }
   resetUndo() {

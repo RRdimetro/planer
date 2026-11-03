@@ -1,3 +1,4 @@
+import { WorkoutCard } from "../design/domain";
 import { useState, useMemo } from "react";
 import {
   Dumbbell,
@@ -419,7 +420,7 @@ export function Fitness({
       estimate: 60,
     });
   const workout = (w: Item) => (
-    <div className="fitness-log-row" key={w.id}>
+    <WorkoutCard item={w} className="fitness-log-row" key={w.id}>
       <div
         className={"workout-symbol " + (w.distance ? "running" : "strength")}
       >
@@ -453,7 +454,7 @@ export function Fitness({
       >
         <Trash2 size={14} />
       </button>
-    </div>
+    </WorkoutCard>
   );
   const chartExercise = m.chart.map((day) => {
     const ids = new Set(

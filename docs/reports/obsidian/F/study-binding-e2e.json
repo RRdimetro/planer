@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "checks": [
+    "explicit binding computes aggregate and locks only its fields with source guidance"
+  ]
+}

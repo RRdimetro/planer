@@ -1,22 +1,44 @@
+import { TaskCard } from "../design/domain";
 import { AppShell } from "../design/components";
 import { Sidebar } from "../design/Sidebar";
 import { PageHeader } from "../design/PageHeader";
 import "../design/obsidian.css";
 import { flushPending } from "../shared/pending";
-import { Projects } from "../pages/Projects";
+const Projects = lazy(() =>
+  import("../pages/Projects").then((m) => ({ default: m.Projects })),
+);
 
 import { ForestHome } from "../pages/forest-v4/ForestHome";
-import { ForestPalette } from "../pages/forest-v4/ForestPalette";
-import { Fitness, WorkoutForm } from "../pages/Fitness";
-import { Tasks } from "../pages/Tasks";
+import { CommandPalette } from "../pages/forest-v4/ForestPalette";
+const Fitness = lazy(() =>
+  import("../pages/Fitness").then((m) => ({ default: m.Fitness })),
+);
+const WorkoutForm = lazy(() =>
+  import("../pages/Fitness").then((m) => ({ default: m.WorkoutForm })),
+);
+const Tasks = lazy(() =>
+  import("../pages/Tasks").then((m) => ({ default: m.Tasks })),
+);
 import { pages } from "../shared/navigation";
-import { Planner } from "../pages/Planner";
-import { Study } from "../pages/Study";
-import { Focus } from "../pages/Focus";
-import { Notes } from "../pages/Notes";
-import { Analytics } from "../pages/Analytics";
-import { Preferences } from "../pages/Preferences";
-import React, { useState, useEffect, useCallback } from "react";
+const Planner = lazy(() =>
+  import("../pages/Planner").then((m) => ({ default: m.Planner })),
+);
+const Study = lazy(() =>
+  import("../pages/Study").then((m) => ({ default: m.Study })),
+);
+const Focus = lazy(() =>
+  import("../pages/Focus").then((m) => ({ default: m.Focus })),
+);
+const Notes = lazy(() =>
+  import("../pages/Notes").then((m) => ({ default: m.Notes })),
+);
+const Analytics = lazy(() =>
+  import("../pages/Analytics").then((m) => ({ default: m.Analytics })),
+);
+const Preferences = lazy(() =>
+  import("../pages/Preferences").then((m) => ({ default: m.Preferences })),
+);
+import React, { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import {
   QueryClient,
@@ -44,6 +66,11 @@ const useUI = create<{ page: number; go: (page: number) => void }>((set) => ({
 const client = new QueryClient({ defaultOptions: { queries: { retry: 1 } } });
 function App() {
   const { page, go: rawGo } = useUI();
+  const [, setMinute] = useState(0);
+  useEffect(() => {
+    const tick = setInterval(() => setMinute((n) => n + 1), 60000);
+    return () => clearInterval(tick);
+  }, []);
   const go = useCallback(
     (next: number) => {
       void flushPending()
@@ -129,7 +156,7 @@ function App() {
         </p>
       </main>
     );
-  const s = q.data;
+  const s = { ...q.data };
   const projects = s.items.filter((i) => i.kind === "project");
   const forestConcept = "B" as const;
   const forestHome = page === 0;
@@ -166,7 +193,8 @@ function App() {
       await command({ type: "remove", id: i.id });
   };
   const card = (i: Item) => (
-    <article
+    <TaskCard
+      item={i}
       key={i.id}
       className="taskcard"
       draggable
@@ -201,11 +229,12 @@ function App() {
           <span>{projects.find((p) => p.id === i.projectId)?.title}</span>
         )}
       </div>
-    </article>
+    </TaskCard>
   );
   return (
     <AppShell
       data-page={page}
+      data-motion={s.settings.animations === false ? "reduce" : "normal"}
       reduce={s.settings.animations === false}
       className={
         "shell obsidian-app forest-shell forest-shell-b " +
@@ -254,90 +283,94 @@ function App() {
               <button onClick={() => setError("")}>Закрыть</button>
             </div>
           )}
-          {forestHome && forestConcept && (
-            <ForestHome
-              s={s}
-              command={command}
-              go={go}
-              edit={setEditing}
-              concept={forestConcept}
-            />
-          )}
-          {page === 2 && (
-            <Tasks s={s} command={command} edit={setEditing} save={save} />
-          )}
-          {page === 1 && (
-            <Planner
-              s={s}
-              card={card}
-              save={save}
-              command={command}
-              edit={setEditing}
-            />
-          )}
-          {page === 3 && (
-            <Projects
-              s={s}
-              command={command}
-              requestedId={projectSelection}
-              card={card}
-              edit={(i) => {
-                if (i.kind === "note") {
-                  setNoteSelection(i.id);
-                  go(8);
-                } else setEditing(i);
-              }}
-              remove={remove}
-            />
-          )}
-          {page === 4 && <Study s={s} command={command} />}
-          {page === 5 && (
-            <Fitness
-              s={s}
-              command={command}
-              edit={setEditing}
-              remove={remove}
-            />
-          )}
-          {page === 6 && <Analytics s={s} />}
-          {page === 7 && <Focus s={s} command={command} />}
-          {page === 8 && (
-            <Notes
-              s={s}
-              command={command}
-              remove={remove}
-              requestedId={noteSelection}
-            />
-          )}
-          {page === 9 && <Preferences s={s} command={command} />}
+          <Suspense fallback={<p role="status">Открываем раздел…</p>}>
+            {forestHome && forestConcept && (
+              <ForestHome
+                s={s}
+                command={command}
+                go={go}
+                edit={setEditing}
+                concept={forestConcept}
+              />
+            )}
+            {page === 2 && (
+              <Tasks s={s} command={command} edit={setEditing} save={save} />
+            )}
+            {page === 1 && (
+              <Planner
+                s={s}
+                card={card}
+                save={save}
+                command={command}
+                edit={setEditing}
+              />
+            )}
+            {page === 3 && (
+              <Projects
+                s={s}
+                command={command}
+                requestedId={projectSelection}
+                card={card}
+                edit={(i) => {
+                  if (i.kind === "note") {
+                    setNoteSelection(i.id);
+                    go(8);
+                  } else setEditing(i);
+                }}
+                remove={remove}
+              />
+            )}
+            {page === 4 && <Study s={s} command={command} />}
+            {page === 5 && (
+              <Fitness
+                s={s}
+                command={command}
+                edit={setEditing}
+                remove={remove}
+              />
+            )}
+            {page === 6 && <Analytics s={s} />}
+            {page === 7 && <Focus s={s} command={command} />}
+            {page === 8 && (
+              <Notes
+                s={s}
+                command={command}
+                remove={remove}
+                requestedId={noteSelection}
+              />
+            )}
+            {page === 9 && <Preferences s={s} command={command} />}
+          </Suspense>
         </main>
         <footer>
           <span className="dot" /> SQLite · Сохранение автоматически{" "}
-          <span>FOCUS OS PRO / 0.2.0</span>
+          <span>FOCUS OS PRO / 0.3.0</span>
         </footer>
       </div>
-      {editing?.kind === "workout" ? (
-        <WorkoutForm
-          item={editing}
-          s={s}
-          command={command}
-          onClose={() => setEditing(null)}
-        />
-      ) : (
-        editing && (
-          <ItemForm
-            presentation="sheet"
+      <Suspense fallback={<p role="status">Открываем редактор…</p>}>
+        {editing?.kind === "workout" ? (
+          <WorkoutForm
             item={editing}
-            projects={projects}
-            state={s}
+            s={s}
             command={command}
-            onSave={(i, details) => void save(i, details).catch(() => {})}
             onClose={() => setEditing(null)}
           />
-        )
-      )}{" "}
+        ) : (
+          editing && (
+            <ItemForm
+              presentation="sheet"
+              item={editing}
+              projects={projects}
+              state={s}
+              command={command}
+              onSave={(i, details) => void save(i, details).catch(() => {})}
+              onClose={() => setEditing(null)}
+            />
+          )
+        )}{" "}
+      </Suspense>
       {palette && (
-        <ForestPalette
+        <CommandPalette
           s={s}
           command={command}
           go={go}

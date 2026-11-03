@@ -87,7 +87,9 @@ try {
   );
   if (errors.length) throw Error(errors.join("\n"));
   fs.writeFileSync(
-    "docs/reports/obsidian/D/fitness-e2e.json",
+    process.env.FOCUS_RECHECK_DIR
+      ? `${process.env.FOCUS_RECHECK_DIR}/fitness-e2e.json`
+      : "docs/reports/obsidian/D/fitness-e2e.json",
     JSON.stringify(
       {
         passed: true,

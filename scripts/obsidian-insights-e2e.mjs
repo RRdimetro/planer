@@ -30,7 +30,9 @@ try {
   expect((await state(p)).revision).toBe(before.revision);
   expect(h.errors).toEqual([]);
   fs.writeFileSync(
-    "docs/reports/obsidian/E/e2e.json",
+    process.env.FOCUS_RECHECK_DIR
+      ? `${process.env.FOCUS_RECHECK_DIR}/insights-e2e.json`
+      : "docs/reports/obsidian/E/e2e.json",
     JSON.stringify(
       {
         passed: true,

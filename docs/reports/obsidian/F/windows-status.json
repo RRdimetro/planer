@@ -1,0 +1,14 @@
+{
+  "version": "0.3.0",
+  "windowsRuntimeTested": false,
+  "windows10Tested": false,
+  "windows11Tested": false,
+  "windowsCIExecuted": false,
+  "installationTested": false,
+  "updateTested": false,
+  "notificationOSDeliveryTested": false,
+  "signed": false,
+  "reason": "Current managed executor is Linux. No Windows executor, git remote or configured CI identity is available. Cross-build and static verification are separate from execution.",
+  "preparedWorkflow": ".github/workflows/windows.yml",
+  "preparedInstallSmoke": "scripts/windows-install-smoke.mjs"
+}

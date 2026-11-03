@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "checks": [
+    "automatic verified ZIP; manual ZIP/restore with pre-restore copy; actual integrity check",
+    "1000 variable-height table/kanban records, bounded DOM, real last-row scroll (2485 ms)",
+    "single-instance lock preserves active session; minimized + 4.2 s busy main counted correctly",
+    "background notification scheduling and persistent deduplication; request observed, OS delivery not asserted"
+  ],
+  "platform": "linux",
+  "windowsTested": false
+}

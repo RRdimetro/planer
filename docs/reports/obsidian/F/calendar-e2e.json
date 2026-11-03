@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "checks": [
+    "00–24h calendar actually shows 02:15 event; keyboard and real pointer resize persist 30→45→75 minutes",
+    "recurrence interval 2 and until date materialize exactly 3 events"
+  ]
+}

@@ -304,9 +304,9 @@ export class Relations {
       notificationReceipts: this.db
         .prepare("SELECT * FROM notification_receipts")
         .all(),
-      entityChanges: this.db
-        .prepare("SELECT * FROM entity_changes ORDER BY rowid")
-        .all(),
+      entityChanges: includeBlobs
+        ? this.db.prepare("SELECT * FROM entity_changes ORDER BY rowid").all()
+        : [],
       blobs: includeBlobs
         ? (
             this.db

@@ -318,6 +318,20 @@ export function Study({ s, command }: PageProps) {
                       min="0"
                       max="1000"
                       value={subject[k]}
+                      readOnly={s.studyBindings?.some(
+                        (b) =>
+                          b.subjectId === subject.id &&
+                          b.kind === (k.startsWith("rk") ? "rk" : "hw"),
+                      )}
+                      title={
+                        s.studyBindings?.some(
+                          (b) =>
+                            b.subjectId === subject.id &&
+                            b.kind === (k.startsWith("rk") ? "rk" : "hw"),
+                        )
+                          ? "Рассчитывается из привязанного этапа. Измените привязку в группе."
+                          : undefined
+                      }
                       onChange={(e) =>
                         setSubject({ ...subject, [k]: Number(e.target.value) })
                       }
@@ -337,6 +351,13 @@ export function Study({ s, command }: PageProps) {
                 </label>
               ))}
             </div>
+            {s.studyBindings?.some((b) => b.subjectId === subject.id) && (
+              <p className="hint">
+                Привязанные РК/ДЗ рассчитываются по выбранному этапу и доступны
+                только для чтения. Источник можно изменить или отключить в
+                редакторе группы.
+              </p>
+            )}
             <button className="primary">Сохранить</button>
             <button
               type="button"

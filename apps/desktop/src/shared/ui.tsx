@@ -1,6 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import type { ReactNode } from "react";
-export function Modal({
+export function ModalDialog({
   title,
   children,
   onClose,
@@ -58,3 +58,5 @@ export function Field({
     </label>
   );
 }
+
+export const Modal = ModalDialog;

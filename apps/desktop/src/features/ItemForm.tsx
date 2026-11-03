@@ -34,6 +34,8 @@ export function ItemForm({
     "none" | "daily" | "weekly" | "monthly"
   >("none");
   const [eventCount, setEventCount] = useState(4);
+  const [eventInterval, setEventInterval] = useState(1);
+  const [eventUntil, setEventUntil] = useState("");
   const EditorDialog = presentation ? ContextDrawer : Modal;
   const [details, setDetails] = useState<TaskDetails>(
     state.taskDetails[item.id] ?? {
@@ -46,6 +48,7 @@ export function ItemForm({
   );
   const {
     register,
+    watch,
     handleSubmit,
     formState: { errors },
   } = useForm<Item>({
@@ -74,8 +77,8 @@ export function ItemForm({
               item: i,
               recurrence: {
                 frequency: eventFrequency,
-                interval: 1,
-                until: null,
+                interval: eventInterval,
+                until: eventUntil || null,
               },
               count: eventCount,
             });
@@ -229,6 +232,31 @@ export function ItemForm({
                 <option value="monthly">Каждый месяц</option>
               </select>
             </label>
+            {eventFrequency !== "none" && (
+              <div className="formgrid">
+                <label className="field">
+                  Интервал повторения
+                  <input
+                    aria-label="Интервал повторения событий"
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={eventInterval}
+                    onChange={(e) => setEventInterval(Number(e.target.value))}
+                  />
+                </label>
+                <label className="field">
+                  Последняя дата серии
+                  <input
+                    aria-label="Последняя дата серии"
+                    type="date"
+                    min={watch("date") ?? undefined}
+                    value={eventUntil}
+                    onChange={(e) => setEventUntil(e.target.value)}
+                  />
+                </label>
+              </div>
+            )}
             {eventFrequency !== "none" && (
               <label className="field">
                 Количество встреч

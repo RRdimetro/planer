@@ -2,8 +2,11 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import electron from "electron";
-const concept = (process.argv[2] ?? "C").toUpperCase();
-if (!["A", "B", "C"].includes(concept)) throw Error("Укажите A, B или C");
+const concept = "B";
+if (process.argv.slice(2).some((a) => !["B", "--empty"].includes(a)))
+  throw Error(
+    "Утверждён Obsidian B. Допустим только --empty для пустой demo-базы.",
+  );
 const env = {
   ...process.env,
   FOCUS_DEMO: "1",

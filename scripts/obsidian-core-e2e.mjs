@@ -129,7 +129,9 @@ try {
   checks.push("reset restores approved B composition");
   expect(ui.errors).toEqual([]);
   fs.writeFileSync(
-    "docs/reports/obsidian/B/e2e.json",
+    process.env.FOCUS_RECHECK_DIR
+      ? `${process.env.FOCUS_RECHECK_DIR}/core-e2e.json`
+      : "docs/reports/obsidian/B/e2e.json",
     JSON.stringify(
       {
         passed: true,

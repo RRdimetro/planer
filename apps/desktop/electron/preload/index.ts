@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { API } from "../../../../packages/contracts";
 const api: API = {
+  revision: (id) => ipcRenderer.invoke("focus:revision", id),
   history: (id) => ipcRenderer.invoke("focus:history", id),
   readImage: (id) => ipcRenderer.invoke("focus:image", id),
   onCloseRequested: (callback) => {

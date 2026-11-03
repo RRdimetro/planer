@@ -8,7 +8,11 @@ export default defineConfig({
     outDir: "dist",
     rollupOptions: {
       output: {
-        manualChunks: { charts: ["recharts"], markdown: ["react-markdown"] },
+        manualChunks: {
+          charts: ["recharts"],
+          markdown: ["react-markdown"],
+          validation: ["zod"],
+        },
       },
     },
   },

@@ -16,7 +16,7 @@ function rank(text: string, query: string) {
   return index === q.length ? 2 : Infinity;
 }
 
-export function ForestPalette({
+export function CommandPalette({
   s,
   command,
   go,
@@ -229,3 +229,5 @@ export function ForestPalette({
     </Dialog.Root>
   );
 }
+
+export const ForestPalette = CommandPalette;

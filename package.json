@@ -1,6 +1,6 @@
 {
   "name": "focus-os-pro",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.20.0",
@@ -22,12 +22,14 @@
     "test:fitness": "node scripts/fitness-v020-e2e.mjs",
     "preview:design": "node scripts/design-preview.mjs",
     "test:forest": "node scripts/forest-v4-e2e.mjs",
-    "test:forest:visual": "node scripts/forest-v4-visual.mjs"
+    "test:forest:visual": "node scripts/forest-v4-visual.mjs",
+    "test:obsidian": "node scripts/obsidian-core-e2e.mjs && node scripts/obsidian-workspaces-e2e.mjs && node scripts/obsidian-lifestyle-e2e.mjs && node scripts/obsidian-fitness-e2e.mjs && node scripts/obsidian-insights-e2e.mjs && node scripts/obsidian-desktop-e2e.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-dialog": "^1.1.15",
     "@tanstack/react-query": "^5.90.0",
+    "@tanstack/react-virtual": "3.13.12",
     "adm-zip": "^0.5.16",
     "better-sqlite3": "^12.4.1",
     "drizzle-orm": "^0.44.6",
@@ -86,12 +88,14 @@
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "differentialPackage": false
     },
     "directories": {
       "output": "release"
     },
-    "publish": []
+    "publish": [],
+    "compression": "maximum"
   },
   "description": "Локальное пространство планирования FOCUS OS PRO",
   "author": "FOCUS OS PRO"

@@ -130,7 +130,9 @@ try {
   );
   expect(h.errors).toEqual([]);
   fs.writeFileSync(
-    "docs/reports/obsidian/D/e2e.json",
+    process.env.FOCUS_RECHECK_DIR
+      ? `${process.env.FOCUS_RECHECK_DIR}/lifestyle-e2e.json`
+      : "docs/reports/obsidian/D/e2e.json",
     JSON.stringify(
       { passed: true, checks, platform: process.platform },
       null,

@@ -1,4 +1,5 @@
-import { useState, type HTMLAttributes, type ReactNode } from "react";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useRef, type HTMLAttributes, type ReactNode } from "react";
 import { MotionConfig } from "motion/react";
 import { ArrowUpRight, Mountain, Check } from "lucide-react";
 import { Modal } from "../shared/ui";
@@ -121,7 +122,7 @@ export function NotificationToast({
     </div>
   );
 }
-/** Fixed row height, overscan and native table semantics; only visible rows are mounted. */
+/** Measured variable-height rows, sticky native headers and bounded DOM size. */
 export function DataTable<T>({
   rows,
   columns,
@@ -135,14 +136,22 @@ export function DataTable<T>({
   height?: number;
   rowHeight?: number;
 }) {
-  const [scroll, setScroll] = useState(0);
-  const start = Math.max(0, Math.floor(scroll / rowHeight) - 5);
-  const end = Math.min(rows.length, start + Math.ceil(height / rowHeight) + 12);
+  const parent = useRef<HTMLDivElement>(null);
+  const virtual = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => parent.current,
+    estimateSize: () => rowHeight,
+    getItemKey: (index) => rowKey(rows[index]),
+    overscan: 6,
+  });
+  const items = virtual.getVirtualItems();
+  const top = items[0]?.start ?? 0,
+    bottom = virtual.getTotalSize() - (items.at(-1)?.end ?? 0);
   return (
     <div
+      ref={parent}
       className="obs-data-table"
       style={{ maxHeight: height, overflow: "auto" }}
-      onScroll={(e) => setScroll(e.currentTarget.scrollTop)}
     >
       <table aria-rowcount={rows.length + 1}>
         <thead>
@@ -153,40 +162,88 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody>
-          {start > 0 && (
+          {top > 0 && (
             <tr aria-hidden="true">
               <td
                 colSpan={columns.length}
-                style={{ height: start * rowHeight, padding: 0, border: 0 }}
+                style={{ height: top, padding: 0, border: 0 }}
               />
             </tr>
           )}
-          {rows.slice(start, end).map((row, i) => (
+          {items.map((v) => (
             <tr
-              key={rowKey(row)}
-              aria-rowindex={start + i + 2}
-              style={{ height: rowHeight }}
+              key={v.key}
+              data-index={v.index}
+              ref={virtual.measureElement}
+              aria-rowindex={v.index + 2}
             >
               {columns.map((c, k) => (
-                <td key={k}>{c.render(row)}</td>
+                <td key={k}>{c.render(rows[v.index])}</td>
               ))}
             </tr>
           ))}
-          {end < rows.length && (
+          {bottom > 0 && (
             <tr aria-hidden="true">
               <td
                 colSpan={columns.length}
-                style={{
-                  height: (rows.length - end) * rowHeight,
-                  padding: 0,
-                  border: 0,
-                }}
+                style={{ height: bottom, padding: 0, border: 0 }}
               />
             </tr>
           )}
         </tbody>
       </table>
       {!rows.length && <EmptyState title="Пока нет записей" />}
+    </div>
+  );
+}
+export function VirtualList<T>({
+  rows,
+  rowKey,
+  render,
+}: {
+  rows: T[];
+  rowKey: (row: T) => string;
+  render: (row: T) => ReactNode;
+}) {
+  const parent = useRef<HTMLDivElement>(null);
+  const virtual = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => parent.current,
+    estimateSize: () => 150,
+    getItemKey: (index) => rowKey(rows[index]),
+    overscan: 4,
+  });
+  if (rows.length < 50) return <>{rows.map(render)}</>;
+  return (
+    <div
+      ref={parent}
+      className="obs-virtual-cards"
+      style={{ height: 540, overflow: "auto" }}
+    >
+      <div
+        style={{
+          height: virtual.getTotalSize(),
+          position: "relative",
+          width: "100%",
+        }}
+      >
+        {virtual.getVirtualItems().map((v) => (
+          <div
+            key={v.key}
+            data-index={v.index}
+            ref={virtual.measureElement}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              transform: `translateY(${v.start}px)`,
+            }}
+          >
+            {render(rows[v.index])}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

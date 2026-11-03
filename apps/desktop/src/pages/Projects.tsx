@@ -1,3 +1,4 @@
+import { ProjectCard } from "../design/domain";
 import { ProjectGantt } from "../features/ProjectGantt";
 import { ActivityHistory } from "../design/ActivityHistory";
 import { useState, useEffect } from "react";
@@ -526,7 +527,8 @@ export function Projects({
             const stats = projectStats(s, p),
               stages = s.milestones.filter((m) => m.projectId === p.id);
             return (
-              <section
+              <ProjectCard
+                item={p}
                 key={p.id}
                 className={"project-tile tone-" + (index % 3)}
               >
@@ -584,7 +586,7 @@ export function Projects({
                 >
                   Открыть проект <ArrowUpRight size={14} />
                 </button>
-              </section>
+              </ProjectCard>
             );
           })}
       </div>

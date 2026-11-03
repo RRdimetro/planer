@@ -1,3 +1,4 @@
+import { Timeline, CalendarEvent } from "../design/domain";
 import { calendarLanes, freeWindows } from "../../../../packages/core/calendar";
 import React, { useRef, useState, useEffect } from "react";
 import {
@@ -83,7 +84,7 @@ export function Planner({
     capacity = Number(s.settings.dailyCapacity ?? 360);
   useEffect(() => {
     if (timelineRef.current)
-      timelineRef.current.scrollTop = Math.max(0, (start - 6) * 64 - 24);
+      timelineRef.current.scrollTop = Math.max(0, start * 64 - 24);
   }, [view, start]);
   const days = view === "day" ? [date] : week;
   const monthFirst = date.slice(0, 8) + "01";
@@ -145,7 +146,7 @@ export function Planner({
       category: "personal",
       estimate: 60,
     });
-  const slots = Array.from({ length: 72 }, (_, i) => 360 + i * 15);
+  const slots = Array.from({ length: 96 }, (_, i) => i * 15);
   const duration = (i: Item) =>
     resizeSize?.id === i.id ? resizeSize.value : i.estimate;
   const currentMinutes = () => {
@@ -634,7 +635,7 @@ export function Planner({
                   );
                 })}
               </div>
-              <div className="timeline-scroll" ref={timelineRef}>
+              <Timeline ref={timelineRef}>
                 <div
                   className="timeline-grid"
                   style={{
@@ -642,15 +643,16 @@ export function Planner({
                   }}
                 >
                   <div className="time-ruler">
-                    {Array.from({ length: 18 }, (_, i) => (
+                    {Array.from({ length: 24 }, (_, i) => (
                       <span key={i} style={{ top: i * 64 }}>
-                        {String(i + 6).padStart(2, "0")}:00
+                        {String(i).padStart(2, "0")}:00
                       </span>
                     ))}
                   </div>
                   {days.map((d) => (
                     <div
                       key={d}
+                      data-day={d}
                       className={
                         "timeline-day " + (d === today ? "is-today" : "")
                       }
@@ -664,8 +666,8 @@ export function Planner({
                             Math.min(
                               1425,
                               Math.max(
-                                360,
-                                360 +
+                                0,
+                                0 +
                                   Math.floor((e.clientY - rect.top) / 16) * 15,
                               ),
                             ),
@@ -679,7 +681,7 @@ export function Planner({
                           className={
                             "time-slot " + (t % 60 === 0 ? "hour" : "")
                           }
-                          style={{ top: ((t - 360) * 64) / 60 }}
+                          style={{ top: (t * 64) / 60 }}
                           aria-label={
                             "Создать событие " + d + " " + timeLabel(t)
                           }
@@ -700,12 +702,11 @@ export function Planner({
                             key={c.id}
                             className="blocked-time"
                             style={{
-                              top: ((Math.max(360, c.start) - 360) * 64) / 60,
+                              top: (Math.max(0, c.start) * 64) / 60,
                               height:
                                 (Math.max(
                                   0,
-                                  Math.min(1440, c.end) -
-                                    Math.max(360, c.start),
+                                  Math.min(1440, c.end) - Math.max(0, c.start),
                                 ) *
                                   64) /
                                 60,
@@ -723,11 +724,12 @@ export function Planner({
                           };
                           const a = interval({ ...i, estimate: duration(i) })!;
                           const base = Date.parse(d + "T00:00:00Z") / 60000;
-                          const from = Math.max(360, a.start - base),
+                          const from = Math.max(0, a.start - base),
                             to = Math.min(1440, a.end - base);
                           if (to <= from) return null;
                           return (
-                            <div
+                            <CalendarEvent
+                              item={i}
                               key={i.id}
                               className={
                                 "calendar-event " +
@@ -743,7 +745,7 @@ export function Planner({
                                 left: `calc(${(lane.column * 100) / lane.columns}% + 3px)`,
                                 width: `calc(${100 / lane.columns}% - 6px)`,
                                 right: "auto",
-                                top: ((from - 360) * 64) / 60,
+                                top: (from * 64) / 60,
                                 height: Math.max(
                                   27,
                                   ((to - from) * 64) / 60 - 3,
@@ -846,13 +848,13 @@ export function Planner({
                               >
                                 <GripHorizontal size={13} />
                               </div>
-                            </div>
+                            </CalendarEvent>
                           );
                         })}
-                      {d === today && currentMinutes() >= 360 && (
+                      {d === today && currentMinutes() >= 0 && (
                         <div
                           className="now-line"
-                          style={{ top: ((currentMinutes() - 360) * 64) / 60 }}
+                          style={{ top: (currentMinutes() * 64) / 60 }}
                         >
                           <i />
                         </div>
@@ -860,7 +862,7 @@ export function Planner({
                     </div>
                   ))}
                 </div>
-              </div>
+              </Timeline>
               <div className="unslotted">
                 <span className="muted">Без времени</span>
                 {occupied

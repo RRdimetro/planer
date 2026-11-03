@@ -328,10 +328,11 @@ export interface API {
       id: string;
       at: string;
       action: string;
-      before: Item | null;
-      after: Item | null;
+      before: Pick<Item, "id" | "kind" | "title" | "date" | "status"> | null;
+      after: Pick<Item, "id" | "kind" | "title" | "date" | "status"> | null;
     }[]
   >;
+  revision(id: string): Promise<Item | null>;
   readImage(id: string): Promise<string | null>;
   onCloseRequested(callback: () => Promise<void>): () => void;
   state(): Promise<State>;

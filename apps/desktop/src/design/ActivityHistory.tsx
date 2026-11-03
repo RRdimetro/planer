@@ -40,9 +40,15 @@ export function ActivityHistory({
           {restore && r.after && (
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
                 if (window.confirm("Сохранить эту версию как новое изменение?"))
-                  restore(r.after!);
+                  try {
+                    const item = await window.focusAPI.revision(r.id);
+                    if (item) restore(item);
+                    else setError("Версия записи недоступна");
+                  } catch (e) {
+                    setError(String(e));
+                  }
               }}
             >
               Восстановить версию

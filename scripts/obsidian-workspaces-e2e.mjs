@@ -104,7 +104,9 @@ try {
   expect(ui.errors).toEqual([]);
   checks.push("process restart preserves study edits and new project");
   fs.writeFileSync(
-    "docs/reports/obsidian/C/e2e.json",
+    process.env.FOCUS_RECHECK_DIR
+      ? `${process.env.FOCUS_RECHECK_DIR}/workspaces-e2e.json`
+      : "docs/reports/obsidian/C/e2e.json",
     JSON.stringify(
       {
         passed: true,

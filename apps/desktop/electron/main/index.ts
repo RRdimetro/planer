@@ -1,4 +1,10 @@
 import {
+  automaticBackup,
+  verifiedBackup,
+} from "../../../../packages/database/backup-service";
+import { dueReminders } from "../../../../packages/core/reminders";
+import { SessionClock } from "../../../../packages/core/session-clock";
+import {
   exportStudyExcel,
   importStudyExcel,
 } from "../../../../packages/database/study-excel";
@@ -9,23 +15,21 @@ import {
   dialog,
   Notification,
   shell,
+  powerMonitor,
 } from "electron";
 import path from "node:path";
 import { z } from "zod";
 import { spawn } from "node:child_process";
 import { seedDesignPreview } from "../../../../packages/database/demo";
-import type { State } from "../../../../packages/contracts";
+import type { State, Session, Item } from "../../../../packages/contracts";
 import { designPreview } from "../../../../packages/core/design-preview";
 import { claimPreviewWorkspace } from "../../../../packages/database/preview-workspace";
 import fs from "node:fs";
 import { performance } from "node:perf_hooks";
 import AdmZip from "adm-zip";
-import {
-  backupArchive,
-  restoreArchive,
-} from "../../../../packages/database/backup";
+import { restoreArchive } from "../../../../packages/database/backup";
 import { Store } from "../../../../packages/database";
-import { commandSchema } from "../../../../packages/contracts";
+import { commandSchema, recordSchema } from "../../../../packages/contracts";
 const isDemo =
   process.argv.includes("--focus-demo") || process.env.FOCUS_DEMO === "1";
 const preview = designPreview(
@@ -49,9 +53,19 @@ const marked = (state: State): State => ({
 });
 let store: Store;
 let timer: NodeJS.Timeout;
-let last = performance.now();
-app
-  .whenReady()
+const clock = new SessionClock(performance.now());
+let background: NodeJS.Timeout;
+const hasLock = app.requestSingleInstanceLock();
+if (!hasLock) app.quit();
+app.on("second-instance", () => {
+  const win = BrowserWindow.getAllWindows()[0];
+  if (win) {
+    if (win.isMinimized()) win.restore();
+    win.show();
+    win.focus();
+  }
+});
+(hasLock ? app.whenReady() : new Promise<void>(() => {}))
   .then(() => {
     fs.mkdirSync(app.getPath("userData"), { recursive: true });
     if (preview.homeConcept)
@@ -64,11 +78,12 @@ app
     if (isDemo && !preview.empty) seedDesignPreview(store, "demo");
     if (preview.empty && !store.state().settings.onboarded)
       store.setting("onboarded", true);
+    app.setAppUserModelId("local.focusos.pro");
     const win = new BrowserWindow({
       width: 1440,
       height: 960,
-      minWidth: preview.homeConcept ? 1100 : 1000,
-      minHeight: preview.homeConcept ? 700 : 680,
+      minWidth: 1100,
+      minHeight: 700,
       backgroundColor: "#090F0C",
       title: "FOCUS OS PRO",
       webPreferences: {
@@ -78,6 +93,7 @@ app
         sandbox: true,
       },
     });
+    win.webContents.setZoomFactor(Number(store.state().settings.uiScale ?? 1));
     let closeAllowed = false,
       closing = false;
     let closeTimeout: NodeJS.Timeout | undefined;
@@ -138,7 +154,7 @@ app
       return (
         store.db
           .prepare(
-            "SELECT id,at,action,before_json,after_json FROM entity_changes WHERE entity_id=? OR entity_id IN(SELECT id FROM tasks WHERE project_id=?) ORDER BY at DESC,rowid DESC LIMIT 1000",
+            "SELECT id,at,action,CASE WHEN json_extract(before_json,'$.kind') IS NOT NULL THEN json_object('id',entity_id,'kind',json_extract(before_json,'$.kind'),'title',json_extract(before_json,'$.title'),'date',json_extract(before_json,'$.date'),'status',json_extract(before_json,'$.status')) END before_json,CASE WHEN json_extract(after_json,'$.kind') IS NOT NULL THEN json_object('id',entity_id,'kind',json_extract(after_json,'$.kind'),'title',json_extract(after_json,'$.title'),'date',json_extract(after_json,'$.date'),'status',json_extract(after_json,'$.status')) END after_json FROM entity_changes WHERE entity_id=? OR entity_id IN(SELECT id FROM tasks WHERE project_id=?) ORDER BY at DESC,rowid DESC LIMIT 1000",
           )
           .all(id, id) as {
           id: string;
@@ -154,6 +170,16 @@ app
         before: r.before_json ? JSON.parse(r.before_json) : null,
         after: r.after_json ? JSON.parse(r.after_json) : null,
       }));
+    });
+    ipcMain.handle("focus:revision", (event, input) => {
+      if (event.sender !== win.webContents) throw Error("Доступ запрещён");
+      const id = z.string().uuid().parse(input);
+      const row = store.db
+        .prepare("SELECT after_json FROM entity_changes WHERE id=?")
+        .get(id) as { after_json: string | null } | undefined;
+      if (!row?.after_json) return null;
+      const parsed = recordSchema.safeParse(JSON.parse(row.after_json));
+      return parsed.success ? parsed.data : null;
     });
     ipcMain.handle("focus:image", (event, input) => {
       if (event.sender !== win.webContents) throw Error("Доступ запрещён");
@@ -203,7 +229,19 @@ app
           child.unref();
           return marked(store.state());
         }
-        if (c.type !== "file") return marked(store.command(c));
+        if (c.type !== "file") {
+          if (c.type === "focusAction")
+            advance(clock.elapsed(performance.now()));
+          const next = store.command(c);
+          if (
+            c.type === "focusStart" ||
+            (c.type === "focusAction" && c.action === "resume")
+          )
+            clock.resume(performance.now());
+          if (c.type === "settings" && c.key === "uiScale")
+            win.webContents.setZoomFactor(Number(c.value));
+          return marked(next);
+        }
         if (c.action === "fullscreen") {
           win.setFullScreen(!win.isFullScreen());
           return marked(store.state());
@@ -266,8 +304,10 @@ app
             if (answer.response === 1) {
               const folder = path.join(app.getPath("userData"), "backups");
               fs.mkdirSync(folder, { recursive: true });
-              backupArchive(store, isDemo ? "demo" : "user").writeZip(
+              verifiedBackup(
+                store,
                 path.join(folder, `before-study-import-${Date.now()}.zip`),
+                isDemo ? "demo" : "user",
               );
               store.command({
                 type: "studyWorkbook",
@@ -315,9 +355,7 @@ app
             filters: [{ name: "ZIP", extensions: ["zip"] }],
           });
           if (result.filePath) {
-            backupArchive(store, isDemo ? "demo" : "user").writeZip(
-              result.filePath,
-            );
+            verifiedBackup(store, result.filePath, isDemo ? "demo" : "user");
           }
         }
         if (c.action === "restore") {
@@ -337,9 +375,14 @@ app
               cancelId: 0,
             });
             if (answer.response === 1) {
-              fs.writeFileSync(
-                path.join(app.getPath("userData"), "before-restore.json"),
-                store.dump(true),
+              verifiedBackup(
+                store,
+                path.join(
+                  app.getPath("userData"),
+                  "backups",
+                  `before-restore-${Date.now()}.zip`,
+                ),
+                isDemo ? "demo" : "user",
               );
               restoreArchive(store, zip, isDemo ? "demo" : "user");
             }
@@ -383,6 +426,23 @@ app
               const workspace = JSON.parse(raw).workspace ?? "user";
               if (workspace !== (isDemo ? "demo" : "user"))
                 throw Error("Демо и рабочие данные не смешиваются");
+              const check = new Store(":memory:");
+              try {
+                check.restore(raw);
+                if ((check.db.pragma("foreign_key_check") as unknown[]).length)
+                  throw Error("Нарушены связи импорта");
+              } finally {
+                check.close();
+              }
+              verifiedBackup(
+                store,
+                path.join(
+                  app.getPath("userData"),
+                  "backups",
+                  `before-import-${Date.now()}.zip`,
+                ),
+                isDemo ? "demo" : "user",
+              );
               store.restore(raw);
               store.resetUndo();
             }
@@ -397,24 +457,110 @@ app
         throw e;
       }
     });
-    timer = setInterval(() => {
-      const now = performance.now();
-      const delta = (now - last) / 1000;
-      last = now;
-      const s = store.state().sessions.find((s) => s.state === "running");
-      if (!s || delta > 3) return;
-      s.seconds += delta;
-      if (s.target && s.seconds >= s.target) {
-        s.seconds = s.target;
-        s.state = "done";
-        if (Notification.isSupported())
+    const logError = (error: unknown) =>
+      fs.appendFileSync(
+        path.join(app.getPath("userData"), "errors.log"),
+        `${new Date().toISOString()} ${String(error)}\n`,
+      );
+    const advance = (delta: number) => {
+      if (delta <= 0) return;
+      const active = store
+        .list<Session>("session")
+        .find((x) => x.state === "running");
+      if (!active) return;
+      active.seconds += delta;
+      if (active.target && active.seconds >= active.target) {
+        active.seconds = active.target;
+        active.state = "done";
+        const settings = Object.fromEntries(
+          (
+            store.db.prepare("SELECT key,payload FROM settings").all() as {
+              key: string;
+              payload: string;
+            }[]
+          ).map((s) => [s.key, JSON.parse(s.payload)]),
+        );
+        if (settings.notifications && Notification.isSupported())
           new Notification({
             title: "FOCUS OS PRO",
-            body: "Фокус-сессия завершена. Время отдохнуть.",
+            body:
+              active.kind === "break"
+                ? "Перерыв завершён. Готовы продолжить?"
+                : "Фокус-сессия завершена. Время отдохнуть.",
           }).show();
       }
-      store.put("session", s);
+      store.put("session", active);
+    };
+    clock.resume(performance.now());
+    powerMonitor.on("suspend", () => {
+      try {
+        advance(clock.suspend(performance.now()));
+      } catch (e) {
+        logError(e);
+      }
+    });
+    powerMonitor.on("resume", () => clock.resume(performance.now()));
+    timer = setInterval(() => {
+      try {
+        advance(clock.elapsed(performance.now()));
+      } catch (e) {
+        logError(e);
+      }
     }, 1000);
+    const jobs = () => {
+      try {
+        automaticBackup(
+          store,
+          path.join(app.getPath("userData"), "backups"),
+          isDemo ? "demo" : "user",
+        );
+        const settings = Object.fromEntries(
+          (
+            store.db.prepare("SELECT key,payload FROM settings").all() as {
+              key: string;
+              payload: string;
+            }[]
+          ).map((s) => [s.key, JSON.parse(s.payload)]),
+        );
+        if (!settings.notifications || !Notification.isSupported()) return;
+        const items = [
+          ...store.list<Item>("task"),
+          ...store.list<Item>("workout"),
+        ];
+        const notices = dueReminders(
+          items,
+          String(
+            settings.timezone ??
+              Intl.DateTimeFormat().resolvedOptions().timeZone,
+          ),
+          Number(settings.notificationLead ?? 10),
+        );
+        for (const n of notices)
+          if (
+            !store.db
+              .prepare("SELECT key FROM notification_receipts WHERE key=?")
+              .get(n.key)
+          ) {
+            const notification = new Notification({
+              title: n.title,
+              body: n.body,
+            });
+            notification.on("click", () => {
+              if (win.isMinimized()) win.restore();
+              win.show();
+              win.focus();
+            });
+            notification.show();
+            store.db
+              .prepare("INSERT INTO notification_receipts VALUES(?,?)")
+              .run(n.key, new Date().toISOString());
+          }
+      } catch (e) {
+        logError(e);
+      }
+    };
+    background = setInterval(jobs, 15000);
+    setTimeout(jobs, 3000);
     if (process.env.FOCUS_DEV_URL) win.loadURL(process.env.FOCUS_DEV_URL);
     else win.loadFile(path.join(__dirname, "../dist/index.html"));
   })
@@ -425,5 +571,6 @@ app
 app.on("window-all-closed", () => app.quit());
 app.on("will-quit", () => {
   clearInterval(timer);
+  clearInterval(background);
   store?.close();
 });

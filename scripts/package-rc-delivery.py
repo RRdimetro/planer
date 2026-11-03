@@ -74,14 +74,14 @@ with zipfile.ZipFile(out / f'FOCUS_OS_PRO_{version}_Visual_Tests_100.zip', 'w', 
 commit = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
 (out / 'НАЧАТЬ_ЗДЕСЬ.md').write_text(f'''# FOCUS OS PRO {version} — Release Candidate
 
-Разработка продолжена на существующей кодовой базе, утверждённый Obsidian Command Center B / Forest Noir, все10 разделов. Исходный импорт9/4/54 сохранён. Commit `{commit}`, ветка release/1.0-rc-polish.
+Разработка продолжена на существующей кодовой базе, утверждённый Obsidian Command Center B / Forest Noir, все 10 разделов. Исходный импорт 9/4/54 сохранён. Commit `{commit}`, ветка release/1.0-rc-polish.
 
 - Source.zip — полный исходный код, lockfile, документация, тесты и снимки.
 - Setup_UNTESTED.zip — настоящий NSIS EXE; сначала распакуйте архив.
 - Portable_UNTESTED.zip — настоящий Portable EXE и Open_App.cmd/Open_Demo.cmd, разные SQLite базы.
-- Visual_Tests_100.zip — реальные PNG и index.html для просмотра всех10 страниц: 60 заполненных/пустых,20 диалогов,20 Electron zoom.
+- Visual_Tests_100.zip — реальные PNG и index.html для просмотра всех 10 страниц: 60 заполненных/пустых,20 диалогов,20 Electron zoom.
 - Test_Reports.zip — 66 unit/integration,10 GUI suites, SQLite upgrade/crash/recovery, контраст, производительность и Windows NOT_RUN.
-- Repository_History.zip — полная git-история, необходимая Windows CI для baseline0.2/0.3.
+- Repository_History.zip — полная git-история, необходимая Windows CI для baseline 0.2/0.3.
 - 10 отдельных PNG1920×1080 — основные страницы. Отдельные отчёты и инструкции доступны рядом.
 - SHA256SUMS.txt — ZIP, EXE внутри архивов, отчёты и основные снимки.
 

@@ -4,7 +4,7 @@
 
 Реальное выполнение Windows недоступно. GitHub repo https://github.com/RRdimetro/planer найден, origin настроен; текущая авторизация GitHub invalid/API401, push dry-run требует credentials. Не удалось загрузить ветку или запустить Actions. **Нет CI run/job URL и журналов реального Windows-прогона.** Предоставляется отдельный отчёт NOT_RUN, не поддельный CI log.
 
-Не проверены NSIS install, Portable launch, Windows first run/CRUD/restart, учебный трекер/календарь, minimized timer, ZIP restore, upgrade0.2/0.3, native SQLite runtime, OS notification delivery и native DPI100/125/150. Подготовленные тесты запрещены на Linux, требуют actual installed/portable EXE. Chromium/Electron zoom-снимки не закрывают Windows DPI. CI windows-2022 сам по себе не сертифицирует Windows10/11 и масштаб125/150. Подписи нет, SmartScreen возможен. Windows-кандидаты UNTESTED; Stable gate false.
+Не проверены NSIS install, Portable launch, Windows first run/CRUD/restart, учебный трекер/календарь, minimized timer, ZIP restore, upgrade0.2/0.3, native SQLite runtime, OS notification delivery и native DPI100/125/150. Подготовленные тесты запрещены на Linux, требуют actual installed/portable EXE. Chromium/Electron zoom-снимки не закрывают Windows DPI. CI windows-2022 сам по себе не сертифицирует Windows10/11 и масштаб 125/150. Подписи нет, SmartScreen возможен. Windows-кандидаты UNTESTED; Stable gate false.
 
 ## Остальные границы
 
@@ -12,9 +12,9 @@
 - Исторические сессии учитываются по дню начала; распределение пауз по полуночи/DST не реконструируется из отсутствующих интервалов.
 - Daily использует текущие датированные задачи; Weekly — явно замороженный исходный план. Отсутствующие компоненты исключаются с перенормировкой весов.
 - Произвольные XLS/XLSX не импортируются: только настоящий XLSX по шаблону приложения с предпросмотром. Unknown оценки и статусы не превращаются в нули.
-- События материализуются сериями2–104. Повтор задачи создаёт следующую occurrence после завершения текущей.
+- События материализуются сериями 2–104. Повтор задачи создаёт следующую occurrence после завершения текущей.
 - ZIP restore заменяет всё пространство после подтверждения, выборочного merge двух архивов нет. Demo/user import запрещён в обоих направлениях.
 - OS notifications требуют запущенного приложения. Windows service/tray после закрытия не реализованы.
-- История UI показывает последние100 из1000 загруженных изменений; полный журнал хранится в SQLite и резервных копиях. Вложения ограничены25МБ, локальные изображения10МБ.
+- История UI показывает последние 100 из 1000 загруженных изменений; полный журнал хранится в SQLite и резервных копиях. Вложения ограничены 25 МБ, локальные изображения 10 МБ.
 - Контраст проверен computed text audit и визуальным осмотром, это не независимая WCAG-сертификация. Linux performance с warm filesystem/debug overhead не равен Windows cold-boot benchmark; одиночный замер Tasks467→567ms не объявляется улучшением.
 - Vite предупреждает о размере основного JS chunk и аннотациях зависимости Zod; production build завершается успешно.

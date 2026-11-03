@@ -33,7 +33,9 @@ async function launch() {
     .poll(
       async () => {
         try {
-          return (await globalThis.fetch(`http://127.0.0.1:${port}/json/version`)).ok;
+          return (
+            await globalThis.fetch(`http://127.0.0.1:${port}/json/version`)
+          ).ok;
         } catch {
           return false;
         }
@@ -67,6 +69,9 @@ try {
   await p
     .getByRole("button", { name: "Пустое пространство", exact: true })
     .click();
+  await expect(
+    p.getByRole("heading", { name: "Главная", exact: true }),
+  ).toBeVisible();
   await p.keyboard.press("Control+n");
   await p.getByLabel("Название", { exact: true }).fill("Portable persistence");
   await p.getByLabel("Название", { exact: true }).press("Enter");

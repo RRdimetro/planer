@@ -33,4 +33,3 @@ stdout | tests/performance.test.ts > M5: batch 1000 tasks is atomic and state re
       Tests  59 passed (59)
    Start at  11:31:31
    Duration  19.07s (transform 492ms, setup 0ms, collect 7.92s, tests 5.05s, environment 3ms, prepare 1.25s)
-

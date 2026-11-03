@@ -1,0 +1,20 @@
+  • electron-builder  version=26.18.0 os=6.18.57
+  • loaded configuration  file=package.json ("build" field)
+  • detected workspace root for project using packageManager field  pm=pnpm config=pnpm@10.20.0 resolved=/workspace/focus_os_codex projectDir=/workspace/focus_os_codex
+  • building        target=nsis file=release/obsidian/FOCUS OS PRO Setup 0.3.0.exe archs=x64 oneClick=false perMachine=false
+  • no code signing certificate configured, signing is skipped  path=release/obsidian/FOCUS OS PRO Setup 0.3.0.__uninstaller.exe
+  • no code signing certificate configured, signing is skipped  path=release/obsidian/FOCUS OS PRO Setup 0.3.0.exe
+  • building        target=portable file=release/obsidian/FOCUS OS PRO 0.3.0.exe archs=x64
+  • no code signing certificate configured, signing is skipped  path=release/obsidian/FOCUS OS PRO 0.3.0.exe
+[
+  {
+    file: 'FOCUS_OS_PRO_0.3.0_Setup_UNTESTED.exe',
+    size: 89454807,
+    sha256: 'e58aeeddcf4480ebc4ac9001d92167b043d5e272910261bfbaaea88974e8a36d'
+  },
+  {
+    file: 'FOCUS_OS_PRO_0.3.0_Portable_UNTESTED.exe',
+    size: 89203385,
+    sha256: '7fecbd6c93f2318b45cae7f2a010ddf906619474fba918593d5ca3ed1fd81197'
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "crossBuilt": true,
+  "windowsRuntimeTested": false,
+  "signed": false,
+  "host": "linux",
+  "version": "0.3.0",
+  "electron": "39.8.10",
+  "nativeSQLite": "12.11.1 / Electron ABI 140 / PE x64",
+  "nativeSha256": "c9c931f06eaaef782952eb0ad6502a650c9e6c33e9caf8bec2e5847ec67aceef",
+  "verifiedAsarFiles": 25,
+  "peVersionPatched": true,
+  "uninstallerExtractedWithNativeReader": true,
+  "artifacts": [
+    {
+      "file": "FOCUS_OS_PRO_0.3.0_Setup_UNTESTED.exe",
+      "size": 89454807,
+      "sha256": "e58aeeddcf4480ebc4ac9001d92167b043d5e272910261bfbaaea88974e8a36d"
+    },
+    {
+      "file": "FOCUS_OS_PRO_0.3.0_Portable_UNTESTED.exe",
+      "size": 89203385,
+      "sha256": "7fecbd6c93f2318b45cae7f2a010ddf906619474fba918593d5ca3ed1fd81197"
+    }
+  ]
+}

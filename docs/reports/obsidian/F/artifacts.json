@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "platform": "linux",
+  "windowsRuntimeTested": false,
+  "artifacts": [
+    {
+      "name": "FOCUS_OS_PRO_0.3.0_Setup_UNTESTED.exe",
+      "size": 89454807,
+      "sha256": "e58aeeddcf4480ebc4ac9001d92167b043d5e272910261bfbaaea88974e8a36d",
+      "verifiedEmbeddedFiles": 25,
+      "embeddedVersion": "0.3.0",
+      "nativeSha256": "c9c931f06eaaef782952eb0ad6502a650c9e6c33e9caf8bec2e5847ec67aceef",
+      "sqliteABI": 140,
+      "windowsPE": "AMD64",
+      "embeddedPayloadVerified": true
+    },
+    {
+      "name": "FOCUS_OS_PRO_0.3.0_Portable_UNTESTED.exe",
+      "size": 89203385,
+      "sha256": "7fecbd6c93f2318b45cae7f2a010ddf906619474fba918593d5ca3ed1fd81197",
+      "verifiedEmbeddedFiles": 25,
+      "embeddedVersion": "0.3.0",
+      "nativeSha256": "c9c931f06eaaef782952eb0ad6502a650c9e6c33e9caf8bec2e5847ec67aceef",
+      "sqliteABI": 140,
+      "windowsPE": "AMD64",
+      "embeddedPayloadVerified": true
+    }
+  ]
+}

@@ -106,7 +106,7 @@ try {
     [
       "-NoProfile",
       "-Command",
-      `Add-Type -AssemblyName UIAutomationClient;Add-Type -AssemblyName UIAutomationTypes;$c=New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty,'${body}');$count=0;for($i=0;$i -lt 20;$i++){$count=[System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Descendants,$c).Count;if($count -gt 0){break};Start-Sleep -Milliseconds 250};$count`,
+      `Add-Type -AssemblyName UIAutomationClient;Add-Type -AssemblyName UIAutomationTypes;$c=New-Object System.Windows.Automation.PropertyCondition([System.Windows.Automation.AutomationElement]::NameProperty,'${body}');$count=0;for($i=0;$i -lt 20;$i++){$focusToastNodes=[System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Descendants,$c);$count=@($focusToastNodes | Where-Object {-not $_.Current.IsOffscreen}).Count;if($count -gt 0){break};Start-Sleep -Milliseconds 250};$count`,
     ],
     { encoding: "utf8", timeout: 30000 },
   );

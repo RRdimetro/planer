@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-05",
+  "repository": "RRdimetro/planer",
+  "localBranch": "release/windows-rc1",
+  "sourceCommit": "6e13161",
+  "githubAccount": "RRdimetro",
+  "cliAuthentication": "valid",
+  "repositoryMetadata": "readable; owner permissions include push",
+  "gitTransport": {
+    "command": "git ls-remote --heads origin",
+    "status": 403,
+    "message": "Permission to RRdimetro/planer.git denied to RRdimetro"
+  },
+  "pushDryRun": "not_executed: preceding read failed",
+  "push": "not_executed",
+  "actionsPermissions": {
+    "status": 403,
+    "message": "Resource not accessible by integration"
+  },
+  "visibleInstallations": [
+    {
+      "account": "IU5-TOPIT-Prog",
+      "repositorySelection": "selected"
+    }
+  ],
+  "remoteBranches": [],
+  "actionsRuns": {
+    "totalCount": 0,
+    "runUrls": []
+  },
+  "windowsChecks": {
+    "nsisInstall": "not_run",
+    "portable": "not_run",
+    "nativeSQLite": "not_run",
+    "upgrade020": "not_run",
+    "upgrade030": "not_run",
+    "taskCRUD": "not_run",
+    "restartPersistence": "not_run",
+    "study": "not_run",
+    "fitness": "not_run",
+    "calendar": "not_run",
+    "timer": "not_run",
+    "backupRestore": "not_run",
+    "tenPagesObsidianB": "not_run",
+    "osNotifications": "not_run",
+    "nativeDPI100": "not_run",
+    "nativeDPI125": "not_run",
+    "nativeDPI150": "not_run"
+  },
+  "stableAccepted": false,
+  "workingDatabaseOpened": false,
+  "applicationChanged": false,
+  "authorizationBypassAttempted": false
+}

@@ -1,0 +1,427 @@
+windows	Set up job	﻿2026-11-05T07:59:47.8382031Z Current runner version: '2.338.2'
+windows	Set up job	2026-11-05T07:59:47.8564843Z ##[group]Runner Image Provisioner
+windows	Set up job	2026-11-05T07:59:47.8565967Z Hosted Compute Agent
+windows	Set up job	2026-11-05T07:59:47.8566702Z Version: 20261028.624
+windows	Set up job	2026-11-05T07:59:47.8567626Z Commit: 54898b74c23fde5556c9b3c3a2290865feef0dfe
+windows	Set up job	2026-11-05T07:59:47.8568583Z Build Date: 2026-10-28T21:51:42Z
+windows	Set up job	2026-11-05T07:59:47.8569565Z Worker ID: {b90836ea-e55f-4402-ab6d-0a2f92dbda90}
+windows	Set up job	2026-11-05T07:59:47.8570647Z Region: westcentralus
+windows	Set up job	2026-11-05T07:59:47.8571419Z Cloud: Azure
+windows	Set up job	2026-11-05T07:59:47.8573885Z ##[endgroup]
+windows	Set up job	2026-11-05T07:59:47.8575723Z ##[group]Operating System
+windows	Set up job	2026-11-05T07:59:47.8576576Z Microsoft Windows Server 2022
+windows	Set up job	2026-11-05T07:59:47.8577400Z 10.0.20348
+windows	Set up job	2026-11-05T07:59:47.8578072Z Datacenter
+windows	Set up job	2026-11-05T07:59:47.8578799Z ##[endgroup]
+windows	Set up job	2026-11-05T07:59:47.8579501Z ##[group]Runner Image
+windows	Set up job	2026-11-05T07:59:47.8580258Z Image: windows-2022
+windows	Set up job	2026-11-05T07:59:47.8581038Z Version: 20261101.353.1
+windows	Set up job	2026-11-05T07:59:47.8582566Z Included Software: https://github.com/actions/runner-images/blob/win22/20261101.353/images/windows/Windows2022-Readme.md
+windows	Set up job	2026-11-05T07:59:47.8585374Z Image Release: https://github.com/actions/runner-images/releases/tag/win22%2F20261101.353
+windows	Set up job	2026-11-05T07:59:47.8586691Z ##[endgroup]
+windows	Set up job	2026-11-05T07:59:47.8588253Z ##[group]GITHUB_TOKEN Permissions
+windows	Set up job	2026-11-05T07:59:47.8590754Z Contents: read
+windows	Set up job	2026-11-05T07:59:47.8591521Z Metadata: read
+windows	Set up job	2026-11-05T07:59:47.8592969Z Packages: read
+windows	Set up job	2026-11-05T07:59:47.8593772Z ##[endgroup]
+windows	Set up job	2026-11-05T07:59:47.8596728Z Secret source: Actions
+windows	Set up job	2026-11-05T07:59:47.8597991Z Cache mode: write
+windows	Set up job	2026-11-05T07:59:47.8599006Z Prepare workflow directory
+windows	Set up job	2026-11-05T07:59:47.9131919Z Prepare all required actions
+windows	Set up job	2026-11-05T07:59:47.9200557Z Getting action download info
+windows	Set up job	2026-11-05T07:59:48.2748281Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+windows	Set up job	2026-11-05T07:59:48.4177956Z Download action repository 'actions/setup-node@v4' (SHA:49933ea5288caeca8642d1e84afbd3f7d6820020)
+windows	Set up job	2026-11-05T07:59:48.5891837Z Download action repository 'pnpm/action-setup@v4' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+windows	Set up job	2026-11-05T07:59:49.2211431Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+windows	Set up job	2026-11-05T07:59:49.5499777Z Complete job name: windows
+windows	Run actions/checkout@v4	﻿2026-11-05T07:59:49.7613047Z ##[group]Run actions/checkout@v4
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7614456Z with:
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7614929Z   fetch-depth: 0
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7615469Z   repository: RRdimetro/planer
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7621894Z   token: ***
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7622371Z   ssh-strict: true
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7622901Z   ssh-user: git
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7623411Z   persist-credentials: true
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7623986Z   clean: true
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7624508Z   sparse-checkout-cone-mode: true
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7625171Z   fetch-tags: false
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7625723Z   show-progress: true
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7626230Z   lfs: false
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7626703Z   submodules: false
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7627277Z   set-safe-directory: true
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7627891Z   allow-unsafe-pr-checkout: false
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7628748Z env:
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7629216Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run actions/checkout@v4	2026-11-05T07:59:49.7629843Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.0986668Z Syncing repository: RRdimetro/planer
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.0989206Z ##[group]Getting Git version info
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.0990055Z Working directory is 'D:\a\planer\planer'
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.2529806Z [command]"C:\Program Files\Git\bin\git.exe" version
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7132484Z git version 2.56.0.windows.4
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7173854Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7191852Z Temporarily overriding HOME='D:\a\_temp\72ddd8bf-6483-4ea1-8e43-3a80020ad3eb' before making global git config changes
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7193707Z Adding repository directory to the temporary git global config as a safe directory
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7202358Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\planer\planer
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7896326Z Deleting the contents of 'D:\a\planer\planer'
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7902187Z ##[group]Initializing the repository
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.7911880Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\planer\planer
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.8889202Z Initialized empty Git repository in D:/a/planer/planer/.git/
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.8930825Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/RRdimetro/planer
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.9644205Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.9646870Z ##[group]Disabling automatic garbage collection
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.9651842Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.9953287Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.9955310Z ##[group]Setting up auth
+windows	Run actions/checkout@v4	2026-11-05T07:59:50.9964481Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+windows	Run actions/checkout@v4	2026-11-05T07:59:51.0347562Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+windows	Run actions/checkout@v4	2026-11-05T07:59:52.8722600Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+windows	Run actions/checkout@v4	2026-11-05T07:59:52.9024911Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+windows	Run actions/checkout@v4	2026-11-05T07:59:53.3496757Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+windows	Run actions/checkout@v4	2026-11-05T07:59:53.3799004Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+windows	Run actions/checkout@v4	2026-11-05T07:59:53.8536737Z [command]"C:\Program Files\Git\bin\git.exe" config --local http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+windows	Run actions/checkout@v4	2026-11-05T07:59:53.8837151Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:53.8837961Z ##[group]Fetching the repository
+windows	Run actions/checkout@v4	2026-11-05T07:59:53.8849921Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --prune --no-recurse-submodules origin +refs/heads/*:refs/remotes/origin/* +refs/tags/*:refs/tags/*
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.3190846Z From https://github.com/RRdimetro/planer
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.3192650Z  * [new branch]      release/windows-rc1 -> origin/release/windows-rc1
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.3239554Z [command]"C:\Program Files\Git\bin\git.exe" branch --list --remote origin/release/windows-rc1
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.3565222Z   origin/release/windows-rc1
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.3601796Z [command]"C:\Program Files\Git\bin\git.exe" rev-parse refs/remotes/origin/release/windows-rc1
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.3987877Z 19c2edfe0b1d8d1f11fd9667150a3b436f7c37d1
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.4014773Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.4015377Z ##[group]Determining the checkout info
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.4016905Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.4025496Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.4455593Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.4738292Z ##[group]Checking out the ref
+windows	Run actions/checkout@v4	2026-11-05T07:59:56.4746571Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force -B release/windows-rc1 refs/remotes/origin/release/windows-rc1
+windows	Run actions/checkout@v4	2026-11-05T07:59:57.2962775Z Switched to a new branch 'release/windows-rc1'
+windows	Run actions/checkout@v4	2026-11-05T07:59:57.2978233Z branch 'release/windows-rc1' set up to track 'origin/release/windows-rc1'.
+windows	Run actions/checkout@v4	2026-11-05T07:59:57.3072287Z ##[endgroup]
+windows	Run actions/checkout@v4	2026-11-05T07:59:57.3458555Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+windows	Run actions/checkout@v4	2026-11-05T07:59:57.3721274Z 19c2edfe0b1d8d1f11fd9667150a3b436f7c37d1
+windows	Run actions/setup-node@v4	﻿2026-11-05T07:59:57.4174101Z ##[group]Run actions/setup-node@v4
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4174500Z with:
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4174713Z   node-version: 22.18.0
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4175755Z   always-auth: false
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4175990Z   check-latest: false
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4178518Z   token: ***
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4178698Z env:
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4178887Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.4179133Z ##[endgroup]
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.5704410Z Attempting to download 22.18.0...
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.5869166Z (node:6244) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+windows	Run actions/setup-node@v4	2026-11-05T07:59:57.5869943Z (Use `node --trace-deprecation ...` to show where the warning was created)
+windows	Run actions/setup-node@v4	2026-11-05T07:59:58.5037124Z Acquiring 22.18.0 - x64 from https://github.com/actions/node-versions/releases/download/22.18.0-16666198358/node-22.18.0-win32-x64.7z
+windows	Run actions/setup-node@v4	2026-11-05T07:59:59.0391024Z Extracting ...
+windows	Run actions/setup-node@v4	2026-11-05T08:00:00.9095388Z Adding to the cache ...
+windows	Run actions/setup-node@v4	2026-11-05T08:00:06.5936264Z ##[group]Environment details
+windows	Run actions/setup-node@v4	2026-11-05T08:00:08.3051480Z node: v22.18.0
+windows	Run actions/setup-node@v4	2026-11-05T08:00:08.3051784Z npm: 10.9.3
+windows	Run actions/setup-node@v4	2026-11-05T08:00:08.3052025Z yarn: 1.22.22
+windows	Run actions/setup-node@v4	2026-11-05T08:00:08.3052515Z ##[endgroup]
+windows	Run pnpm/action-setup@v4	﻿2026-11-05T08:00:08.3338698Z ##[group]Run pnpm/action-setup@v4
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3339038Z with:
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3339288Z   version: 10.20.0
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3339489Z   dest: ~/setup-pnpm
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3339689Z   run_install: null
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3339875Z   cache: false
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3340079Z   cache_dependency_path: pnpm-lock.yaml
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3340348Z   package_json_file: package.json
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3340579Z   standalone: false
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3340778Z env:
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3340970Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.3341198Z ##[endgroup]
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.5080628Z ##[group]Running self-installer...
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.9451857Z (node:1676) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:08.9453150Z (Use `node --trace-deprecation ...` to show where the warning was created)
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:09.1610044Z Progress: resolved 1, reused 0, downloaded 0, added 0
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:09.1704990Z Packages: +1
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:09.1705416Z +
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:12.1645287Z Progress: resolved 1, reused 0, downloaded 1, added 0
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.2868925Z Progress: resolved 1, reused 0, downloaded 1, added 1
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.2870667Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.3535290Z 
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.3536179Z dependencies:
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.3536628Z + pnpm 10.20.0 (12.16.1 is available)
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.3536879Z 
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.3679645Z Done in 7.6s
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.3876103Z ##[endgroup]
+windows	Run pnpm/action-setup@v4	2026-11-05T08:00:16.3876644Z Installation Completed!
+windows	Run pnpm install --frozen-lockfile	﻿2026-11-05T08:00:16.4150412Z ##[group]Run pnpm install --frozen-lockfile
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:16.4150977Z [36;1mpnpm install --frozen-lockfile[0m
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:16.4431387Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:16.4431851Z env:
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:16.4432061Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:16.4432449Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:16.4432817Z ##[endgroup]
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:17.4560101Z Lockfile is up to date, resolution step is skipped
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:17.5193412Z Progress: resolved 1, reused 0, downloaded 0, added 0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:17.6251574Z Packages: +758
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:17.6252247Z ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:18.5209410Z Progress: resolved 758, reused 0, downloaded 28, added 5
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:19.5246162Z Progress: resolved 758, reused 0, downloaded 124, added 44
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:20.5282510Z Progress: resolved 758, reused 0, downloaded 244, added 94
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:21.5283636Z Progress: resolved 758, reused 0, downloaded 328, added 133
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:22.5279203Z Progress: resolved 758, reused 0, downloaded 363, added 146
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:23.5302113Z Progress: resolved 758, reused 0, downloaded 482, added 214
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:24.5331975Z Progress: resolved 758, reused 0, downloaded 613, added 272
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:25.5350346Z Progress: resolved 758, reused 0, downloaded 721, added 330
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:26.5373288Z Progress: resolved 758, reused 0, downloaded 758, added 507
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:27.2193123Z Progress: resolved 758, reused 0, downloaded 758, added 758, done
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:27.9392471Z .../node_modules/electron postinstall$ node install.js
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:27.9408620Z .../node_modules/better-sqlite3 install$ prebuild-install || node-gyp rebuild --release
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:27.9545028Z .../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:27.9562548Z .../esbuild@0.25.12/node_modules/esbuild postinstall$ node install.js
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:28.2355265Z .../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:28.2384377Z .../esbuild@0.25.12/node_modules/esbuild postinstall: Done
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:28.5410279Z .../node_modules/better-sqlite3 install: Done
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:33.1532927Z .../node_modules/electron postinstall: Done
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1105394Z 
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1105977Z dependencies:
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1106392Z + @hookform/resolvers 5.9.2
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1106880Z + @radix-ui/react-dialog 1.3.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1107290Z + @tanstack/react-query 5.105.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1107644Z + @tanstack/react-virtual 3.13.12
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1107966Z + adm-zip 0.5.18
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1108254Z + better-sqlite3 12.11.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1108731Z + drizzle-orm 0.44.7
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1109076Z + exceljs 4.4.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1109367Z + lucide-react 0.548.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1109661Z + motion 12.43.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1109934Z + react 19.3.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1110172Z + react-dom 19.3.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1110389Z + react-hook-form 7.91.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1110643Z + react-markdown 10.1.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1110889Z + recharts 3.10.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1111076Z + zod 4.6.7
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1111268Z + zustand 5.0.16
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1111389Z 
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1111470Z devDependencies:
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1111668Z + @eslint/js 9.39.5
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1111886Z + @playwright/test 1.64.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1112140Z + @tailwindcss/vite 4.1.16
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1112408Z + @types/adm-zip 0.5.8
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1112887Z + @types/better-sqlite3 7.6.13
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1113728Z + @types/node 22.20.5
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1114098Z + @types/react 19.3.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1114338Z + @types/react-dom 19.3.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1114704Z + @vitejs/plugin-react 5.2.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1114953Z + electron 39.8.10
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1115173Z + electron-builder 26.18.0
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1115407Z + esbuild 0.25.12
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1117721Z + eslint 9.39.5
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1118058Z + prettier 3.9.10
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1118699Z + tailwindcss 4.3.3
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1119995Z + typescript 5.9.3
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1120305Z + typescript-eslint 8.72.1
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1120521Z + vite 7.3.7
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1120699Z + vitest 3.2.7
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1120814Z 
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1121363Z ╭ Warning ─────────────────────────────────────────────────────────────────────╮
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1121893Z │                                                                              │
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1122448Z │   Ignored build scripts: electron-winstaller.                                │
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1123089Z │   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1123716Z │   to run scripts.                                                            │
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1127620Z │                                                                              │
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1131122Z ╰──────────────────────────────────────────────────────────────────────────────╯
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1132045Z 
+windows	Run pnpm install --frozen-lockfile	2026-11-05T08:00:34.1518149Z Done in 17.3s using pnpm v10.20.0
+windows	Run pnpm run rebuild	﻿2026-11-05T08:00:34.3040415Z ##[group]Run pnpm run rebuild
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.3040768Z [36;1mpnpm run rebuild[0m
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.3076730Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.3077065Z env:
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.3077257Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.3077580Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.3077891Z ##[endgroup]
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.9151652Z 
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.9152733Z > focus-os-pro@1.0.0-rc.1 rebuild D:\a\planer\planer
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.9153176Z > electron-builder install-app-deps
+windows	Run pnpm run rebuild	2026-11-05T08:00:34.9153364Z 
+windows	Run pnpm run rebuild	2026-11-05T08:00:35.7250229Z   • electron-builder  version=26.18.0
+windows	Run pnpm run rebuild	2026-11-05T08:00:35.7267771Z   • loaded configuration  file=package.json ("build" field)
+windows	Run pnpm run rebuild	2026-11-05T08:00:35.7297704Z   • detected workspace root for project using packageManager field  pm=pnpm config=pnpm@10.20.0 resolved=D:\a\planer\planer projectDir=D:\a\planer\planer
+windows	Run pnpm run rebuild	2026-11-05T08:00:35.7307226Z   • executing @electron/rebuild  electronVersion=39.8.10 arch=x64 buildFromSource=false workspaceRoot=D:\a\planer\planer projectDir=./ appDir=./
+windows	Run pnpm run rebuild	2026-11-05T08:00:35.7308650Z   • installing native dependencies  arch=x64
+windows	Run pnpm run rebuild	2026-11-05T08:00:36.0380723Z   • preparing       moduleName=better-sqlite3 arch=x64
+windows	Run pnpm run rebuild	2026-11-05T08:00:36.6624999Z   • finished        moduleName=better-sqlite3 arch=x64
+windows	Run pnpm run rebuild	2026-11-05T08:00:36.6626299Z   • completed installing native dependencies
+windows	Run pnpm typecheck	﻿2026-11-05T08:00:36.8189647Z ##[group]Run pnpm typecheck
+windows	Run pnpm typecheck	2026-11-05T08:00:36.8189999Z [36;1mpnpm typecheck[0m
+windows	Run pnpm typecheck	2026-11-05T08:00:36.8226173Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Run pnpm typecheck	2026-11-05T08:00:36.8226505Z env:
+windows	Run pnpm typecheck	2026-11-05T08:00:36.8226696Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run pnpm typecheck	2026-11-05T08:00:36.8227030Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+windows	Run pnpm typecheck	2026-11-05T08:00:36.8227355Z ##[endgroup]
+windows	Run pnpm typecheck	2026-11-05T08:00:37.4082261Z 
+windows	Run pnpm typecheck	2026-11-05T08:00:37.4082796Z > focus-os-pro@1.0.0-rc.1 typecheck D:\a\planer\planer
+windows	Run pnpm typecheck	2026-11-05T08:00:37.4083383Z > tsc --noEmit
+windows	Run pnpm typecheck	2026-11-05T08:00:37.4083575Z 
+windows	Run pnpm lint	﻿2026-11-05T08:00:44.8379149Z ##[group]Run pnpm lint
+windows	Run pnpm lint	2026-11-05T08:00:44.8379474Z [36;1mpnpm lint[0m
+windows	Run pnpm lint	2026-11-05T08:00:44.8415254Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Run pnpm lint	2026-11-05T08:00:44.8415595Z env:
+windows	Run pnpm lint	2026-11-05T08:00:44.8415789Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run pnpm lint	2026-11-05T08:00:44.8416118Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+windows	Run pnpm lint	2026-11-05T08:00:44.8416427Z ##[endgroup]
+windows	Run pnpm lint	2026-11-05T08:00:45.4020207Z 
+windows	Run pnpm lint	2026-11-05T08:00:45.4020881Z > focus-os-pro@1.0.0-rc.1 lint D:\a\planer\planer
+windows	Run pnpm lint	2026-11-05T08:00:45.4021242Z > eslint .
+windows	Run pnpm lint	2026-11-05T08:00:45.4021355Z 
+windows	Run pnpm test	﻿2026-11-05T08:00:52.0435648Z ##[group]Run pnpm test
+windows	Run pnpm test	2026-11-05T08:00:52.0436010Z [36;1mpnpm test[0m
+windows	Run pnpm test	2026-11-05T08:00:52.0475622Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Run pnpm test	2026-11-05T08:00:52.0476029Z env:
+windows	Run pnpm test	2026-11-05T08:00:52.0476238Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run pnpm test	2026-11-05T08:00:52.0476638Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+windows	Run pnpm test	2026-11-05T08:00:52.0477003Z ##[endgroup]
+windows	Run pnpm test	2026-11-05T08:00:52.6184737Z 
+windows	Run pnpm test	2026-11-05T08:00:52.6185408Z > focus-os-pro@1.0.0-rc.1 test D:\a\planer\planer
+windows	Run pnpm test	2026-11-05T08:00:52.6185822Z > node scripts/test.mjs
+windows	Run pnpm test	2026-11-05T08:00:52.6185974Z 
+windows	Run pnpm test	2026-11-05T08:00:53.6203911Z 
+windows	Run pnpm test	2026-11-05T08:00:53.6207355Z [1m[46m RUN [49m[22m [36mv3.2.7 [39m[90mD:/a/planer/planer[39m
+windows	Run pnpm test	2026-11-05T08:00:53.6207865Z 
+windows	Run pnpm test	2026-11-05T08:00:55.0373255Z  [32m✓[39m tests/planning-v2.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 247[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:55.3452853Z  [32m✓[39m tests/obsidian-core.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 537[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:55.3454927Z    [33m[2m✓[22m[39m v3 to current is preflighted on a recoverable copy and preserves all 54 source cells [33m 348[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:56.3847769Z  [32m✓[39m tests/rc-calculations.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 82[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:56.6632551Z  [32m✓[39m tests/obsidian-desktop.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 1857[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:56.6634714Z    [33m[2m✓[22m[39m compact audit scales per changed entity, undo retains versions and attachments, ZIP keeps all history [33m 1466[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:58.0043164Z  [32m✓[39m tests/migration-v2.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 662[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:58.0046187Z    [33m[2m✓[22m[39m v1 → v2 copy preflight preserves every legacy record, settings, study statuses, history and recoverable original [33m 464[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:58.3846186Z  [32m✓[39m tests/demo-isolation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 2349[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:58.3862534Z    [33m[2m✓[22m[39m design preview populates only a distinct database, is labelled at main boundary and never overwrites existing demo edits [33m 617[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:58.3865871Z    [33m[2m✓[22m[39m three concept databases persist independently and leave the closed user database byte-identical [33m 1451[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:58.5076373Z  [32m✓[39m tests/obsidian-study.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 447[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:59.2129798Z  [32m✓[39m tests/fitness-v020.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 142[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:59.7825225Z  [32m✓[39m tests/obsidian-insights.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 145[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:00:59.9254832Z  [32m✓[39m tests/study.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 392[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:00.5956955Z  [32m✓[39m tests/forest-v4.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 303[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:00.9636101Z  [32m✓[39m tests/analytics.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 133[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:01.2325610Z  [32m✓[39m tests/obsidian-knowledge.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 180[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:01.5297689Z  [32m✓[39m tests/planner-rules.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:01.9938135Z  [32m✓[39m tests/domain.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 324[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:01.9939864Z    [33m[2m✓[22m[39m M1: persisted task identity, soft deletion, undo, immutable snapshot [33m 307[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:02.7583891Z  [31m❯[39m tests/rc-crash-recovery.test.ts [2m([22m[2m1 test[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 435[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:02.7591354Z [31m   [31m×[31m RC: actual process death during a spilled uncommitted WAL transaction preserves the last committed rows[39m[33m 434[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:02.7595918Z [31m     → ENOENT: no such file or directory, open 'D:\a\planer\planer\release\rc-crash-worker.cjs'[39m
+windows	Run pnpm test	2026-11-05T08:01:02.7976453Z  [32m✓[39m tests/backup.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 168[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:03.1984153Z  [32m✓[39m tests/security.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 121[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:03.9668327Z  [32m✓[39m tests/schedule-apply.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 105[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:03.9927972Z  [32m✓[39m tests/modules.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 132[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:04.3480381Z  [32m✓[39m tests/normalized.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 91[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:05.1076877Z  [32m✓[39m tests/foundation.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 47[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:05.7946344Z [90mstdout[2m | tests/performance.test.ts[2m > [22m[2mM5: batch 1000 tasks is atomic and state remains responsive
+windows	Run pnpm test	2026-11-05T08:01:05.7948163Z [22m[39m1000 tasks batch/read ms: [33m429[39m
+windows	Run pnpm test	2026-11-05T08:01:05.7948542Z 
+windows	Run pnpm test	2026-11-05T08:01:05.7960118Z  [32m✓[39m tests/performance.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 809[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:05.7961933Z    [33m[2m✓[22m[39m M5: batch 1000 tasks is atomic and state remains responsive [33m 808[2mms[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:05.8259096Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8261012Z [31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+windows	Run pnpm test	2026-11-05T08:01:05.8261690Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8263193Z [41m[1m FAIL [22m[49m tests/rc-crash-recovery.test.ts[2m > [22mRC: actual process death during a spilled uncommitted WAL transaction preserves the last committed rows
+windows	Run pnpm test	2026-11-05T08:01:05.8277755Z [31m[1mError[22m: ENOENT: no such file or directory, open 'D:\a\planer\planer\release\rc-crash-worker.cjs'[39m
+windows	Run pnpm test	2026-11-05T08:01:05.8279185Z [36m [2m❯[22m tests/rc-crash-recovery.test.ts:[2m28:5[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:05.8304621Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8304795Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8307044Z [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+windows	Run pnpm test	2026-11-05T08:01:05.8307487Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8308957Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8316348Z [2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m22 passed[39m[22m[90m (23)[39m
+windows	Run pnpm test	2026-11-05T08:01:05.8317654Z [2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m65 passed[39m[22m[90m (66)[39m
+windows	Run pnpm test	2026-11-05T08:01:05.8318676Z [2m   Start at [22m 08:00:53
+windows	Run pnpm test	2026-11-05T08:01:05.8319926Z [2m   Duration [22m 12.20s[2m (transform 484ms, setup 0ms, collect 14.79s, tests 9.72s, environment 4ms, prepare 2.84s)[22m
+windows	Run pnpm test	2026-11-05T08:01:05.8321116Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8338156Z 
+windows	Run pnpm test	2026-11-05T08:01:05.8376088Z ##[error]Error: ENOENT: no such file or directory, open 'D:\a\planer\planer\release\rc-crash-worker.cjs'
+windows	Run pnpm test	 ❯ tests/rc-crash-recovery.test.ts:28:5
+windows	Run pnpm test	
+windows	Run pnpm test	⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+windows	Run pnpm test	Serialized Error: { errno: -4058, code: 'ENOENT', syscall: 'open', path: 'D:\a\planer\planer\release\rc-crash-worker.cjs' }
+windows	Run pnpm test	
+windows	Run pnpm test	2026-11-05T08:01:06.0981457Z  ELIFECYCLE  Test failed. See above for more details.
+windows	Run pnpm test	2026-11-05T08:01:06.7292435Z ##[error]Process completed with exit code 1.
+windows	Run node scripts/rc-acceptance-gate.mjs	﻿2026-11-05T08:01:06.7458048Z ##[group]Run node scripts/rc-acceptance-gate.mjs
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:06.7458573Z [36;1mnode scripts/rc-acceptance-gate.mjs[0m
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:06.7496644Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:06.7497050Z env:
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:06.7497253Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:06.7497635Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:06.7498000Z ##[endgroup]
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0527341Z {
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0527803Z   version: '1.0.0-rc.1',
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0528233Z   stableAccepted: false,
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0528592Z   checks: {
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0528900Z     'upgrade0.2.0': false,
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0529261Z     'upgrade0.3.0': false,
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0529612Z     portable: false,
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0529940Z     nativeDPI1: false,
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0530289Z     'nativeDPI1.25': false,
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0530648Z     'nativeDPI1.5': false
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0531021Z   },
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0531353Z   missing: [
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0531658Z     'upgrade0.2.0',
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0531977Z     'upgrade0.3.0',
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0532287Z     'portable',
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0532585Z     'nativeDPI1',
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0532901Z     'nativeDPI1.25',
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0533215Z     'nativeDPI1.5'
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0533511Z   ],
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0534459Z   method: 'requires actual Windows install/upgrade/portable and native DPI/UIAutomation toast evidence, not Linux or Chromium zoom'
+windows	Run node scripts/rc-acceptance-gate.mjs	2026-11-05T08:01:07.0535403Z }
+windows	Run actions/upload-artifact@v4	﻿2026-11-05T08:01:07.2141034Z ##[group]Run actions/upload-artifact@v4
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2141426Z with:
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2141639Z   name: FOCUS-OS-PRO-Windows-results
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2142195Z   path: release/*.exe
+windows	Run actions/upload-artifact@v4	docs/reports/obsidian/
+windows	Run actions/upload-artifact@v4	docs/reports/1.0-rc/
+windows	Run actions/upload-artifact@v4	docs/screenshots/obsidian/F/
+windows	Run actions/upload-artifact@v4	docs/screenshots/1.0-rc/
+windows	Run actions/upload-artifact@v4	
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2142738Z   if-no-files-found: warn
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2143183Z   compression-level: 6
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2143392Z   overwrite: false
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2143595Z   include-hidden-files: false
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2143818Z env:
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2144002Z   CSC_IDENTITY_AUTO_DISCOVERY: false
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2144324Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.2144636Z ##[endgroup]
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.4312339Z (node:2760) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.4313648Z (Use `node --trace-deprecation ...` to show where the warning was created)
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.5577128Z Multiple search paths detected. Calculating the least common ancestor of all paths
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.5580781Z The least common ancestor is D:\a\planer\planer. This will be the root directory of the artifact
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.5581840Z With the provided path, there will be 332 files uploaded
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.5587254Z Artifact name is valid!
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.5589498Z Root directory input is valid!
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:07.8992104Z Beginning upload of artifact content to blob storage
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:08.3698280Z (node:2760) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:09.2999161Z Uploaded bytes 8388608
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:09.4212823Z Uploaded bytes 16777216
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:09.7096248Z Uploaded bytes 25165824
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:09.9414775Z Uploaded bytes 33554432
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:10.0791407Z Uploaded bytes 36656708
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:10.1346701Z Finished uploading artifact content to blob storage!
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:10.1347855Z SHA256 digest of uploaded artifact zip is d4ff3c505e8f1ecf33312d48939cee3dc41ea266ebdf42398c8f2b6fd660d9a4
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:10.1349739Z Finalizing artifact upload
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:10.6717557Z Artifact FOCUS-OS-PRO-Windows-results.zip successfully finalized. Artifact ID 13398027262
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:10.6718702Z Artifact FOCUS-OS-PRO-Windows-results has been successfully uploaded! Final size is 36656708 bytes. Artifact ID is 13398027262
+windows	Run actions/upload-artifact@v4	2026-11-05T08:01:10.6726997Z Artifact download URL: https://github.com/RRdimetro/planer/actions/runs/41991121523/artifacts/13398027262
+windows	Post Run pnpm/action-setup@v4	﻿2026-11-05T08:01:10.7063061Z Post job cleanup.
+windows	Post Run pnpm/action-setup@v4	2026-11-05T08:01:10.8783863Z Pruning is unnecessary.
+windows	Post Run actions/checkout@v4	﻿2026-11-05T08:01:10.9052514Z Post job cleanup.
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.0866376Z [command]"C:\Program Files\Git\bin\git.exe" version
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.1158289Z git version 2.56.0.windows.4
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.1219560Z Temporarily overriding HOME='D:\a\_temp\43888a9d-fd8e-4fd6-80d1-9a582b49d4bc' before making global git config changes
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.1220391Z Adding repository directory to the temporary git global config as a safe directory
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.1231028Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\planer\planer
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.1562062Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.1916631Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.7142649Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.7423702Z http.https://github.com/.extraheader
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.7467381Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all http.https://github.com/.extraheader
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:11.7790989Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:12.3389651Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+windows	Post Run actions/checkout@v4	2026-11-05T08:01:12.3706821Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+windows	Complete job	﻿2026-11-05T08:01:12.9205276Z Cleaning up orphan processes
+windows	Complete job	2026-11-05T08:01:12.9618482Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-node@v4, actions/upload-artifact@v4, pnpm/action-setup@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "platform": "win32",
+  "os": "10.0.20348",
+  "version": "1.0.0-rc.1",
+  "executable": "D:\\a\\planer\\planer\\release\\FOCUS OS PRO 1.0.0-rc.1.exe",
+  "checks": [
+    "actual portable self-extraction/launch",
+    "empty first run",
+    "task create/native SQLite",
+    "graceful close and restart persistence"
+  ]
+}

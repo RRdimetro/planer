@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "platform": "win32",
+  "os": "10.0.20348",
+  "installedExecutable": "C:\\Users\\RUNNER~1\\AppData\\Local\\Temp\\focus-rc-upgrade-qFR2M7\\app\\FOCUS OS PRO.exe",
+  "baselineVersion": "0.3.0",
+  "currentVersion": "1.0.0-rc.1",
+  "checks": [
+    "real NSIS installation",
+    "empty first launch",
+    "in-place update preserves every item/9 subjects/4 groups/54 statuses",
+    "task edit/complete",
+    "minimized timer",
+    "real ZIP backup/restore with native dialog responses supplied by test",
+    "real process restart"
+  ],
+  "osNotifications": "not_tested_by_this_script",
+  "nativeDPI": "not_tested_by_this_script"
+}

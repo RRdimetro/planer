@@ -1,0 +1,21 @@
+{
+  "platform": "win32",
+  "os": "10.0.20348",
+  "version": "1.0.0-rc.1",
+  "requestedNativeScale": 1,
+  "passed": false,
+  "notifications": "not_confirmed",
+  "nativeDPI": "passed",
+  "native": {
+    "scale": 1,
+    "forcedScale": false,
+    "handle": "1049146",
+    "appVersion": "1.0.0-rc.1",
+    "electron": "39.8.10",
+    "abi": "140",
+    "windowDPI": 96
+  },
+  "sqliteIntegrity": "ok",
+  "notificationAPI": "show_event",
+  "visibleToastMatches": 0
+}

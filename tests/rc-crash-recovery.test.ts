@@ -3,6 +3,7 @@ import { Store } from "../packages/database";
 import { newItem } from "../packages/core";
 import {
   mkdtempSync,
+  mkdirSync,
   writeFileSync,
   rmSync,
   existsSync,
@@ -24,6 +25,7 @@ test("RC: actual process death during a spilled uncommitted WAL transaction pres
     db.command({ type: "importStudy" });
     const before = db.state();
     db.close();
+    mkdirSync(join(process.cwd(), "release"), { recursive: true });
     const worker = join(process.cwd(), "release/rc-crash-worker.cjs");
     writeFileSync(
       worker,

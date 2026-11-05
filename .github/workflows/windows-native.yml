@@ -1,0 +1,99 @@
+name: Interactive Windows native acceptance
+on:
+  workflow_dispatch:
+    inputs:
+      scale:
+        description: Actual Windows display scale (set in Windows before dispatch)
+        required: true
+        type: choice
+        options: ['1', '1.25', '1.5']
+      installed_exe:
+        description: Full path to installed FOCUS OS PRO.exe from Windows CI Setup
+        required: true
+        type: string
+      core_run:
+        description: Run containing actual install/upgrade/portable evidence
+        required: true
+        default: '41991402257'
+        type: string
+      finalize:
+        description: Evaluate complete gate (use on final 150 percent run)
+        type: boolean
+        default: false
+      evidence_100_run:
+        description: Successful native 100 percent run ID (for finalize)
+        type: string
+      evidence_125_run:
+        description: Successful native 125 percent run ID (for finalize)
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  native:
+    runs-on: [self-hosted, Windows, X64, focus-interactive]
+    timeout-minutes: 20
+    env:
+      FOCUS_CURRENT_EXE: ${{ inputs.installed_exe }}
+      FOCUS_EXPECTED_NATIVE_SCALE: ${{ inputs.scale }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.20.0
+      - run: pnpm install --frozen-lockfile
+      - name: Actual native scale and visible notification
+        run: node scripts/rc-windows-platform.mjs
+      - uses: actions/download-artifact@v4
+        if: inputs.finalize
+        with:
+          name: FOCUS-OS-PRO-Windows-results
+          run-id: ${{ inputs.core_run }}
+          github-token: ${{ github.token }}
+          path: release/core-evidence
+      - uses: actions/download-artifact@v4
+        if: inputs.finalize
+        with:
+          name: native-platform-1
+          run-id: ${{ inputs.evidence_100_run }}
+          github-token: ${{ github.token }}
+          path: release/native-100
+      - uses: actions/download-artifact@v4
+        if: inputs.finalize
+        with:
+          name: native-platform-1.25
+          run-id: ${{ inputs.evidence_125_run }}
+          github-token: ${{ github.token }}
+          path: release/native-125
+      - name: Evaluate real evidence without changing results
+        if: inputs.finalize
+        shell: pwsh
+        run: |
+          if ($env:FOCUS_EXPECTED_NATIVE_SCALE -ne '1.5') { throw 'Finalize on the 150 percent run' }
+          $target = 'docs/reports/1.0-rc/windows'
+          foreach ($version in @('0.2.0','0.3.0')) {
+            New-Item -ItemType Directory -Force "$target/upgrade-$version" | Out-Null
+            Copy-Item "release/core-evidence/docs/reports/1.0-rc/windows/upgrade-$version/result.json" "$target/upgrade-$version/result.json"
+          }
+          Copy-Item 'release/core-evidence/docs/reports/1.0-rc/windows/portable.json' "$target/portable.json"
+          Copy-Item 'release/native-100/native-platform-1.json' "$target/native-platform-1.json"
+          Copy-Item 'release/native-125/native-platform-1.25.json' "$target/native-platform-1.25.json"
+          node scripts/rc-acceptance-gate.mjs --require-stable
+          if ($LASTEXITCODE -ne 0) { throw 'Windows acceptance gate remains blocked' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-platform-${{ inputs.scale }}
+          path: |
+            docs/reports/1.0-rc/windows/native-platform-${{ inputs.scale }}.json
+            docs/reports/1.0-rc/windows/native-scale-${{ inputs.scale }}.png
+      - uses: actions/upload-artifact@v4
+        if: always() && inputs.finalize
+        with:
+          name: complete-native-gate
+          path: |
+            docs/reports/1.0-rc/windows/
+            docs/reports/1.0-rc/M5/acceptance-gate.json

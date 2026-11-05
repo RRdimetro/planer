@@ -19,8 +19,10 @@ checks.portable =
   !!portable?.passed &&
   portable.platform === "win32" &&
   portable.version === version;
+const payloads = [];
 for (const scale of [1, 1.25, 1.5]) {
   const r = read(`native-platform-${scale}.json`);
+  payloads.push(r?.appPayloadSha256);
   checks["nativeDPI" + scale] =
     !!r?.passed &&
     r.platform === "win32" &&
@@ -28,6 +30,9 @@ for (const scale of [1, 1.25, 1.5]) {
     r.nativeDPI === "passed" &&
     r.notifications === "observed_native_toast";
 }
+checks.sameInstalledPayload =
+  payloads.every((p) => typeof p === "string" && /^[a-f0-9]{64}$/.test(p)) &&
+  new Set(payloads).size === 1;
 const report = {
   version,
   stableAccepted: Object.values(checks).every(Boolean),

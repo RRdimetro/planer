@@ -1,6 +1,7 @@
 // Native Windows evidence only. Electron zoom/force-device-scale-factor cannot satisfy DPI checks.
 import { _electron as electron, expect } from "@playwright/test";
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import os from "node:os";
 import { spawnSync } from "node:child_process";
@@ -28,6 +29,13 @@ const report = {
   platform: process.platform,
   os: os.release(),
   version,
+  appPayloadSha256: createHash("sha256")
+    .update(
+      fs.readFileSync(
+        path.join(path.dirname(executable), "resources/app.asar"),
+      ),
+    )
+    .digest("hex"),
   requestedNativeScale: scale,
   passed: false,
   notifications: "not_confirmed",

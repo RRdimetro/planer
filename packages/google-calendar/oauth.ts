@@ -50,7 +50,8 @@ export class DesktopOAuth {
       });
       const timer=setTimeout(()=>done(new CalendarError("cancelled")),180000);
       const done=(error:Error|null,value?:string)=>{
-        if(finished)return;finished=true;clearTimeout(timer);this.cancelPending=null;server.close();server.closeAllConnections();error?reject(error):resolve(value!);
+        if(finished)return;finished=true;clearTimeout(timer);this.cancelPending=null;server.close();server.closeAllConnections();
+        if(error) reject(error); else resolve(value!);
       };
       this.cancelPending=()=>done(new CalendarError("cancelled"));
       server.on("error",()=>done(new CalendarError("network")));

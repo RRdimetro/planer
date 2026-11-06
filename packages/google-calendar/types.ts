@@ -53,7 +53,7 @@ export type CalendarAction =
 export interface DatabaseLike {
   prepare(sql: string): any;
   exec(sql: string): unknown;
-  transaction<T extends (...args: any[]) => any>(fn: T): (...args: Parameters<T>) => ReturnType<T>;
+  transaction(fn: () => void): () => void;
 }
 export const messages: Record<string, string> = {
   network: "Нет связи с Google. Сохранённое расписание доступно офлайн.",

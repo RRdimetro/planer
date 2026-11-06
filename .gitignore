@@ -4,3 +4,11 @@ dist-electron/
 release/
 *.db*
 .test-data/
+
+# Local Google OAuth credentials must never be committed.
+**/client_secret_*.json
+**/*oauth-client*.json
+**/*.vault
+**/*.vault.*.tmp
+**/google-calendar-tokens*
+.calendar-test*

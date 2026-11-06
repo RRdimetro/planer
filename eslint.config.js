@@ -2,6 +2,7 @@ import js from "@eslint/js";
 import ts from "typescript-eslint";
 export default ts.config(
   { ignores: ["dist/**", "dist-electron/**", "node_modules/**", "release/**"] },
+  { files: ["tests/google-calendar.node-check.mjs"], languageOptions: { globals: { fetch: "readonly", Response: "readonly", structuredClone: "readonly" } } },
   js.configs.recommended,
   ...ts.configs.recommended,
   {
@@ -26,3 +27,4 @@ export default ts.config(
     },
   },
 );
+

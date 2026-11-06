@@ -54,7 +54,7 @@ test("v1 → v2 copy preflight preserves every legacy record, settings, study st
   const history = old.db.prepare("SELECT count(*) n FROM change_log").get();
   old.close();
   let db = new Store(file);
-  expect(db.state().diagnostics.version).toBe(5);
+  expect(db.state().diagnostics.version).toBe(6);
   expect(db.db.pragma("foreign_key_check")).toEqual([]);
   expect(db.state().subjects).toHaveLength(9);
   expect(db.state().groups.flatMap((g) => g.values.flat())).toHaveLength(54);

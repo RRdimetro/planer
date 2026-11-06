@@ -1,4 +1,5 @@
 import { Timeline, CalendarEvent } from "../design/domain";
+import { externalCalendarInfo, isExternalCalendarItem } from "../../../../packages/google-calendar/view";
 import { calendarLanes, freeWindows } from "../../../../packages/core/calendar";
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import {
@@ -147,7 +148,7 @@ export function Planner({
     const item = occupied.find(
       (i) => i.id === e.dataTransfer.getData("text/plain"),
     );
-    if (item)
+    if (item && !isExternalCalendarItem(item))
       void save({
         ...item,
         date: day,
@@ -557,7 +558,7 @@ export function Planner({
                       .slice(0, 3)
                       .map((t) => (
                         <button
-                          draggable
+                          draggable={!isExternalCalendarItem(t)}
                           onDragStart={(e) =>
                             e.dataTransfer.setData("text/plain", t.id)
                           }
@@ -566,11 +567,11 @@ export function Planner({
                             "month-event " +
                             (t.kind === "workout"
                               ? "workout"
-                              : t.category || t.kind)
+                              : t.category || t.kind) + (isExternalCalendarItem(t) ? " google-calendar" : "")
                           }
                           key={t.id}
                         >
-                          {t.time && <small>{t.time}</small>} {t.title}
+                          {t.time && <small>{t.time}</small>} {isExternalCalendarItem(t) && "🎓 "}{t.title}
                         </button>
                       ))}
                     {dayItems(d).length > 3 && (
@@ -771,9 +772,9 @@ export function Planner({
                                   ((to - from) * 64) / 60 - 3,
                                 ),
                               }}
-                              draggable
+                              draggable={!isExternalCalendarItem(i)}
                               onDragStart={(e) => {
-                                if (resize.current) {
+                                if (resize.current || isExternalCalendarItem(i)) {
                                   e.preventDefault();
                                   return;
                                 }
@@ -791,9 +792,10 @@ export function Planner({
                                 }}
                               >
                                 <span title={i.title}>
+                                  {isExternalCalendarItem(i) && (externalCalendarInfo(i)?.virtual ? "↔ " : "🎓 ")}
                                   {lane.columns > 1 ? "⚠ " : ""}
                                   {i.title}
-                                  {s.eventOccurrences?.some(
+                                  {externalCalendarInfo(i)?.recurringEventId || s.eventOccurrences?.some(
                                     (o) => o.eventId === i.id,
                                   )
                                     ? " ↻"
@@ -806,9 +808,10 @@ export function Planner({
                               <div
                                 className="event-resize"
                                 role="button"
-                                tabIndex={0}
+                                tabIndex={isExternalCalendarItem(i) ? -1 : 0}
                                 aria-label={"Изменить длительность " + i.title}
                                 onPointerDown={(e) => {
+                                  if(isExternalCalendarItem(i)) return;
                                   e.preventDefault();
                                   e.stopPropagation();
                                   e.currentTarget.setPointerCapture(
@@ -1040,3 +1043,4 @@ export function Planner({
     </>
   );
 }
+

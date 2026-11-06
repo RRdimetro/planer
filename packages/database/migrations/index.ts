@@ -6,6 +6,7 @@ import { sql as planningSQL } from "./0003_planning";
 import { sql as studySQL } from "./0005_study_bindings";
 import { sql as obsidianSQL } from "./0004_obsidian";
 import { NormalizedRepository } from "../normalized";
+import { calendarSQL } from "../../google-calendar/repository.ts";
 function canonical(x: any): string {
   if (Array.isArray(x)) return "[" + x.map(canonical).join(",") + "]";
   if (x && typeof x === "object")
@@ -132,6 +133,14 @@ export function upgrade(db: Database.Database) {
     if (current < 3) applyV3(db);
     if (current < 4) applyV4(db);
     if (current < 5) applyV5(db);
+    if (current < 6) {
+      const repository = new NormalizedRepository(db);
+      const before = canonical(repository.records());
+      db.exec(calendarSQL);
+      if (canonical(repository.records()) !== before || (db.pragma("foreign_key_check") as unknown[]).length)
+        throw Error("Миграция Google Calendar не сохранила исходные данные");
+      db.prepare("INSERT INTO schema_migrations VALUES(6,?)").run(new Date().toISOString());
+    }
   })();
 }
 export function migrate(db: Database.Database, path: string) {
@@ -140,8 +149,8 @@ export function migrate(db: Database.Database, path: string) {
       v: number;
     }
   ).v;
-  if (current > 5) throw Error("База создана более новой версией приложения");
-  if (current === 5) return null;
+  if (current > 6) throw Error("База создана более новой версией приложения");
+  if (current === 6) return null;
   let backupPath: string | null = null;
   if (path !== ":memory:") {
     const stamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -156,6 +165,8 @@ export function migrate(db: Database.Database, path: string) {
       upgrade(copy);
       if (copy.pragma("integrity_check", { simple: true }) !== "ok")
         throw Error("Копия не прошла integrity_check");
+      if ((copy.pragma("foreign_key_check") as unknown[]).length)
+        throw Error("Копия не прошла проверку внешних ключей");
     } finally {
       copy.close();
     }
@@ -179,3 +190,4 @@ export function migrate(db: Database.Database, path: string) {
   upgrade(db);
   return backupPath;
 }
+

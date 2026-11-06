@@ -16,7 +16,14 @@ import {
   Notification,
   shell,
   powerMonitor,
+  safeStorage,
 } from "electron";
+import { createHash } from "node:crypto";
+import { CalendarRepository } from "../../../../packages/google-calendar/repository.ts";
+import { GoogleCalendarService } from "../../../../packages/google-calendar/service.ts";
+import { DesktopOAuth, parseDesktopClient } from "../../../../packages/google-calendar/oauth.ts";
+import { WindowsTokenVault } from "../../../../packages/google-calendar/vault.ts";
+import { calendarError } from "../../../../packages/google-calendar/types.ts";
 import path from "node:path";
 import { z } from "zod";
 import { spawn } from "node:child_process";
@@ -43,8 +50,13 @@ app.setPath(
   process.env.FOCUS_DATA_DIR ??
     path.join(app.getPath("appData"), preview.directory),
 );
+let googleCalendar: GoogleCalendarService | undefined;
+let googleCalendarTimer: NodeJS.Timeout | undefined;
+const externalItems = (state: State) => googleCalendar?.projected(String(state.settings.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone)) ?? [];
 const marked = (state: State, notice?: string): State => ({
   ...state,
+  items: [...state.items, ...externalItems(state)],
+  googleCalendar: googleCalendar?.status(),
   diagnostics: {
     ...state.diagnostics,
     ...(notice ? { notice } : {}),
@@ -76,6 +88,14 @@ app.on("second-instance", () => {
         preview.empty,
       );
     store = new Store(path.join(app.getPath("userData"), "focus.db"));
+    const credentialsId = createHash("sha256").update(path.resolve(app.getPath("userData")).toLowerCase()).digest("hex");
+    const vault = new WindowsTokenVault(path.join(app.getPath("appData"), "FOCUS OS PRO Credentials", `${credentialsId}.vault`), safeStorage);
+    googleCalendar = new GoogleCalendarService(new CalendarRepository(store.db), vault, new DesktopOAuth((url) => shell.openExternal(url)));
+    store.externalItems = () => externalItems(store.state());
+    if (!isDemo) {
+      googleCalendarTimer = setInterval(() => void googleCalendar?.tick(), 60000);
+      void googleCalendar.tick();
+    }
     if (isDemo && !preview.empty) seedDesignPreview(store, "demo");
     if (preview.empty && !store.state().settings.onboarded)
       store.setting("onboarded", true);
@@ -149,6 +169,31 @@ app.on("second-instance", () => {
       if (event.sender !== win.webContents) throw Error("Доступ запрещён");
       return marked(store.state());
     });
+    ipcMain.handle("focus:calendar", async (event, input) => {
+      if (event.sender !== win.webContents || event.senderFrame !== win.webContents.mainFrame)
+        throw Error("Доступ запрещён");
+      if (isDemo) throw Error("Google Calendar подключается только в рабочем пространстве.");
+      const action = z.discriminatedUnion("action", [
+        z.object({action:z.literal("importClient")}), z.object({action:z.literal("connect")}),
+        z.object({action:z.literal("sync")}), z.object({action:z.literal("disconnect")}),
+        z.object({action:z.literal("choose"),calendarId:z.string().min(1).max(4096)}),
+        z.object({action:z.literal("settings"),commuteBefore:z.number().int().min(0).max(600),commuteAfter:z.number().int().min(0).max(600),intervalMinutes:z.number().int().min(5).max(1440)}),
+      ]).parse(input);
+      try {
+        if(action.action === "importClient") {
+          const result=await dialog.showOpenDialog(win,{title:"OAuth-клиент Google: Desktop app",properties:["openFile"],filters:[{name:"Google OAuth Desktop JSON",extensions:["json"]}]});
+          if(result.filePaths[0]) {
+            if(fs.statSync(result.filePaths[0]).size>64*1024)throw Error();
+            googleCalendar!.setClient(parseDesktopClient(fs.readFileSync(result.filePaths[0],"utf8")));
+          }
+        } else if(action.action === "connect") await googleCalendar!.connect();
+        else if(action.action === "choose") await googleCalendar!.choose(action.calendarId);
+        else if(action.action === "sync") await googleCalendar!.sync();
+        else if(action.action === "disconnect") googleCalendar!.disconnect();
+        else googleCalendar!.configure(action);
+        return marked(store.state());
+      } catch(error) { throw Error(calendarError(error).message); }
+    });
     ipcMain.handle("focus:history", (event, input) => {
       if (event.sender !== win.webContents) throw Error("Доступ запрещён");
       const id = z.string().uuid().parse(input);
@@ -207,6 +252,11 @@ app.on("second-instance", () => {
     ipcMain.handle("focus:command", async (event, input) => {
       if (event.sender !== win.webContents) throw Error("Доступ запрещён");
       const c = commandSchema.parse(input);
+      const protectedIds = new Set(externalItems(store.state()).map(i => i.id));
+      const referencesProtected = (value: unknown): boolean => typeof value === "string" ? protectedIds.has(value)
+        : Array.isArray(value) ? value.some(referencesProtected)
+        : value !== null && typeof value === "object" ? Object.values(value).some(referencesProtected) : false;
+      if (referencesProtected(c)) throw Error("Расписание Google и виртуальная дорога доступны только для чтения. Измените событие в Google Calendar.");
       try {
         if (c.type === "workspace") {
           const args = app.isPackaged
@@ -387,6 +437,7 @@ app.on("second-instance", () => {
                 isDemo ? "demo" : "user",
               );
               restoreArchive(store, zip, isDemo ? "demo" : "user");
+              googleCalendar?.disconnect();
               return marked(store.state(), "Данные восстановлены из копии");
             }
           }
@@ -573,7 +624,10 @@ app.on("second-instance", () => {
   });
 app.on("window-all-closed", () => app.quit());
 app.on("will-quit", () => {
+  clearInterval(googleCalendarTimer);
+  googleCalendar?.close();
   clearInterval(timer);
   clearInterval(background);
   store?.close();
 });
+

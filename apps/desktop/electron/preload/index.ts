@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
 import type { API } from "../../../../packages/contracts";
 const api: API = {
+  calendar: (action) => ipcRenderer.invoke("focus:calendar", action),
   revision: (id) => ipcRenderer.invoke("focus:revision", id),
   history: (id) => ipcRenderer.invoke("focus:history", id),
   readImage: (id) => ipcRenderer.invoke("focus:image", id),
@@ -23,3 +24,4 @@ const api: API = {
   command: (c) => ipcRenderer.invoke("focus:command", c),
 };
 contextBridge.exposeInMainWorld("focusAPI", api);
+

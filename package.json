@@ -1,6 +1,6 @@
 {
   "name": "focus-os-pro",
-  "version": "1.0.0-rc.1",
+  "version": "1.1.0-calendar.1",
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.20.0",
@@ -24,7 +24,9 @@
     "test:forest": "node scripts/forest-v4-e2e.mjs",
     "test:forest:visual": "node scripts/forest-v4-visual.mjs",
     "test:obsidian": "node scripts/obsidian-core-e2e.mjs && node scripts/obsidian-workspaces-e2e.mjs && node scripts/obsidian-lifestyle-e2e.mjs && node scripts/obsidian-fitness-e2e.mjs && node scripts/obsidian-insights-e2e.mjs && node scripts/obsidian-desktop-e2e.mjs && node scripts/obsidian-calendar-e2e.mjs && node scripts/obsidian-bound-study-e2e.mjs && node scripts/obsidian-notes-queue-e2e.mjs",
-    "test:rc": "node scripts/obsidian-core-e2e.mjs && node scripts/obsidian-workspaces-e2e.mjs && node scripts/obsidian-lifestyle-e2e.mjs && node scripts/obsidian-fitness-e2e.mjs && node scripts/obsidian-insights-e2e.mjs && node scripts/obsidian-desktop-e2e.mjs && node scripts/obsidian-calendar-e2e.mjs && node scripts/obsidian-bound-study-e2e.mjs && node scripts/obsidian-notes-queue-e2e.mjs && node scripts/rc-ux-e2e.mjs"
+    "test:rc": "node scripts/obsidian-core-e2e.mjs && node scripts/obsidian-workspaces-e2e.mjs && node scripts/obsidian-lifestyle-e2e.mjs && node scripts/obsidian-fitness-e2e.mjs && node scripts/obsidian-insights-e2e.mjs && node scripts/obsidian-desktop-e2e.mjs && node scripts/obsidian-calendar-e2e.mjs && node scripts/obsidian-bound-study-e2e.mjs && node scripts/obsidian-notes-queue-e2e.mjs && node scripts/rc-ux-e2e.mjs",
+    "test:google-calendar": "node --experimental-transform-types --test tests/google-calendar.node-check.mjs",
+    "test:google-calendar:windows": "node scripts/google-calendar-windows.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

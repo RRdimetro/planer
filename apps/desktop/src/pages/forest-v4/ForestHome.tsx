@@ -1,4 +1,5 @@
 import { projectMetrics } from "../../../../../packages/analytics/projects";
+import { externalCalendarInfo, isExternalCalendarItem } from "../../../../../packages/google-calendar/view";
 import { BentoPanel as Panel } from "../../design/components";
 import { useState, useId, cloneElement, type ReactElement } from "react";
 import {
@@ -383,13 +384,13 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
           {d.timeline.map((item) => (
             <button
               key={item.id}
-              className={`fn-agenda-item fn-kind-${item.kind === "event" ? item.category : item.kind}`}
+              className={`fn-agenda-item fn-kind-${item.kind === "event" ? item.category : item.kind}${isExternalCalendarItem(item) ? " google-calendar" : ""}`}
               onClick={() => edit(item)}
             >
-              <time>{item.time}</time>
+              <time>{externalCalendarInfo(item)?.allDay ? "Весь день" : item.time}</time>
               <i />
               <span>
-                <strong>{item.title}</strong>
+                <strong>{isExternalCalendarItem(item) && (externalCalendarInfo(item)?.virtual ? "↔ " : "🎓 ")}{item.title}</strong>
                 <small>
                   {item.estimate} мин ·{" "}
                   {item.kind === "workout"
@@ -1060,3 +1061,4 @@ export function ForestHome({ s, command, go, edit, concept }: Props) {
     </motion.div>
   );
 }
+

@@ -63,6 +63,8 @@ import type {
 } from "../../../../packages/contracts";
 import { newItem, conflicts } from "../../../../packages/core";
 import { ItemForm } from "../features/ItemForm";
+import { GoogleCalendarDetails } from "../features/GoogleCalendarIntegration";
+import { isExternalCalendarItem } from "../../../../packages/google-calendar/view";
 import { Modal } from "../shared/ui";
 import "../shared/theme.css";
 import "../shared/features.css";
@@ -205,6 +207,7 @@ function App() {
   const collapsed =
     s.settings.collapsed === undefined ? true : !!s.settings.collapsed;
   const save = async (i: Item, details?: TaskDetails) => {
+    if (isExternalCalendarItem(i)) { setEditing(i); return; }
     if (
       conflicts(
         i,
@@ -224,6 +227,7 @@ function App() {
     if (page === 0) inform("Изменения сохранены");
   };
   const remove = async (i: Item) => {
+    if (isExternalCalendarItem(i)) { setEditing(i); return; }
     if (
       window.confirm(
         i.kind === "project"
@@ -233,7 +237,9 @@ function App() {
     )
       await command({ type: "remove", id: i.id });
   };
-  const card = (i: Item) => (
+  const card = (i: Item) => isExternalCalendarItem(i) ? (
+    <button key={i.id} className="gcal-readonly" onClick={() => setEditing(i)}>🎓 {i.title}</button>
+  ) : (
     <TaskCard
       item={i}
       key={i.id}
@@ -389,7 +395,9 @@ function App() {
         </footer>
       </div>
       <Suspense fallback={<p role="status">Открываем редактор…</p>}>
-        {editing?.kind === "workout" ? (
+        {editing && isExternalCalendarItem(editing) ? (
+          <GoogleCalendarDetails item={editing} onClose={() => setEditing(null)} />
+        ) : editing?.kind === "workout" ? (
           <WorkoutForm
             item={editing}
             s={s}
@@ -477,3 +485,4 @@ createRoot(document.getElementById("root")!).render(
     </QueryClientProvider>
   </React.StrictMode>,
 );
+

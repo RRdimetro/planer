@@ -1,3 +1,4 @@
+import { externalCalendarInfo } from "../google-calendar/view";
 import type { State } from "../contracts";
 import {
   addDays,
@@ -48,9 +49,9 @@ export function dashboardData(s: State, now = new Date()) {
       (i) =>
         ["task", "event", "workout"].includes(i.kind) &&
         i.date === today &&
-        i.time,
+        (i.time || externalCalendarInfo(i)?.allDay),
     )
-    .sort((a, b) => a.time!.localeCompare(b.time!));
+    .sort((a, b) => (a.time??"").localeCompare(b.time??""));
   const pending = todayTasks
     .filter((t) => t.status !== "done")
     .sort((a, b) => b.priority - a.priority);
@@ -91,3 +92,4 @@ export function dashboardData(s: State, now = new Date()) {
     workoutMinutes: finishedWorkouts.reduce((n, w) => n + w.duration, 0),
   };
 }
+

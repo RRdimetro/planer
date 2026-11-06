@@ -79,7 +79,7 @@ try {
   await launch();
   expect(await app.evaluate(({ app }) => app.getVersion())).toBe("0.3.0");
   let state = await page.evaluate(() => window.focusAPI.state());
-  expect(state.diagnostics.version).toBe(5);
+  expect(state.diagnostics.version).toBe(6);
   expect(state.items).toEqual(original.items);
   expect(state.subjects).toEqual(original.subjects);
   expect(state.groups).toEqual(original.groups);

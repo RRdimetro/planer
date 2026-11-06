@@ -25,6 +25,7 @@ import {
   type Item,
 } from "../contracts";
 export class Store {
+  externalItems: () => Item[] = () => [];
   readonly db: Database.Database;
   readonly orm;
   private undoStack: { snapshot: string; action: string }[] = [];
@@ -146,7 +147,7 @@ export class Store {
           .map((r) => [r.key, JSON.parse(r.payload)]),
       ),
       diagnostics: {
-        version: 5,
+        version: 6,
         integrity: String(this.db.pragma("quick_check", { simple: true })),
       },
     };
@@ -588,7 +589,7 @@ export class Store {
           if (state.revision !== c.expectedRevision)
             throw Error("Данные изменились. Постройте предпросмотр заново.");
           const ids = new Set(c.items.map((i) => i.id));
-          const occupied = state.items.filter(
+          const occupied = [...state.items, ...this.externalItems()].filter(
             (i) =>
               ["task", "event", "workout"].includes(i.kind) && !ids.has(i.id),
           );
@@ -988,3 +989,4 @@ export function seedStudy(store: Store) {
     });
   store.setting("onboarded", true);
 }
+

@@ -1,6 +1,7 @@
 import type { Command } from "../../../../packages/contracts";
 import type { PageProps } from "../shared/model";
 import { pages } from "../shared/navigation";
+import { GoogleCalendarIntegration } from "../features/GoogleCalendarIntegration";
 export function Preferences({ s, command }: PageProps) {
   const set = (
     key: Extract<Command, { type: "settings" }>["key"],
@@ -8,6 +9,7 @@ export function Preferences({ s, command }: PageProps) {
   ) => void command({ type: "settings", key, value });
   return (
     <div className="settingsgrid">
+      <GoogleCalendarIntegration s={s} />
       <section>
         <span className="eyebrow">APPEARANCE / ВАШЕ ПРОСТРАНСТВО</span>
         <h3>Внешний вид и пространство</h3>
@@ -335,3 +337,4 @@ export function Preferences({ s, command }: PageProps) {
     </div>
   );
 }
+

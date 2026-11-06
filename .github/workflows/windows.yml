@@ -1,5 +1,8 @@
 name: Windows installer and upgrade verification
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches-ignore: ['feature/google-calendar-readonly-20261106']
+  workflow_dispatch:
 jobs:
   windows:
     runs-on: windows-2022

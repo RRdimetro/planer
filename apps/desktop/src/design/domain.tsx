@@ -1,5 +1,6 @@
 import { forwardRef, type HTMLAttributes } from "react";
 import type { Item } from "../../../../packages/contracts";
+import { isExternalCalendarItem } from "../../../../packages/google-calendar/view";
 type CardProps = HTMLAttributes<HTMLElement> & { item: Item };
 /** Domain surfaces share identity, accessible labelling and transition feedback. */
 export function TaskCard({ item, className = "", ...props }: CardProps) {
@@ -45,12 +46,14 @@ export const Timeline = forwardRef<
     />
   );
 });
-export function CalendarEvent({ item, ...props }: CardProps) {
+export function CalendarEvent({ item, className="", ...props }: CardProps) {
   return (
     <div
       {...props}
       data-entity={item.id}
+      className={`${className}${isExternalCalendarItem(item) ? " google-calendar" : ""}`}
       aria-label={`${item.title}, ${item.time ?? "без времени"}`}
     />
   );
 }
+

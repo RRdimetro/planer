@@ -1,0 +1,13 @@
+import { Store } from "../packages/database";
+import { CalendarRepository } from "../packages/google-calendar/repository";
+import { newItem, dateInZone } from "../packages/core";
+const store=new Store(process.argv[2]);
+store.command({type:"settings",key:"onboarded",value:true});
+store.command({type:"settings",key:"timezone",value:"Europe/Moscow"});
+store.command({type:"save",item:newItem("task","TEST_ONLY preserved task")});
+store.command({type:"subject",subject:{id:crypto.randomUUID(),name:"TEST_ONLY subject",rkDone:1,rkTotal:2,hwDone:0,hwTotal:1,exam:null,grade:null}});
+const repo=new CalendarRepository(store.db),today=dateInZone("Europe/Moscow");
+repo.select({id:"TEST_ONLY_CALENDAR",summary:"расписание Дима",timeZone:"Europe/Moscow"});
+const events=[{id:"TEST_ONLY_EVENT",summary:"TEST_ONLY university class",description:"TEST_ONLY source description",location:"TEST_ONLY source location",start:{dateTime:today+"T10:00:00+03:00",timeZone:"Europe/Moscow"},end:{dateTime:today+"T11:30:00+03:00",timeZone:"Europe/Moscow"},recurringEventId:"TEST_ONLY_SERIES",originalStartTime:{dateTime:today+"T10:00:00+03:00"}}];
+repo.commit({generation:repo.settings().generation,calendarId:"TEST_ONLY_CALENDAR",full:true,events,occurrences:events,syncToken:"TEST_ONLY_SYNC",windowStart:today+"T00:00:00Z",windowEnd:today+"T23:59:59Z",now:new Date().toISOString()});
+repo.disconnect();store.close();

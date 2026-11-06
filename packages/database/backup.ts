@@ -1,6 +1,8 @@
 import AdmZip from "adm-zip";
 import { createHash } from "node:crypto";
 import type { Store } from "./index";
+import { CalendarRepository } from "../google-calendar/repository.ts";
+import { projectCalendarEvents } from "../google-calendar/projection.ts";
 const digest = (data: string | Buffer) =>
   createHash("sha256").update(data).digest("hex");
 export function backupArchive(
@@ -12,11 +14,12 @@ export function backupArchive(
     store.db.prepare("SELECT * FROM change_log ORDER BY id").all(),
   );
   const sqlite = store.db.serialize();
+  const googleCalendar = JSON.stringify(new CalendarRepository(store.db).exportCache());
   if (
-    [Buffer.byteLength(data), Buffer.byteLength(history), sqlite.length].some(
+    [Buffer.byteLength(data), Buffer.byteLength(history), sqlite.length, Buffer.byteLength(googleCalendar)].some(
       (n) => n > 512 * 1024 * 1024,
     ) ||
-    Buffer.byteLength(data) + Buffer.byteLength(history) + sqlite.length >
+    Buffer.byteLength(data) + Buffer.byteLength(history) + sqlite.length + Buffer.byteLength(googleCalendar) >
       1024 * 1024 * 1024
   )
     throw Error(
@@ -28,7 +31,8 @@ export function backupArchive(
     Buffer.from(
       JSON.stringify({
         app: "FOCUS OS PRO",
-        schema: 5,
+        schema: 6,
+        googleCalendarSha256: digest(googleCalendar),
         workspace,
         createdAt: new Date().toISOString(),
         sha256: digest(data),
@@ -40,6 +44,7 @@ export function backupArchive(
   zip.addFile("data.json", Buffer.from(data));
   zip.addFile("history.json", Buffer.from(history));
   zip.addFile("focus.sqlite", sqlite);
+  zip.addFile("google-calendar.json", Buffer.from(googleCalendar));
   return zip;
 }
 export function restoreArchive(
@@ -60,7 +65,7 @@ export function restoreArchive(
   const data = zip.readAsText("data.json");
   const historyText = zip.readAsText("history.json");
   if (
-    ![1, 2, 3, 4, 5].includes(m.schema) ||
+    ![1, 2, 3, 4, 5, 6].includes(m.schema) ||
     m.app !== "FOCUS OS PRO" ||
     digest(data) !== m.sha256 ||
     digest(historyText) !== m.historySha256
@@ -72,10 +77,19 @@ export function restoreArchive(
   )
     throw Error("Повреждён SQLite-компонент архива");
   const history = JSON.parse(historyText);
+  const calendarText = m.schema === 6 ? zip.readAsText("google-calendar.json") : null;
+  if (calendarText !== null && (!m.googleCalendarSha256 || digest(calendarText) !== m.googleCalendarSha256))
+    throw Error("Повреждён кэш Google Calendar");
   if (!Array.isArray(history) || history.length > 100000)
     throw Error("Повреждена история");
   store.db.transaction(() => {
     store.restore(data);
+    if(calendarText !== null) {
+      const repo=new CalendarRepository(store.db);
+      repo.restoreCache(JSON.parse(calendarText));
+      const cfg=repo.settings();
+      if(cfg.calendar) projectCalendarEvents(repo.occurrences(cfg.calendar.id),cfg.calendar,cfg.calendar.timeZone,0,0);
+    }
     store.db.exec("DELETE FROM change_log");
     for (const r of history) {
       if (typeof r.at !== "string" || typeof r.action !== "string")
@@ -89,3 +103,4 @@ export function restoreArchive(
   })();
   store.resetUndo();
 }
+

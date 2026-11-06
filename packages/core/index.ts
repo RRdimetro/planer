@@ -1,4 +1,5 @@
 import type { Item, TaskDetails, PlanningConstraint } from "../contracts";
+import { externalCalendarInfo } from "../google-calendar/view.ts";
 export function localDate(d = new Date()) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -47,6 +48,10 @@ export function timeLabel(value: number) {
   );
 }
 export function interval(item: Item) {
+  if (item.date && externalCalendarInfo(item)?.allDay) {
+    const start = Date.parse(item.date + "T00:00:00Z") / 60000;
+    return { start, end: start + 1440 };
+  }
   if (!item.date || !item.time) return null;
   const start =
     Date.parse(item.date + "T00:00:00Z") / 60000 + minutes(item.time);
@@ -137,7 +142,7 @@ export function canSchedule(
   )
     return false;
   if (task.due && day > task.due.slice(0, 10)) return false;
-  const busy = occupied.filter((i) => !(lecture(i) && options.lectureWork));
+  const busy = occupied.filter((i) => !(lecture(i) && options.lectureWork && !externalCalendarInfo(i)));
   if (conflicts(task, busy).length) return false;
   for (const c of constraintsFor(day, options.constraints ?? []))
     if (
@@ -322,3 +327,4 @@ export function nextOccurrenceDate(
     next = addDays(date, rule.interval * (rule.frequency === "weekly" ? 7 : 1));
   return rule.until && next > rule.until ? null : next;
 }
+

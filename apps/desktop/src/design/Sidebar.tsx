@@ -75,7 +75,7 @@ export function Sidebar({
         {!collapsed &&
           (s.diagnostics.workspace === "demo"
             ? "Демо · отдельная база"
-            : "Локально · без облака")}
+            : s.googleCalendar?.connected ? "Google Calendar · чтение" : "Локально · без облака")}
         <button
           className="icon"
           aria-label={collapsed ? "Развернуть навигацию" : "Свернуть навигацию"}

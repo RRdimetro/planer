@@ -85,6 +85,7 @@ export interface Session {
   kind?: "work" | "break";
 }
 export interface State {
+  googleCalendar?: import("../google-calendar/types").CalendarStatus;
   studyBindings?: {
     subjectId: string;
     kind: "rk" | "hw";
@@ -324,6 +325,7 @@ export const commandSchema = z.discriminatedUnion("type", [
 ]);
 export type Command = z.infer<typeof commandSchema>;
 export interface API {
+  calendar(action: import("../google-calendar/types").CalendarAction): Promise<State>;
   history(id: string): Promise<
     {
       id: string;
@@ -479,3 +481,4 @@ export function validateSetting(key: string, value: unknown) {
       throw Error("Неизвестная настройка");
   }
 }
+

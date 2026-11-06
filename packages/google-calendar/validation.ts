@@ -60,7 +60,7 @@ export function validateCalendarCache(cache: any, idFor: (key: string) => string
       if (!row || !sourceIds.has(row.calendar_id) || !text(row.event_id, 2048) || !text(row.raw_json, 4 * 1024 * 1024)) fail();
       const key = JSON.stringify([row.calendar_id, row.event_id]);
       if (ids.has(key)) fail(); ids.add(key);
-      let event: GoogleEvent; try { event = validateGoogleEvent(JSON.parse(row.raw_json)); } catch { fail(); }
+      const event = (() => { try { return validateGoogleEvent(JSON.parse(row.raw_json)); } catch { return fail(); } })();
       if (event.id !== row.event_id) fail();
       if (expanded) {
         if (event.status === "cancelled" || row.local_id !== idFor(key) || row.recurring_event_id !== (event.recurringEventId ?? null)) fail();
